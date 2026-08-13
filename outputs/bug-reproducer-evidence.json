@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "status": "FIX_PROVEN",
+  "reason": "The same reproducer changed from failing to passing and broader checks passed.",
+  "reproduction": "confirmed",
+  "full_suite": "passed",
+  "same_command": true,
+  "before": {
+    "schema_version": 1,
+    "label": "reproduced",
+    "captured_at": "2026-08-13T10:45:00+00:00",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "grafik-ui",
+      "--test",
+      "select_interaction"
+    ],
+    "cwd": "/Users/lassevestergaard/Dev/gpui-kit",
+    "runtime": "Rust cargo test on macOS arm64",
+    "duration_ms": 18109.143,
+    "exit_code": 101,
+    "timed_out": false,
+    "stdout": "",
+    "stderr": "running 4 tests\ntest opening_menu_does_not_reflow_surrounding_content ... FAILED\ntest outside_click_closes_select ... FAILED\ntest escape_closes_select ... FAILED\ntest opening_another_select_closes_the_first ... FAILED\n\nopening_menu_does_not_reflow_surrounding_content: sentinel moved from y=104px to y=218px\noutside_click_closes_select: outside click should close the menu\nescape_closes_select: escape should close the menu\nopening_another_select_closes_the_first: the first menu should have closed\n\ntest result: FAILED. 0 passed; 4 failed",
+    "stdout_truncated": false,
+    "stderr_truncated": false,
+    "secrets_redacted": true
+  },
+  "after": {
+    "schema_version": 1,
+    "label": "fixed",
+    "captured_at": "2026-08-13T11:48:39.244623+00:00",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "grafik-ui",
+      "--test",
+      "select_interaction"
+    ],
+    "cwd": "/Users/lassevestergaard/Dev/gpui-kit",
+    "runtime": "Python 3.14.2 on Darwin arm64",
+    "duration_ms": 275.644,
+    "exit_code": 0,
+    "timed_out": false,
+    "stdout": "\nrunning 6 tests\ntest outside_click_closes_select ... ok\ntest opening_menu_does_not_reflow_surrounding_content ... ok\ntest popup_keeps_an_eight_pixel_trigger_gap ... ok\ntest opening_another_select_closes_the_first ... ok\ntest escape_closes_select ... ok\ntest arrows_and_enter_select_an_item ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s\n\n",
+    "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s\nwarning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6\nnote: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 2`\n     Running tests/select_interaction.rs (target/debug/deps/select_interaction-6b7d3a67bee8a3c5)\n",
+    "stdout_truncated": false,
+    "stderr_truncated": false,
+    "secrets_redacted": true
+  }
+}

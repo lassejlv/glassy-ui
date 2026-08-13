@@ -1,4 +1,4 @@
-# GPUI Kit — Plan
+# Grafik — Plan
 
 What to design in Paper and implement in GPUI next. Visual rules: [`DESIGN.md`](./DESIGN.md).
 
@@ -23,6 +23,9 @@ Paper page **and** gallery reconstruction.
 | Select | Selects | Closed: Input chrome + chevron, 280×36. Open: secondary glass list, radius 6. Check on selected. |
 | Kbd | Kbd | Ghost glass chip, 22 tall, 12/500. ⌘K / ⌘Q / Esc. Hint and menu rows. |
 | Separator | Separators | 1px zinc at 12%. Horizontal 280, vertical 36. In-use stack and toolbar. |
+| Skeleton | Skeletons | Secondary glass pulse. Text line 180×12, avatar 32 circle, control 280×36. Reduced motion holds frame one. |
+| Tooltip | Tooltips | Inverse chip, 24 tall, radius 6. 300ms hover delay. Above / Below / Start / End. |
+| Progress | Progress | Linear 280×8 outline track + primary fill. 0 / 40 / 100. Circular 24px ring. |
 
 ---
 
@@ -33,9 +36,6 @@ Designed in Paper. Gallery reconstruction waits until this queue is finished.
 | Component | Paper page | Notes |
 | --- | --- | --- |
 | Badge | Badges | Height 22, radius 6. Default primary, muted ghost, destructive. Counts 3 / 12 / 128. |
-| Tooltip | Tooltips | Inverse chip, 24 tall, radius 6. Delay ~300ms. Above / Below / Start / End. Never under the cursor. |
-| Progress | Progress | Linear 280×8 pill, outline track, primary fill. 0 / 40 / 100. Circular 24px ring. |
-| Skeleton | Skeletons | Secondary glass pulse. Text line 180×12, avatar 32 circle, control 280×36. |
 | Dialog | Dialogs | Radius 10 panel, dim scrim. Title, field, Ghost + Primary. Esc and overlay dismiss. |
 | Alert dialog | Alert dialogs | Same panel. Title is the action. No field. Ghost + Destructive. |
 | Popover | Popovers | Secondary glass, radius 6. Origin at the trigger. Page meta card. |
@@ -70,7 +70,7 @@ Empty. The planned kit is Paper-ready. Gallery is Now.
 
 ## Not unless asked
 
-These are shadcn staples that do not earn a page in a native GPUI kit yet:
+These are shadcn staples that do not earn a page in Grafik yet:
 
 - Carousel, chart, calendar, date picker, OTP, sidebar, drawer/sheet, resizable panels, hover card, toggle group, sonner-as-a-brand.
 
@@ -96,6 +96,6 @@ Each new component:
 
 - One gallery page, 1:1 with Paper
 - Keep scroll, theme toggle (`⌘D`), quit (`⌘Q`)
-- Page switcher stays (Buttons, Spinners, Inputs, Labels, Checkboxes, Switches, Radios, Selects, Kbd, Separator, …)
+- Page switcher stays (Buttons, Skeletons, Tooltips, Progress, Spinners, Inputs, Labels, Checkboxes, Switches, Radios, Selects, Kbd, Separator, …)
 
 Window stays opaque. No frost unless asked.

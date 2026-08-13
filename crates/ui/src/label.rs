@@ -2,8 +2,8 @@ use gpui::{
     div, prelude::*, px, App, FontWeight, IntoElement, RenderOnce, SharedString, StyleRefinement,
     Styled, Window,
 };
-use gpui_kit_motion::StyledSlot;
-use gpui_kit_theme::ActiveTheme;
+use grafik_motion::StyledSlot;
+use grafik_theme::ActiveTheme;
 
 /// 13/500 name that sits above a field. Never inside it.
 #[derive(IntoElement)]

@@ -8,8 +8,8 @@ use gpui::{
     canvas, div, point, px, Animation, AnimationExt as _, App, Bounds, Hsla, IntoElement,
     ParentElement, PathBuilder, Pixels, Point, RenderOnce, StyleRefinement, Styled, Window,
 };
-use gpui_kit_motion::StyledSlot;
-use gpui_kit_theme::{paint, rgb, ActiveTheme, Theme, ThemeKind};
+use grafik_motion::StyledSlot;
+use grafik_theme::{paint, rgb, ActiveTheme, Theme, ThemeKind};
 
 /// Paper sizes: 16 / 20 / 24 / 32.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -218,7 +218,7 @@ fn paint_spinner(
     paint_dot(window, end, cap, arc);
 }
 
-fn paint_ring(
+pub(crate) fn paint_ring(
     window: &mut Window,
     center: Point<Pixels>,
     radius: Pixels,
@@ -247,7 +247,7 @@ fn paint_ring(
     }
 }
 
-fn paint_dot(window: &mut Window, origin: Point<Pixels>, radius: Pixels, color: Hsla) {
+pub(crate) fn paint_dot(window: &mut Window, origin: Point<Pixels>, radius: Pixels, color: Hsla) {
     if radius <= px(0.) {
         return;
     }
@@ -273,7 +273,7 @@ fn paint_dot(window: &mut Window, origin: Point<Pixels>, radius: Pixels, color: 
     }
 }
 
-fn point_on_circle(center: Point<Pixels>, radius: Pixels, angle: f32) -> Point<Pixels> {
+pub(crate) fn point_on_circle(center: Point<Pixels>, radius: Pixels, angle: f32) -> Point<Pixels> {
     point(
         center.x + radius * angle.cos(),
         center.y + radius * angle.sin(),

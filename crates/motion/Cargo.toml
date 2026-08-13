@@ -1,5 +1,5 @@
 [package]
-name = "gpui-kit-motion"
+name = "grafik-motion"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

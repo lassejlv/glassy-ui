@@ -6,20 +6,23 @@ use gpui::{
     KeyBinding, Menu, MenuItem, QuitMode, TitlebarOptions, Window, WindowBackgroundAppearance,
     WindowBounds, WindowOptions,
 };
-use gpui_kit_ui::{
-    init as init_ui, init_motion, init_theme, load_fonts, paint, rgb, textarea, ActiveTheme,
-    Assets, Button, ButtonGroup, ButtonSize, ButtonVariant, CheckState, Checkbox, IconName, Input,
-    Kbd, Label, Radio, Select, SelectItem, Separator, Spinner, SpinnerSize, SpinnerTone, Switch,
-    Theme,
-};
 use gpui_platform::application;
+use grafik_ui::{
+    init as init_ui, init_motion, init_theme, load_fonts, paint, rgb, textarea, ActiveTheme,
+    Assets, Button, ButtonGroup, ButtonSize, ButtonVariant, CheckState, Checkbox, CircularProgress,
+    IconName, Input, Kbd, Label, Progress, Radio, Select, SelectItem, Separator, Skeleton, Spinner,
+    SpinnerSize, SpinnerTone, Switch, Theme, Tooltip,
+};
 
 actions!(
-    gpui_kit_gallery,
+    grafik_gallery,
     [
         Quit,
         ToggleTheme,
         ShowButtons,
+        ShowSkeletons,
+        ShowTooltips,
+        ShowProgress,
         ShowSpinners,
         ShowInputs,
         ShowLabels,
@@ -43,7 +46,7 @@ fn main() {
             init_ui(cx);
             load_fonts(cx).expect("register Inter");
 
-            cx.set_app_identity("dev.gpui-kit.gallery", "GPUI Kit");
+            cx.set_app_identity("dev.grafik.gallery", "Grafik");
             cx.on_action(|_: &Quit, cx| cx.quit());
             cx.on_action(|_: &ToggleTheme, cx| cx.toggle_theme());
             cx.bind_keys([
@@ -53,6 +56,12 @@ fn main() {
                 KeyBinding::new("ctrl-d", ToggleTheme, None),
                 KeyBinding::new("cmd-1", ShowButtons, None),
                 KeyBinding::new("ctrl-1", ShowButtons, None),
+                KeyBinding::new("cmd-0", ShowSkeletons, None),
+                KeyBinding::new("ctrl-0", ShowSkeletons, None),
+                KeyBinding::new("cmd-shift-t", ShowTooltips, None),
+                KeyBinding::new("ctrl-shift-t", ShowTooltips, None),
+                KeyBinding::new("cmd-shift-0", ShowProgress, None),
+                KeyBinding::new("ctrl-shift-0", ShowProgress, None),
                 KeyBinding::new("cmd-2", ShowSpinners, None),
                 KeyBinding::new("ctrl-2", ShowSpinners, None),
                 KeyBinding::new("cmd-3", ShowInputs, None),
@@ -72,8 +81,11 @@ fn main() {
                 KeyBinding::new("cmd-]", ShowNextPage, None),
                 KeyBinding::new("ctrl-]", ShowNextPage, None),
             ]);
-            cx.set_menus([Menu::new("GPUI Kit").items([
+            cx.set_menus([Menu::new("Grafik").items([
                 MenuItem::action("Buttons", ShowButtons),
+                MenuItem::action("Skeletons", ShowSkeletons),
+                MenuItem::action("Tooltips", ShowTooltips),
+                MenuItem::action("Progress", ShowProgress),
                 MenuItem::action("Spinners", ShowSpinners),
                 MenuItem::action("Inputs", ShowInputs),
                 MenuItem::action("Labels", ShowLabels),
@@ -86,7 +98,7 @@ fn main() {
                 MenuItem::separator(),
                 MenuItem::action("Toggle Light / Dark", ToggleTheme),
                 MenuItem::separator(),
-                MenuItem::action("Quit GPUI Kit", Quit),
+                MenuItem::action("Quit Grafik", Quit),
             ])]);
 
             open_gallery(cx);
@@ -101,9 +113,9 @@ fn open_gallery(cx: &mut App) {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
             window_min_size: Some(size(px(640.), px(420.))),
             window_background: WindowBackgroundAppearance::Opaque,
-            app_id: Some("dev.gpui-kit.gallery".into()),
+            app_id: Some("dev.grafik.gallery".into()),
             titlebar: Some(TitlebarOptions {
-                title: Some("GPUI Kit — Inputs".into()),
+                title: Some("Grafik — Inputs".into()),
                 appears_transparent: true,
                 ..Default::default()
             }),
@@ -117,6 +129,9 @@ fn open_gallery(cx: &mut App) {
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum GalleryPage {
     Buttons,
+    Skeletons,
+    Tooltips,
+    Progress,
     Spinners,
     Inputs,
     Labels,
@@ -131,16 +146,19 @@ enum GalleryPage {
 impl GalleryPage {
     fn title(self) -> &'static str {
         match self {
-            Self::Buttons => "GPUI Kit — Buttons",
-            Self::Spinners => "GPUI Kit — Spinners",
-            Self::Inputs => "GPUI Kit — Inputs",
-            Self::Labels => "GPUI Kit — Labels",
-            Self::Checkboxes => "GPUI Kit — Checkboxes",
-            Self::Switches => "GPUI Kit — Switches",
-            Self::Radios => "GPUI Kit — Radios",
-            Self::Selects => "GPUI Kit — Selects",
-            Self::Kbds => "GPUI Kit — Kbd",
-            Self::Separators => "GPUI Kit — Separators",
+            Self::Buttons => "Grafik — Buttons",
+            Self::Skeletons => "Grafik — Skeletons",
+            Self::Tooltips => "Grafik — Tooltips",
+            Self::Progress => "Grafik — Progress",
+            Self::Spinners => "Grafik — Spinners",
+            Self::Inputs => "Grafik — Inputs",
+            Self::Labels => "Grafik — Labels",
+            Self::Checkboxes => "Grafik — Checkboxes",
+            Self::Switches => "Grafik — Switches",
+            Self::Radios => "Grafik — Radios",
+            Self::Selects => "Grafik — Selects",
+            Self::Kbds => "Grafik — Kbd",
+            Self::Separators => "Grafik — Separators",
         }
     }
 
@@ -151,6 +169,9 @@ impl GalleryPage {
     fn short_name(self) -> &'static str {
         match self {
             Self::Buttons => "Buttons",
+            Self::Skeletons => "Skeletons",
+            Self::Tooltips => "Tooltips",
+            Self::Progress => "Progress",
             Self::Spinners => "Spinners",
             Self::Inputs => "Inputs",
             Self::Labels => "Labels",
@@ -165,7 +186,10 @@ impl GalleryPage {
 
     fn next(self) -> Self {
         match self {
-            Self::Buttons => Self::Spinners,
+            Self::Buttons => Self::Skeletons,
+            Self::Skeletons => Self::Tooltips,
+            Self::Tooltips => Self::Progress,
+            Self::Progress => Self::Spinners,
             Self::Spinners => Self::Inputs,
             Self::Inputs => Self::Labels,
             Self::Labels => Self::Checkboxes,
@@ -209,6 +233,33 @@ impl Gallery {
 
     fn show_buttons(&mut self, _: &ShowButtons, window: &mut Window, cx: &mut gpui::Context<Self>) {
         self.set_page(GalleryPage::Buttons, window, cx);
+    }
+
+    fn show_skeletons(
+        &mut self,
+        _: &ShowSkeletons,
+        window: &mut Window,
+        cx: &mut gpui::Context<Self>,
+    ) {
+        self.set_page(GalleryPage::Skeletons, window, cx);
+    }
+
+    fn show_tooltips(
+        &mut self,
+        _: &ShowTooltips,
+        window: &mut Window,
+        cx: &mut gpui::Context<Self>,
+    ) {
+        self.set_page(GalleryPage::Tooltips, window, cx);
+    }
+
+    fn show_progress(
+        &mut self,
+        _: &ShowProgress,
+        window: &mut Window,
+        cx: &mut gpui::Context<Self>,
+    ) {
+        self.set_page(GalleryPage::Progress, window, cx);
     }
 
     fn show_spinners(
@@ -307,6 +358,9 @@ impl gpui::Render for Gallery {
             .on_action(cx.listener(Self::quit))
             .on_action(cx.listener(Self::toggle_theme))
             .on_action(cx.listener(Self::show_buttons))
+            .on_action(cx.listener(Self::show_skeletons))
+            .on_action(cx.listener(Self::show_tooltips))
+            .on_action(cx.listener(Self::show_progress))
             .on_action(cx.listener(Self::show_spinners))
             .on_action(cx.listener(Self::show_inputs))
             .on_action(cx.listener(Self::show_labels))
@@ -326,6 +380,9 @@ impl gpui::Render for Gallery {
                     .overflow_y_scroll()
                     .child(match page {
                         GalleryPage::Buttons => buttons_page(theme, page).into_any_element(),
+                        GalleryPage::Skeletons => skeletons_page(theme, page).into_any_element(),
+                        GalleryPage::Tooltips => tooltips_page(theme, page).into_any_element(),
+                        GalleryPage::Progress => progress_page(theme, page).into_any_element(),
                         GalleryPage::Spinners => spinners_page(theme, page).into_any_element(),
                         GalleryPage::Inputs => inputs_page(theme, page).into_any_element(),
                         GalleryPage::Labels => labels_page(theme, page).into_any_element(),
@@ -457,6 +514,346 @@ fn buttons_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                         .child(Button::new("publish", "Publish").grouped(true)),
                 ),
         ))
+}
+
+fn skeletons_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .w_full()
+        .child(header(
+            theme,
+            page,
+            "SKELETON",
+            "A shape while we wait.",
+            "Secondary glass, pulsing. A line, a face, a control. Reduced motion holds the first frame.",
+        ))
+        .child(section(
+            theme,
+            "Shapes",
+            56.0,
+            false,
+            div()
+                .flex()
+                .items_end()
+                .gap(px(40.))
+                .child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .items_start()
+                        .gap(px(10.))
+                        .child(Skeleton::text("skeleton-text"))
+                        .child(caption(theme, "Text")),
+                )
+                .child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .items_center()
+                        .w(px(72.))
+                        .flex_shrink_0()
+                        .gap(px(10.))
+                        .child(Skeleton::avatar("skeleton-avatar"))
+                        .child(caption(theme, "Avatar")),
+                )
+                .child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .items_start()
+                        .gap(px(10.))
+                        .child(Skeleton::control("skeleton-control"))
+                        .child(caption(theme, "Control")),
+                ),
+        ))
+        .child(section(
+            theme,
+            "In use",
+            40.0,
+            true,
+            div()
+                .flex()
+                .flex_col()
+                .w(px(280.))
+                .gap(px(12.))
+                .child(skeleton_list_row(
+                    "skeleton-row-one",
+                    160.0,
+                    100.0,
+                ))
+                .child(skeleton_list_row(
+                    "skeleton-row-two",
+                    140.0,
+                    88.0,
+                )),
+        ))
+}
+
+fn skeleton_list_row(id: &'static str, title_width: f32, body_width: f32) -> impl IntoElement {
+    div()
+        .flex()
+        .items_center()
+        .gap(px(12.))
+        .child(Skeleton::avatar(format!("{id}-avatar")))
+        .child(
+            div()
+                .flex()
+                .flex_col()
+                .flex_1()
+                .gap(px(8.))
+                .child(
+                    Skeleton::text(format!("{id}-title"))
+                        .w(px(title_width))
+                        .h(px(12.)),
+                )
+                .child(
+                    Skeleton::text(format!("{id}-body"))
+                        .w(px(body_width))
+                        .h(px(10.)),
+                ),
+        )
+}
+
+#[derive(Clone, Copy)]
+enum TooltipPlacement {
+    Above,
+    Below,
+    Start,
+    End,
+}
+
+fn tooltips_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .w_full()
+        .child(header(
+            theme,
+            page,
+            "TOOLTIP",
+            "A name, not a lecture.",
+            "Inverse glass, twenty-four tall. Delay about 300ms. Same path in and out. Never sit under the cursor.",
+        ))
+        .child(section(
+            theme,
+            "Default",
+            56.0,
+            false,
+            tooltip_specimen(theme, TooltipPlacement::Above, None),
+        ))
+        .child(section(
+            theme,
+            "Placement",
+            40.0,
+            false,
+            div()
+                .flex()
+                .items_end()
+                .gap(px(48.))
+                .child(tooltip_specimen(
+                    theme,
+                    TooltipPlacement::Above,
+                    Some("Above"),
+                ))
+                .child(tooltip_specimen(
+                    theme,
+                    TooltipPlacement::Below,
+                    Some("Below"),
+                ))
+                .child(tooltip_specimen(
+                    theme,
+                    TooltipPlacement::Start,
+                    Some("Start"),
+                ))
+                .child(tooltip_specimen(
+                    theme,
+                    TooltipPlacement::End,
+                    Some("End"),
+                )),
+        ))
+        .child(section(
+            theme,
+            "In use",
+            40.0,
+            true,
+            div()
+                .flex()
+                .items_end()
+                .gap(px(8.))
+                .child(
+                    Button::icon_only("tooltip-search", IconName::Search)
+                        .variant(ButtonVariant::Ghost)
+                        .tooltip(Tooltip::new("Search")),
+                )
+                .child(
+                    Button::icon_only("tooltip-new", IconName::Plus)
+                        .variant(ButtonVariant::Ghost)
+                        .tooltip(Tooltip::new("New page")),
+                )
+                .child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .items_center()
+                        .gap(px(6.))
+                        .child(Tooltip::new("Export PNG"))
+                        .child(tooltip_trigger("tooltip-export-in-use")),
+                ),
+        ))
+}
+
+fn tooltip_specimen(
+    theme: Theme,
+    placement: TooltipPlacement,
+    label: Option<&'static str>,
+) -> impl IntoElement {
+    let width = match placement {
+        TooltipPlacement::Above | TooltipPlacement::Below => 120.0,
+        TooltipPlacement::Start | TooltipPlacement::End => 160.0,
+    };
+    let trigger_id = match (placement, label) {
+        (TooltipPlacement::Above, None) => "tooltip-default-trigger",
+        (TooltipPlacement::Above, Some(_)) => "tooltip-above-trigger",
+        (TooltipPlacement::Below, _) => "tooltip-below-trigger",
+        (TooltipPlacement::Start, _) => "tooltip-start-trigger",
+        (TooltipPlacement::End, _) => "tooltip-end-trigger",
+    };
+
+    div()
+        .flex()
+        .flex_col()
+        .items_center()
+        .w(px(width))
+        .flex_shrink_0()
+        .gap(px(if label.is_some() { 10.0 } else { 0.0 }))
+        .child(
+            div()
+                .flex()
+                .items_center()
+                .when(
+                    matches!(placement, TooltipPlacement::Above | TooltipPlacement::Below),
+                    |el| el.flex_col(),
+                )
+                .gap(px(6.))
+                .when(matches!(placement, TooltipPlacement::Below), |el| {
+                    el.child(tooltip_trigger(trigger_id))
+                        .child(Tooltip::new("Export PNG"))
+                })
+                .when(matches!(placement, TooltipPlacement::Above), |el| {
+                    el.child(Tooltip::new("Export PNG"))
+                        .child(tooltip_trigger(trigger_id))
+                })
+                .when(matches!(placement, TooltipPlacement::Start), |el| {
+                    el.child(Tooltip::new("Export PNG"))
+                        .child(tooltip_trigger(trigger_id))
+                })
+                .when(matches!(placement, TooltipPlacement::End), |el| {
+                    el.child(tooltip_trigger(trigger_id))
+                        .child(Tooltip::new("Export PNG"))
+                }),
+        )
+        .when_some(label, |el, label| el.child(caption(theme, label)))
+}
+
+fn tooltip_trigger(id: &'static str) -> Button {
+    Button::icon_only(id, IconName::Download)
+        .variant(ButtonVariant::Ghost)
+        .tooltip(Tooltip::new("Export PNG"))
+}
+
+fn progress_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .w_full()
+        .child(header(
+            theme,
+            page,
+            "PROGRESS",
+            "How far, not whether.",
+            "Eight tall, a pill. Outline track, primary fill. Linear. Zero, forty, a hundred. No bounce.",
+        ))
+        .child(section(
+            theme,
+            "Linear",
+            56.0,
+            false,
+            div()
+                .flex()
+                .flex_col()
+                .gap(px(16.))
+                .child(linear_progress_sample(theme, "0", 0.0))
+                .child(linear_progress_sample(theme, "40", 0.4))
+                .child(linear_progress_sample(theme, "100", 1.0)),
+        ))
+        .child(section(
+            theme,
+            "Circular",
+            40.0,
+            false,
+            div()
+                .flex()
+                .items_end()
+                .gap(px(32.))
+                .child(circular_progress_sample(theme, "0", 0.0))
+                .child(circular_progress_sample(theme, "40", 0.4))
+                .child(circular_progress_sample(theme, "100", 1.0)),
+        ))
+        .child(section(
+            theme,
+            "In use",
+            40.0,
+            true,
+            div()
+                .flex()
+                .flex_col()
+                .w(px(332.))
+                .gap(px(10.))
+                .child(
+                    div()
+                        .flex()
+                        .items_baseline()
+                        .justify_between()
+                        .child(
+                            div()
+                                .font_family(theme.font_family)
+                                .font_weight(FontWeight::MEDIUM)
+                                .text_size(px(14.))
+                                .line_height(px(18.))
+                                .text_color(theme.ink)
+                                .child("Exporting PNG"),
+                        )
+                        .child(caption(theme, "40%")),
+                )
+                .child(Progress::new(0.4)),
+        ))
+}
+
+fn linear_progress_sample(theme: Theme, label: &'static str, value: f32) -> impl IntoElement {
+    div()
+        .flex()
+        .items_center()
+        .gap(px(16.))
+        .child(
+            div()
+                .w(px(36.))
+                .flex_shrink_0()
+                .child(caption(theme, label)),
+        )
+        .child(Progress::new(value))
+}
+
+fn circular_progress_sample(theme: Theme, label: &'static str, value: f32) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .items_center()
+        .w(px(72.))
+        .flex_shrink_0()
+        .gap(px(10.))
+        .child(CircularProgress::new(value))
+        .child(caption(theme, label))
 }
 
 fn spinners_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
@@ -708,7 +1105,7 @@ fn inputs_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .items_end()
                 .gap(px(16.))
                 .child(Input::new("project-placeholder").placeholder("Project name"))
-                .child(Input::new("project-filled").value("GPUI Kit"))
+                .child(Input::new("project-filled").value("Grafik"))
                 .child(labeled_field(
                     Label::new("Email"),
                     Input::new("email").value("hello@paper.design"),
@@ -747,7 +1144,7 @@ fn inputs_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .child(state_sample(
                     theme,
                     "Focus",
-                    Input::new("focus").value("GPUI Kit").show_focus(true),
+                    Input::new("focus").value("Grafik").show_focus(true),
                 ))
                 .child(state_sample(
                     theme,
@@ -797,7 +1194,7 @@ fn inputs_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .gap(px(16.))
                 .child(labeled_field(
                     Label::new("Name").required(true),
-                    Input::new("form-name").value("GPUI Kit").w(px(360.)),
+                    Input::new("form-name").value("Grafik").w(px(360.)),
                 ))
                 .child(labeled_field(
                     Label::new("Description").optional(true),
@@ -860,7 +1257,7 @@ fn labels_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 ))
                 .child(labeled_field(
                     Label::new("Name").required(true),
-                    Input::new("label-name").value("GPUI Kit"),
+                    Input::new("label-name").value("Grafik"),
                 )),
         ))
         .child(section(
@@ -875,7 +1272,7 @@ fn labels_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .gap(px(16.))
                 .child(labeled_field(
                     Label::new("Name").required(true),
-                    Input::new("label-form-name").value("GPUI Kit").w(px(360.)),
+                    Input::new("label-form-name").value("Grafik").w(px(360.)),
                 ))
                 .child(labeled_field(
                     Label::new("Description").optional(true),

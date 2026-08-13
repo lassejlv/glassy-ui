@@ -2,7 +2,7 @@ use gpui::{
     px, svg, App, Hsla, IntoElement, Pixels, RenderOnce, SharedString, StyleRefinement, Styled,
     Window,
 };
-use gpui_kit_motion::StyledSlot;
+use grafik_motion::StyledSlot;
 
 /// Icons used on the Paper Buttons page.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

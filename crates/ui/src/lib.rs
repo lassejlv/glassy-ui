@@ -1,4 +1,4 @@
-//! GPUI Kit components.
+//! Grafik components.
 //!
 //! Visual contract: Paper file `Grafik UI`.
 
@@ -10,11 +10,14 @@ mod icon;
 mod input;
 mod kbd;
 mod label;
+mod progress;
 mod radio;
 mod select;
 mod separator;
+mod skeleton;
 mod spinner;
 mod switch;
+mod tooltip;
 
 pub use assets::{load_fonts, Assets};
 pub use button::{Button, ButtonGroup, ButtonSize, ButtonVariant};
@@ -24,21 +27,24 @@ pub use icon::{Icon, IconName};
 pub use input::{textarea, Input};
 pub use kbd::Kbd;
 pub use label::Label;
+pub use progress::{CircularProgress, Progress};
 pub use radio::Radio;
 pub use select::{Select, SelectItem};
 pub use separator::{Separator, SeparatorOrientation};
+pub use skeleton::{Skeleton, SkeletonShape};
 pub use spinner::{Spinner, SpinnerSize, SpinnerTone};
 pub use switch::Switch;
+pub use tooltip::Tooltip;
 
-pub use gpui_kit_motion as motion;
-pub use gpui_kit_motion::{
+pub use grafik_motion as motion;
+pub use grafik_motion::{
     cubic_bezier, ease_in_cubic, ease_out_cubic, init as init_motion, use_motion_value,
     AnimatePresence, Ease, Motion, MotionStyle, MotionValue, MotionValueStore, PresenceMode,
     Stagger, StyledSlot, Transition, Variants,
 };
 
-pub use gpui_kit_theme as theme;
-pub use gpui_kit_theme::{
+pub use grafik_theme as theme;
+pub use grafik_theme::{
     init as init_theme, paint, rgb, ActiveTheme, Theme, ThemeKind, FONT_FAMILY,
 };
 

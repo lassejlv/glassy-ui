@@ -2,8 +2,8 @@ use gpui::{
     div, prelude::*, px, App, BoxShadow, FontWeight, IntoElement, RenderOnce, SharedString,
     StyleRefinement, Styled, Window,
 };
-use gpui_kit_motion::StyledSlot;
-use gpui_kit_theme::ActiveTheme;
+use grafik_motion::StyledSlot;
+use grafik_theme::ActiveTheme;
 
 use crate::button::ButtonVariant;
 use crate::chrome::button_chrome;

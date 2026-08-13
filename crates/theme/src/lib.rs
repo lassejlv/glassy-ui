@@ -1,7 +1,7 @@
-//! Process-wide light/dark theme for GPUI Kit.
+//! Process-wide light/dark theme for Grafik.
 //!
 //! ```ignore
-//! use gpui_kit_theme::{init, ActiveTheme, Theme};
+//! use grafik_theme::{init, ActiveTheme, Theme};
 //!
 //! fn main() {
 //!     application().run(|cx| {

@@ -1,11 +1,12 @@
 use std::rc::Rc;
 
 use gpui::{
-    div, prelude::*, px, App, BoxShadow, ClickEvent, FontWeight, IntoElement, RenderOnce,
-    SharedString, StyleRefinement, Styled, Window,
+    anchored, deferred, div, point, prelude::*, px, App, BoxShadow, ClickEvent, FocusHandle,
+    FontWeight, IntoElement, KeyDownEvent, RenderOnce, SharedString, StyleRefinement, Styled,
+    Window,
 };
-use gpui_kit_motion::StyledSlot;
-use gpui_kit_theme::ActiveTheme;
+use grafik_motion::StyledSlot;
+use grafik_theme::ActiveTheme;
 
 use crate::button::ButtonVariant;
 use crate::chrome::{button_chrome, field_chrome, FieldState};
@@ -15,8 +16,40 @@ type SelectClickHandler = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'stati
 type SelectPickHandler = Rc<dyn Fn(&SharedString, &mut Window, &mut App) + 'static>;
 
 struct SelectState {
+    focus_handle: FocusHandle,
     open: bool,
     value: Option<SharedString>,
+    highlighted: Option<usize>,
+}
+
+fn initial_highlight(items: &[SelectItem], value: Option<&SharedString>) -> Option<usize> {
+    value
+        .and_then(|value| {
+            items
+                .iter()
+                .position(|item| !item.disabled && item.value.as_ref() == value.as_ref())
+        })
+        .or_else(|| items.iter().position(|item| !item.disabled))
+}
+
+fn next_enabled(items: &[SelectItem], current: Option<usize>, forward: bool) -> Option<usize> {
+    if items.is_empty() {
+        return None;
+    }
+
+    match current {
+        Some(start) => (1..=items.len())
+            .map(|offset| {
+                if forward {
+                    (start + offset) % items.len()
+                } else {
+                    (start + items.len() - (offset % items.len())) % items.len()
+                }
+            })
+            .find(|index| !items[*index].disabled),
+        None if forward => items.iter().position(|item| !item.disabled),
+        None => items.iter().rposition(|item| !item.disabled),
+    }
 }
 
 /// One row in the open list.
@@ -128,16 +161,23 @@ impl RenderOnce for Select {
     fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
         let initial_open = self.open;
         let initial_value = self.value.clone();
-        let state = window.use_keyed_state(self.id.clone(), cx, move |_, _| SelectState {
+        let initial_items = self.items.clone();
+        let state = window.use_keyed_state(self.id.clone(), cx, move |_, cx| SelectState {
+            focus_handle: cx.focus_handle().tab_stop(true),
             open: initial_open,
+            highlighted: initial_open
+                .then(|| initial_highlight(&initial_items, initial_value.as_ref()))
+                .flatten(),
             value: initial_value,
         });
         let open = state.read(cx).open;
         let value = state.read(cx).value.clone();
+        let highlighted = state.read(cx).highlighted;
+        let focus_handle = state.read(cx).focus_handle.clone();
         let theme = cx.theme();
         let field_state = if self.disabled {
             FieldState::Disabled
-        } else if self.focused || open {
+        } else if self.focused || open || focus_handle.is_focused(window) {
             FieldState::Focus
         } else {
             FieldState::Rest
@@ -168,8 +208,13 @@ impl RenderOnce for Select {
         let interactive = !self.disabled;
         let on_click = self.on_click.clone();
         let trigger_state = state.clone();
+        let trigger_items = self.items.clone();
+        let trigger_focus = focus_handle.clone();
+        let next_open = !open;
+        let trigger_debug_selector = format!("{}-trigger", self.id);
         let mut trigger = div()
             .id(self.id.clone())
+            .debug_selector(move || trigger_debug_selector)
             .flex()
             .items_center()
             .gap(px(8.))
@@ -203,8 +248,12 @@ impl RenderOnce for Select {
 
         if interactive {
             trigger = trigger.on_click(move |event, window, cx| {
+                trigger_focus.focus(window, cx);
                 trigger_state.update(cx, |select, cx| {
-                    select.open = !select.open;
+                    select.open = next_open;
+                    select.highlighted = next_open
+                        .then(|| initial_highlight(&trigger_items, select.value.as_ref()))
+                        .flatten();
                     cx.notify();
                 });
                 if let Some(on_click) = &on_click {
@@ -223,10 +272,16 @@ impl RenderOnce for Select {
 
         let selected = value.clone();
         let on_select = self.on_select.clone();
+        let keyboard_items = self.items.clone();
+        let keyboard_on_select = self.on_select.clone();
         let ghost_bg = ghost.bg;
         let ghost_hover = ghost.hover_bg;
         let select_id = self.id.clone();
+        let popup_debug_selector = format!("{select_id}-popup");
+        let dismiss_state = state.clone();
         let list = div()
+            .id(SharedString::from(format!("{select_id}-popup")))
+            .debug_selector(move || popup_debug_selector)
             .flex()
             .flex_col()
             .w(px(280.))
@@ -237,10 +292,21 @@ impl RenderOnce for Select {
             .border_color(list_chrome.border)
             .bg(list_chrome.bg)
             .shadow(list_shadows)
+            .occlude()
+            .on_mouse_down_out(move |_, _, cx| {
+                dismiss_state.update(cx, |select, cx| {
+                    if select.open {
+                        select.open = false;
+                        select.highlighted = None;
+                        cx.notify();
+                    }
+                });
+            })
             .children(self.items.into_iter().enumerate().map(|(index, item)| {
                 let is_selected = selected
                     .as_ref()
                     .is_some_and(|value| value.as_ref() == item.value.as_ref());
+                let is_highlighted = highlighted == Some(index);
                 let enabled = !item.disabled;
                 let text_color = if item.disabled {
                     theme.label
@@ -261,7 +327,7 @@ impl RenderOnce for Select {
                     .flex_shrink_0()
                     .px(px(8.))
                     .rounded(px(6.))
-                    .when(is_selected, |el| el.bg(ghost_bg))
+                    .when(is_selected || is_highlighted, |el| el.bg(ghost_bg))
                     .when(enabled, |el| {
                         el.cursor_pointer().hover(move |s| s.bg(ghost_hover))
                     })
@@ -284,6 +350,7 @@ impl RenderOnce for Select {
                         row_state.update(cx, |select, cx| {
                             select.value = Some(item_value.clone());
                             select.open = false;
+                            select.highlighted = None;
                             cx.notify();
                         });
                         if let Some(on_select) = &on_select {
@@ -295,14 +362,78 @@ impl RenderOnce for Select {
                 row
             }));
 
+        let popup = deferred(anchored().offset(point(px(0.), px(8.))).child(list)).with_priority(1);
+
+        let keyboard_state = state.clone();
+
         div()
-            .flex()
-            .flex_col()
-            .gap(px(8.))
+            .relative()
             .w(px(280.))
+            .h(px(36.))
             .flex_shrink_0()
             .refine_style(&self.style)
+            .track_focus(&focus_handle)
+            .tab_stop(interactive)
+            .on_key_down(move |event: &KeyDownEvent, window, cx| {
+                if !interactive || event.keystroke.modifiers.modified() {
+                    return;
+                }
+
+                let key = event.keystroke.key.as_str();
+                let (was_open, current) = {
+                    let snapshot = keyboard_state.read(cx);
+                    (snapshot.open, snapshot.highlighted)
+                };
+
+                match key {
+                    "down" | "up" => {
+                        let next = next_enabled(&keyboard_items, current, key == "down");
+                        keyboard_state.update(cx, |select, cx| {
+                            select.open = true;
+                            select.highlighted = next;
+                            cx.notify();
+                        });
+                        cx.stop_propagation();
+                    }
+                    "enter" | "space" if !was_open => {
+                        keyboard_state.update(cx, |select, cx| {
+                            select.open = true;
+                            select.highlighted =
+                                initial_highlight(&keyboard_items, select.value.as_ref());
+                            cx.notify();
+                        });
+                        cx.stop_propagation();
+                    }
+                    "enter" | "space" => {
+                        let picked = current
+                            .and_then(|index| keyboard_items.get(index))
+                            .filter(|item| !item.disabled)
+                            .map(|item| item.value.clone());
+                        if let Some(picked) = picked {
+                            keyboard_state.update(cx, |select, cx| {
+                                select.value = Some(picked.clone());
+                                select.open = false;
+                                select.highlighted = None;
+                                cx.notify();
+                            });
+                            if let Some(on_select) = &keyboard_on_select {
+                                on_select(&picked, window, cx);
+                            }
+                        }
+                        cx.stop_propagation();
+                    }
+                    "escape" if was_open => {
+                        keyboard_state.update(cx, |select, cx| {
+                            select.open = false;
+                            select.highlighted = None;
+                            cx.notify();
+                        });
+                        cx.stop_propagation();
+                    }
+                    _ => {}
+                }
+            })
             .child(trigger)
-            .when(open && !self.disabled, |el| el.child(list))
+            .when(open && !self.disabled, |el| el.child(popup))
     }
 }

@@ -2,7 +2,7 @@
 #![allow(clippy::unusual_byte_groupings)]
 
 use gpui::Hsla;
-use gpui_kit_theme::{paint, rgb, Theme, ThemeKind};
+use grafik_theme::{paint, rgb, Theme, ThemeKind};
 
 use crate::button::ButtonVariant;
 

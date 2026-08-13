@@ -15,6 +15,6 @@ gpui_platform = { git = "https://github.com/zed-industries/zed", rev = "101ca00a
     "wayland",
     "x11",
 ] }
-gpui-kit-motion = { path = "crates/motion" }
-gpui-kit-theme = { path = "crates/theme" }
-gpui-kit-ui = { path = "crates/ui" }
+grafik-motion = { path = "crates/motion" }
+grafik-theme = { path = "crates/theme" }
+grafik-ui = { path = "crates/ui" }

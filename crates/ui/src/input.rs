@@ -8,14 +8,14 @@ use gpui::{
     Pixels, Point, RenderOnce, ShapedLine, SharedString, Style, StyleRefinement, Styled, TextRun,
     UTF16Selection, UnderlineStyle, Window,
 };
-use gpui_kit_motion::StyledSlot;
-use gpui_kit_theme::ActiveTheme;
+use grafik_motion::StyledSlot;
+use grafik_theme::ActiveTheme;
 
 use crate::chrome::{field_chrome, FieldState};
 use crate::icon::{Icon, IconName};
 
 actions!(
-    gpui_kit_input,
+    grafik_input,
     [
         Backspace,
         Delete,

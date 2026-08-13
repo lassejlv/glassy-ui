@@ -2,13 +2,14 @@ use gpui::{
     div, prelude::*, px, App, BoxShadow, ClickEvent, FontWeight, IntoElement, ParentElement,
     RenderOnce, SharedString, StyleRefinement, Styled, Window,
 };
-use gpui_kit_motion::StyledSlot;
+use grafik_motion::StyledSlot;
 
-use gpui_kit_theme::{ActiveTheme, Theme};
+use grafik_theme::{ActiveTheme, Theme};
 
 use crate::chrome::button_chrome;
 use crate::icon::{Icon, IconName};
 use crate::spinner::Spinner;
+use crate::tooltip::Tooltip;
 
 type ButtonClickHandler = Box<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
 
@@ -75,7 +76,7 @@ impl ButtonSize {
     }
 }
 
-/// Clickable glass button matching Paper `GPUI Kit UI` → Buttons.
+/// Clickable glass button matching Paper `Grafik UI` → Buttons.
 #[derive(IntoElement)]
 pub struct Button {
     id: SharedString,
@@ -89,6 +90,7 @@ pub struct Button {
     grouped: bool,
     leading_icon: Option<IconName>,
     trailing_icon: Option<IconName>,
+    tooltip: Option<Tooltip>,
     style: StyleRefinement,
     on_click: Option<ButtonClickHandler>,
 }
@@ -107,6 +109,7 @@ impl Button {
             grouped: false,
             leading_icon: None,
             trailing_icon: None,
+            tooltip: None,
             style: StyleRefinement::default(),
             on_click: None,
         }
@@ -125,6 +128,7 @@ impl Button {
             grouped: false,
             leading_icon: Some(icon),
             trailing_icon: None,
+            tooltip: None,
             style: StyleRefinement::default(),
             on_click: None,
         }
@@ -175,6 +179,11 @@ impl Button {
 
     pub fn trailing_icon(mut self, icon: IconName) -> Self {
         self.trailing_icon = Some(icon);
+        self
+    }
+
+    pub fn tooltip(mut self, tooltip: Tooltip) -> Self {
+        self.tooltip = Some(tooltip);
         self
     }
 
@@ -269,12 +278,18 @@ impl RenderOnce for Button {
                 el.child(Icon::new(icon).px(px(icon_size)).color(fg))
             });
 
-        if interactive {
+        let el = if interactive {
             if let Some(on_click) = self.on_click {
                 el.on_click(on_click)
             } else {
                 el
             }
+        } else {
+            el
+        };
+
+        if let Some(tooltip) = self.tooltip {
+            tooltip.attach(el)
         } else {
             el
         }

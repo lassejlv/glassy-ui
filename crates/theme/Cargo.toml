@@ -1,9 +1,9 @@
 [package]
-name = "gpui-kit-theme"
+name = "grafik-theme"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Active light/dark theme for GPUI Kit."
+description = "Active light/dark theme for Grafik."
 
 [dependencies]
 gpui.workspace = true

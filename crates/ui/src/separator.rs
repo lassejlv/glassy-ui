@@ -2,8 +2,8 @@
 #![allow(clippy::unusual_byte_groupings)]
 
 use gpui::{div, prelude::*, px, App, IntoElement, RenderOnce, StyleRefinement, Styled, Window};
-use gpui_kit_motion::StyledSlot;
-use gpui_kit_theme::{paint, ActiveTheme};
+use grafik_motion::StyledSlot;
+use grafik_theme::{paint, ActiveTheme};
 
 /// Horizontal 280×1 or vertical 1×36. Zinc at 12%, not a black rule.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
