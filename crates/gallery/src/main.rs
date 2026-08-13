@@ -9,7 +9,8 @@ use gpui::{
 use gpui_kit_ui::{
     init as init_ui, init_motion, init_theme, load_fonts, paint, rgb, textarea, ActiveTheme,
     Assets, Button, ButtonGroup, ButtonSize, ButtonVariant, CheckState, Checkbox, IconName, Input,
-    Label, Radio, Spinner, SpinnerSize, SpinnerTone, Switch, Theme,
+    Kbd, Label, Radio, Select, SelectItem, Separator, Spinner, SpinnerSize, SpinnerTone, Switch,
+    Theme,
 };
 use gpui_platform::application;
 
@@ -25,6 +26,9 @@ actions!(
         ShowCheckboxes,
         ShowSwitches,
         ShowRadios,
+        ShowSelects,
+        ShowKbds,
+        ShowSeparators,
         ShowNextPage,
     ]
 );
@@ -61,6 +65,10 @@ fn main() {
                 KeyBinding::new("ctrl-6", ShowSwitches, None),
                 KeyBinding::new("cmd-7", ShowRadios, None),
                 KeyBinding::new("ctrl-7", ShowRadios, None),
+                KeyBinding::new("cmd-8", ShowSelects, None),
+                KeyBinding::new("ctrl-8", ShowSelects, None),
+                KeyBinding::new("cmd-9", ShowKbds, None),
+                KeyBinding::new("ctrl-9", ShowKbds, None),
                 KeyBinding::new("cmd-]", ShowNextPage, None),
                 KeyBinding::new("ctrl-]", ShowNextPage, None),
             ]);
@@ -72,6 +80,9 @@ fn main() {
                 MenuItem::action("Checkboxes", ShowCheckboxes),
                 MenuItem::action("Switches", ShowSwitches),
                 MenuItem::action("Radios", ShowRadios),
+                MenuItem::action("Selects", ShowSelects),
+                MenuItem::action("Kbd", ShowKbds),
+                MenuItem::action("Separators", ShowSeparators),
                 MenuItem::separator(),
                 MenuItem::action("Toggle Light / Dark", ToggleTheme),
                 MenuItem::separator(),
@@ -112,6 +123,9 @@ enum GalleryPage {
     Checkboxes,
     Switches,
     Radios,
+    Selects,
+    Kbds,
+    Separators,
 }
 
 impl GalleryPage {
@@ -124,6 +138,9 @@ impl GalleryPage {
             Self::Checkboxes => "GPUI Kit — Checkboxes",
             Self::Switches => "GPUI Kit — Switches",
             Self::Radios => "GPUI Kit — Radios",
+            Self::Selects => "GPUI Kit — Selects",
+            Self::Kbds => "GPUI Kit — Kbd",
+            Self::Separators => "GPUI Kit — Separators",
         }
     }
 
@@ -140,6 +157,9 @@ impl GalleryPage {
             Self::Checkboxes => "Checkboxes",
             Self::Switches => "Switches",
             Self::Radios => "Radios",
+            Self::Selects => "Selects",
+            Self::Kbds => "Kbd",
+            Self::Separators => "Separators",
         }
     }
 
@@ -151,7 +171,10 @@ impl GalleryPage {
             Self::Labels => Self::Checkboxes,
             Self::Checkboxes => Self::Switches,
             Self::Switches => Self::Radios,
-            Self::Radios => Self::Buttons,
+            Self::Radios => Self::Selects,
+            Self::Selects => Self::Kbds,
+            Self::Kbds => Self::Separators,
+            Self::Separators => Self::Buttons,
         }
     }
 }
@@ -227,6 +250,23 @@ impl Gallery {
         self.set_page(GalleryPage::Radios, window, cx);
     }
 
+    fn show_selects(&mut self, _: &ShowSelects, window: &mut Window, cx: &mut gpui::Context<Self>) {
+        self.set_page(GalleryPage::Selects, window, cx);
+    }
+
+    fn show_kbds(&mut self, _: &ShowKbds, window: &mut Window, cx: &mut gpui::Context<Self>) {
+        self.set_page(GalleryPage::Kbds, window, cx);
+    }
+
+    fn show_separators(
+        &mut self,
+        _: &ShowSeparators,
+        window: &mut Window,
+        cx: &mut gpui::Context<Self>,
+    ) {
+        self.set_page(GalleryPage::Separators, window, cx);
+    }
+
     fn show_next_page(
         &mut self,
         _: &ShowNextPage,
@@ -273,6 +313,9 @@ impl gpui::Render for Gallery {
             .on_action(cx.listener(Self::show_checkboxes))
             .on_action(cx.listener(Self::show_switches))
             .on_action(cx.listener(Self::show_radios))
+            .on_action(cx.listener(Self::show_selects))
+            .on_action(cx.listener(Self::show_kbds))
+            .on_action(cx.listener(Self::show_separators))
             .on_action(cx.listener(Self::show_next_page))
             .child(
                 div()
@@ -289,6 +332,9 @@ impl gpui::Render for Gallery {
                         GalleryPage::Checkboxes => checkboxes_page(theme, page).into_any_element(),
                         GalleryPage::Switches => switches_page(theme, page).into_any_element(),
                         GalleryPage::Radios => radios_page(theme, page).into_any_element(),
+                        GalleryPage::Selects => selects_page(theme, page).into_any_element(),
+                        GalleryPage::Kbds => kbds_page(theme, page).into_any_element(),
+                        GalleryPage::Separators => separators_page(theme, page).into_any_element(),
                     }),
             )
     }
@@ -1050,9 +1096,19 @@ fn radios_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .flex()
                 .items_center()
                 .gap(px(28.))
-                .child(Radio::new("fit").label("Fit"))
-                .child(Radio::new("fill").selected(true).label("Fill"))
-                .child(Radio::new("stretch").disabled(true).label("Stretch")),
+                .child(Radio::new("fit").group("radio-label").label("Fit"))
+                .child(
+                    Radio::new("fill")
+                        .group("radio-label")
+                        .selected(true)
+                        .label("Fill"),
+                )
+                .child(
+                    Radio::new("stretch")
+                        .group("radio-label")
+                        .disabled(true)
+                        .label("Stretch"),
+                ),
         ))
         .child(section(
             theme,
@@ -1063,10 +1119,272 @@ fn radios_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .flex()
                 .flex_col()
                 .gap(px(10.))
-                .child(Radio::new("export-png").selected(true).label("PNG"))
-                .child(Radio::new("export-svg").label("SVG"))
-                .child(Radio::new("export-pdf").disabled(true).label("PDF")),
+                .child(
+                    Radio::new("export-png")
+                        .group("radio-export")
+                        .selected(true)
+                        .label("PNG"),
+                )
+                .child(Radio::new("export-svg").group("radio-export").label("SVG"))
+                .child(
+                    Radio::new("export-pdf")
+                        .group("radio-export")
+                        .disabled(true)
+                        .label("PDF"),
+                ),
         ))
+}
+
+fn selects_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
+    let formats = export_formats();
+
+    div()
+        .flex()
+        .flex_col()
+        .w_full()
+        .child(header(
+            theme,
+            page,
+            "SELECT",
+            "Pick from a list.",
+            "Closed field is Input chrome plus a chevron. The open list is secondary glass, radius 6. Arrows, enter, esc.",
+        ))
+        .child(section(
+            theme,
+            "Closed",
+            56.0,
+            false,
+            div()
+                .flex()
+                .items_end()
+                .gap(px(16.))
+                .child(Select::new("closed-placeholder").items(formats.clone()))
+                .child(
+                    Select::new("closed-filled")
+                        .value("PNG")
+                        .items(formats.clone()),
+                )
+                .child(labeled_select(
+                    Label::new("Export"),
+                    Select::new("closed-labeled")
+                        .value("PNG")
+                        .items(formats.clone()),
+                )),
+        ))
+        .child(section(
+            theme,
+            "States",
+            40.0,
+            false,
+            div()
+                .flex()
+                .items_end()
+                .gap(px(16.))
+                .child(state_select(
+                    theme,
+                    "Focus",
+                    Select::new("state-focus")
+                        .value("PNG")
+                        .focused(true)
+                        .items(formats.clone()),
+                ))
+                .child(state_select(
+                    theme,
+                    "Disabled",
+                    Select::new("state-disabled")
+                        .value("Archived project")
+                        .disabled(true)
+                        .items(formats.clone()),
+                )),
+        ))
+        .child(section(
+            theme,
+            "Open",
+            40.0,
+            false,
+            Select::new("open")
+                .value("PNG")
+                .focused(true)
+                .open(true)
+                .items(formats.clone()),
+        ))
+        .child(section(
+            theme,
+            "In use",
+            40.0,
+            true,
+            labeled_select(
+                Label::new("Export format"),
+                Select::new("in-use").value("PNG").items(formats),
+            ),
+        ))
+}
+
+fn kbds_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .w_full()
+        .child(header(
+            theme,
+            page,
+            "KBD",
+            "A chip for a key.",
+            "Ghost glass, twelve over five hundred. For menus and hints — not a button.",
+        ))
+        .child(section(
+            theme,
+            "Keys",
+            56.0,
+            false,
+            div()
+                .flex()
+                .items_center()
+                .gap(px(12.))
+                .child(Kbd::new("⌘K"))
+                .child(Kbd::new("⌘Q"))
+                .child(Kbd::new("Esc")),
+        ))
+        .child(section(
+            theme,
+            "In a hint",
+            40.0,
+            false,
+            div()
+                .flex()
+                .items_center()
+                .gap(px(8.))
+                .child(
+                    div()
+                        .font_family(theme.font_family)
+                        .font_weight(FontWeight::NORMAL)
+                        .text_size(px(14.))
+                        .line_height(px(18.))
+                        .text_color(theme.body)
+                        .child("Search artboards"),
+                )
+                .child(Kbd::new("⌘K")),
+        ))
+        .child(section(
+            theme,
+            "In a menu",
+            40.0,
+            true,
+            div()
+                .flex()
+                .flex_col()
+                .w(px(360.))
+                .child(kbd_menu_row(theme, "New file", "⌘N"))
+                .child(kbd_menu_row(theme, "Quit", "⌘Q")),
+        ))
+}
+
+fn kbd_menu_row(theme: Theme, label: &'static str, keys: &'static str) -> impl IntoElement {
+    div()
+        .flex()
+        .items_center()
+        .justify_between()
+        .w(px(360.))
+        .h(px(36.))
+        .flex_shrink_0()
+        .child(
+            div()
+                .font_family(theme.font_family)
+                .font_weight(FontWeight::NORMAL)
+                .text_size(px(14.))
+                .line_height(px(18.))
+                .text_color(theme.ink)
+                .child(label),
+        )
+        .child(Kbd::new(keys))
+}
+
+fn separators_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .w_full()
+        .child(header(
+            theme,
+            page,
+            "SEPARATOR",
+            "A quiet cut.",
+            "One pixel of zinc at twelve percent. Horizontal or vertical. Not a black rule.",
+        ))
+        .child(section(
+            theme,
+            "Horizontal",
+            56.0,
+            false,
+            Separator::horizontal(),
+        ))
+        .child(section(
+            theme,
+            "Vertical",
+            40.0,
+            false,
+            Separator::vertical(),
+        ))
+        .child(section(
+            theme,
+            "In use",
+            40.0,
+            true,
+            div()
+                .flex()
+                .flex_col()
+                .gap(px(16.))
+                .child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .gap(px(12.))
+                        .w(px(280.))
+                        .flex_shrink_0()
+                        .child(
+                            div()
+                                .font_family(theme.font_family)
+                                .font_weight(FontWeight::MEDIUM)
+                                .text_size(px(14.))
+                                .line_height(px(18.))
+                                .text_color(theme.ink)
+                                .child("Export"),
+                        )
+                        .child(Separator::horizontal())
+                        .child(
+                            div()
+                                .font_family(theme.font_family)
+                                .font_weight(FontWeight::NORMAL)
+                                .text_size(px(14.))
+                                .line_height(px(20.))
+                                .text_color(theme.body)
+                                .child("PNG, SVG, or PDF. One format at a time."),
+                        ),
+                )
+                .child(
+                    div()
+                        .flex()
+                        .items_center()
+                        .gap(px(12.))
+                        .h(px(36.))
+                        .flex_shrink_0()
+                        .child(separator_tool(theme, "Fit", theme.ink))
+                        .child(Separator::vertical().h(px(16.)))
+                        .child(separator_tool(theme, "Fill", theme.ink))
+                        .child(Separator::vertical().h(px(16.)))
+                        .child(separator_tool(theme, "Stretch", theme.muted_fg())),
+                ),
+        ))
+}
+
+fn separator_tool(theme: Theme, label: &'static str, color: gpui::Hsla) -> impl IntoElement {
+    div()
+        .font_family(theme.font_family)
+        .font_weight(FontWeight::MEDIUM)
+        .text_size(px(14.))
+        .line_height(px(18.))
+        .text_color(color)
+        .child(label)
 }
 
 fn labeled_field(label: Label, field: Input) -> impl IntoElement {
@@ -1077,6 +1395,36 @@ fn labeled_field(label: Label, field: Input) -> impl IntoElement {
         .flex_shrink_0()
         .child(label)
         .child(field)
+}
+
+fn labeled_select(label: Label, field: Select) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .gap(px(8.))
+        .w(px(280.))
+        .flex_shrink_0()
+        .child(label)
+        .child(field)
+}
+
+fn state_select(theme: Theme, caption: &'static str, field: Select) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .gap(px(10.))
+        .w(px(280.))
+        .flex_shrink_0()
+        .child(field)
+        .child(self::caption(theme, caption))
+}
+
+fn export_formats() -> Vec<SelectItem> {
+    vec![
+        SelectItem::new("PNG"),
+        SelectItem::new("SVG"),
+        SelectItem::new("PDF").disabled(true),
+    ]
 }
 
 fn state_sample(theme: Theme, caption: &'static str, field: Input) -> impl IntoElement {

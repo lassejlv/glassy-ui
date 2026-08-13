@@ -239,6 +239,116 @@ Materials are the same as Checkbox: outline glass at rest, primary glass when se
 
 Label: 14/400/18, gap 8, ink (muted when disabled). No mixed state.
 
+### Select
+
+Closed field is Input chrome, 280×36, padding-inline 14, plus a 16px chevron-down in `label`. Placeholder uses `placeholder`; value uses ink. Focus is the Input zinc ring. Disabled is Input disabled chrome.
+
+Open list: secondary glass, radius 6, padding 4, gap 8 below the field. Rows 32 tall, padding-inline 8, 16px leading slot (check on selected, empty otherwise). Selected row is ghost fill. Disabled option is `label` and not clickable. Arrows, enter, esc.
+
+### Kbd
+
+A chip for a key. Ghost glass, 22 tall, radius 6, min-width 22, padding-inline 6. Type 12/500/16. Not a button: no hover, no press.
+
+Light: ghost `#FFFFFF29` / border `#FFFFFF47` / inset `#FFFFFF66` / ink. Dark: ghost `#FFFFFF08` / border `#FFFFFF0F` / inset `#FFFFFF0F` / `#FAFAFA`.
+
+Specimens: ⌘K, ⌘Q, Esc. Hint row gap 8. Menu row 36 tall, 360 wide, shortcut trailing.
+
+### Separator
+
+A quiet cut. One pixel of zinc at twelve percent — not a black rule.
+
+| | Size | Light | Dark |
+| --- | --- | --- | --- |
+| Horizontal | 280×1 | `#18181B1F` | `#FAFAFA1F` |
+| Vertical | 1×36 | same | same |
+
+Toolbar ticks are the vertical rule at 16 tall. In-use stack: title, rule, body, gap 12, width 280.
+
+### Badge
+
+A count or status, not a button. Height 22, radius 6, 12/500, padding-inline 6.
+
+| Variant | Light | Dark | Foreground |
+| --- | --- | --- | --- |
+| Default | primary glass | primary (white) glass | `on_solid` |
+| Muted | ghost glass | ghost glass | `label` |
+| Destructive | destructive glass | destructive glass | `#FFFFFF` / `#FAFAFA` |
+
+### Tooltip
+
+Inverse chip, 24 tall, radius 6, 12/500, padding-inline 8, gap 6 from the trigger. Delay ~300ms. Same path in and out. Never under the cursor.
+
+| | Fill | Text |
+| --- | --- | --- |
+| Light | primary glass (`#18181BB8`) | `#FAFAFA` |
+| Dark | `#FAFAFA` | `#18181B` |
+
+Placements: Above, Below, Start, End.
+
+### Progress
+
+Determinate. Linear fill, no bounce.
+
+| | Size | Material |
+| --- | --- | --- |
+| Track | 280×8, radius 4 (pill) | outline glass |
+| Fill | width = percent of 280 | primary glass |
+| Circular | 24 box, stroke 2, r 9 | track at ~20% ink, arc ink |
+
+Specimens: 0 / 40 / 100.
+
+### Skeleton
+
+Pulse on secondary glass. Reduced motion holds the first frame.
+
+| Shape | Size | Radius |
+| --- | --- | --- |
+| Text line | 180×12 | 6 |
+| Avatar | 32×32 | 16 (circle) |
+| Control | 280×36 | 6 |
+
+### Dialog
+
+Centered question. Radius 10 panel (secondary glass), dim scrim (`#18181B47` light / `#00000073` dark) — not a second glass layer. Title 16/600, body 15/400, optional field, footer Ghost + Primary. Esc and overlay click dismiss. Spring 0.3s, damping 1.0; interruptible.
+
+### Avatar
+
+A face, like Radio — a circle, not a rounded-square control.
+
+| Size | Box | Initials |
+| --- | --- | --- |
+| 24 | 24×24, radius 12 | 10/600 |
+| 32 | 32×32, radius 16 | 12/600 |
+| 40 | 40×40, radius 20 | 14/600 |
+
+Treatments: image (clipped portrait), initials on primary glass (`on_solid`), fallback ghost glass + user icon.
+
+### Breadcrumb
+
+Ghost links (`label`), chevron-right 16 (`label`), current page 14/500 ink. Hover lifts a link to ink. Collapsed middle is `…`.
+
+### Pagination
+
+Ghost 36×36 icon buttons (chevron-left / chevron-right) and page numbers. Current page is primary glass. Disabled at the ends (ghost, opacity ~0.55, `label` icon).
+
+### Table
+
+Not a spreadsheet. Header 13/500 `label`, 1px zinc rule at 12%. Rows 40 tall, radius 6. Hover: ghost fill. Selected: outline glass. Empty: 280×148 secondary panel, spinner + “No pages.”
+
+Columns: Page, Size, Layers — fixed-width slots.
+
+### Slider
+
+Progress track 280×8 pill, outline glass, primary fill. Thumb 16 circle, primary glass, 1:1 with the pointer while dragging. Keyboard. Disabled is muted ghost. Value is 14/500 beside the track.
+
+### Combobox
+
+Closed field is Select (Input chrome 280×36 + chevron). Open: same field is the filter, list is secondary glass radius 6. Selected match has a check. Empty: “No pages match.”
+
+### Menubar
+
+In-window File / Edit / View. Items 28 tall, 13/500, padding-inline 10. Open item is ghost fill. Menu is Dropdown (radius 6): hover, Kbd, separator, destructive. Native OS menus stay native.
+
 ---
 
 ## Motion
@@ -297,6 +407,8 @@ Buttons: Default → Outline → Ghost → With icons → Sizes → States.
 Spinners: Sizes → Color → With label → In use.
 
 Checkboxes / Switches / Radios: States → Disabled → With label → In use.
+
+Overlays: Panel (or Default) → Overlay / Placement → In use.
 
 Copy stays dry. No marketing flourish beyond the one-line promise.
 

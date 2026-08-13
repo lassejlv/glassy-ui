@@ -10,6 +10,10 @@ use crate::chrome::button_chrome;
 
 type SwitchClickHandler = Box<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
 
+struct SwitchState {
+    on: bool,
+}
+
 /// 36×20 pill matching Paper `Grafik UI` → Switches.
 #[derive(IntoElement)]
 pub struct Switch {
@@ -64,11 +68,15 @@ impl Styled for Switch {
 }
 
 impl RenderOnce for Switch {
-    fn render(self, _window: &mut Window, cx: &mut App) -> impl IntoElement {
+    fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
+        let initial = self.on;
+        let state =
+            window.use_keyed_state(self.id.clone(), cx, move |_, _| SwitchState { on: initial });
+        let on = state.read(cx).on;
         let theme = cx.theme();
         let variant = if self.disabled {
             ButtonVariant::Ghost
-        } else if self.on {
+        } else if on {
             ButtonVariant::Primary
         } else {
             ButtonVariant::Outline
@@ -76,7 +84,7 @@ impl RenderOnce for Switch {
         let chrome = button_chrome(theme, variant);
         let thumb = if self.disabled {
             theme.muted_fg()
-        } else if self.on || theme.is_dark() {
+        } else if on || theme.is_dark() {
             theme.on_solid
         } else {
             button_chrome(theme, ButtonVariant::Primary).bg
@@ -93,8 +101,8 @@ impl RenderOnce for Switch {
         let track = div()
             .flex()
             .items_center()
-            .when(self.on, |el| el.justify_end())
-            .when(!self.on, |el| el.justify_start())
+            .when(on, |el| el.justify_end())
+            .when(!on, |el| el.justify_start())
             .w(px(36.))
             .h(px(20.))
             .flex_shrink_0()
@@ -145,11 +153,16 @@ impl RenderOnce for Switch {
             });
 
         if interactive {
-            if let Some(on_click) = self.on_click {
-                el.on_click(on_click)
-            } else {
-                el
-            }
+            let on_click = self.on_click;
+            el.on_click(move |event, window, cx| {
+                state.update(cx, |switch, cx| {
+                    switch.on = !switch.on;
+                    cx.notify();
+                });
+                if let Some(on_click) = &on_click {
+                    on_click(event, window, cx);
+                }
+            })
         } else {
             el
         }

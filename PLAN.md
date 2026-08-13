@@ -2,7 +2,7 @@
 
 What to design in Paper and implement in GPUI next. Visual rules: [`DESIGN.md`](./DESIGN.md).
 
-**Paper first.** Finish remaining Paper pages (light + dark) for the planned kit before more GPUI. Gallery reconstruction comes after that queue. Skip the “Not unless asked” list.
+**Paper queue is empty.** Planned kit has light + dark pages. Gallery reconstruction is next. Skip the “Not unless asked” list.
 
 ---
 
@@ -20,6 +20,9 @@ Paper page **and** gallery reconstruction.
 | Checkbox | Checkboxes | 16×16, radius 6. Off / on / mixed. Disabled, labeled, nested Export all. |
 | Switch | Switches | 36×20 pill, 16px thumb, 2px inset. Instant fill, no bounce. |
 | Radio | Radios | 16×16 circle, radius 8. Outline glass off, primary glass on. 6px dot. |
+| Select | Selects | Closed: Input chrome + chevron, 280×36. Open: secondary glass list, radius 6. Check on selected. |
+| Kbd | Kbd | Ghost glass chip, 22 tall, 12/500. ⌘K / ⌘Q / Esc. Hint and menu rows. |
+| Separator | Separators | 1px zinc at 12%. Horizontal 280, vertical 36. In-use stack and toolbar. |
 
 ---
 
@@ -29,51 +32,39 @@ Designed in Paper. Gallery reconstruction waits until this queue is finished.
 
 | Component | Paper page | Notes |
 | --- | --- | --- |
-| Select | Selects | Closed: Input chrome + chevron, 280×36. Open: secondary glass list, radius 6. Check on selected. |
-| Kbd | Kbd | Ghost glass chip, 22 tall, 12/500. ⌘K / ⌘Q / Esc. Hint and menu rows. |
-| Separator | Separators | 1px zinc at 12%. Horizontal 280, vertical 36. In-use stack and toolbar. |
+| Badge | Badges | Height 22, radius 6. Default primary, muted ghost, destructive. Counts 3 / 12 / 128. |
+| Tooltip | Tooltips | Inverse chip, 24 tall, radius 6. Delay ~300ms. Above / Below / Start / End. Never under the cursor. |
+| Progress | Progress | Linear 280×8 pill, outline track, primary fill. 0 / 40 / 100. Circular 24px ring. |
+| Skeleton | Skeletons | Secondary glass pulse. Text line 180×12, avatar 32 circle, control 280×36. |
+| Dialog | Dialogs | Radius 10 panel, dim scrim. Title, field, Ghost + Primary. Esc and overlay dismiss. |
+| Alert dialog | Alert dialogs | Same panel. Title is the action. No field. Ghost + Destructive. |
+| Popover | Popovers | Secondary glass, radius 6. Origin at the trigger. Page meta card. |
+| Dropdown menu | Dropdown menus | Items: hover, nested, separator, disabled, destructive, Kbd. File trigger. |
+| Context menu | Context menus | Same items as Dropdown. Opens at the pointer. |
+| Command | Command | ⌘K palette. Grouped rows, loading spinner, empty state. |
+| Toast | Toasts | 40 tall. Success, destructive, with Undo. Stacked bottom-end. |
+| Card | Cards | Radius 10 panel. Header, body, Ghost + Primary footer. |
+| Tabs | Tabs | Underline or ghost pill. Selected is ink. |
+| Accordion | Accordions | One open. Chevron turns with the content. |
+| Avatar | Avatars | Circle. 24 / 32 / 40. Image, initials, fallback. |
+| Breadcrumb | Breadcrumbs | Ghost links, chevron-right, current page as ink. Home / Pages / Buttons. |
+| Pagination | Pagination | Ghost 36 icon buttons + page number. Primary current. Disabled at ends. |
+| Table | Tables | Header, hover ghost fill, selected outline row. Empty + spinner. Page / Size / Layers. |
+| Slider | Sliders | 280×8 pill track, 16 circle thumb. 1:1 with the pointer. |
+| Combobox | Comboboxes | Input chrome + filtered list. Closed Pages, open “But”, empty xyzzy. |
+| Menubar | Menubars | In-window File / Edit / View. File menu: New file ⌘N, Duplicate, Delete page. |
 
 ---
 
-## Now — Paper queue
+## Now — Gallery
 
-Still foundation. Next Paper page:
-
-1. **Badge** — Default, muted, destructive. Height ~20–22, radius 6. For counts and status, not buttons.
-
----
-
-## Next
-
-Overlay and feedback. Needs Button, Input, Spinner, Kbd.
-
-11. **Tooltip** — Delay ~300ms, critically damped 0.3s, same path in and out. Inverse chip (dark on light, light on dark). Never clip under the cursor.
-12. **Progress** — Determinate bar (and optional circular using Spinner geometry). 0 / 40 / 100. Linear fill, no bounce.
-13. **Skeleton** — Pulse on secondary glass. Text line, avatar circle, control-sized block. Reduced motion: static.
-14. **Dialog** — Centered panel, radius 10, dim scrim (not a second glass layer). Title, body, footer with Ghost + Primary. Esc and overlay click dismiss. Spring 0.3s, damping 1.0; interruptible.
-15. **Alert dialog** — Dialog with Destructive confirm. Title states the irreversible action. No cute copy.
-16. **Popover** — Anchored to the trigger, origin at the source. Secondary glass, radius 6. Same enter/exit path.
-17. **Dropdown menu** — Popover + items: default, destructive, disabled, shortcut (`Kbd`), separator, nested. Arrow keys.
-18. **Context menu** — Dropdown that opens at the pointer. Same items.
-19. **Command** — `⌘K` palette. Input on top, grouped rows, spinner while loading, empty state. This is the native-app moment.
-20. **Toast** — Quiet, bottom or top-end. Success (ink), destructive, with optional action. Stack, do not bounce. Auto-dismiss; hover pauses.
+Paper is done. Reconstruct gallery pages 1:1 with Paper, in Paper-ready order.
 
 ---
 
 ## Later
 
-Layout and data, once forms and overlays exist.
-
-21. **Card** — Radius 10 panel (same as spinner empty state). Header, body, footer. No extra shadow language.
-22. **Tabs** — Underline or ghost-pill. Selected is ink; the rest is `label`. Keyboard left/right.
-23. **Accordion** — One open, interruptible height. Chevron rotates with the content, not as a separate gag.
-24. **Avatar** — Image, initials, fallback. Sizes 24 / 32 / 40. Radius full (circle) — a face, like Radio, not a rounded-square control.
-25. **Breadcrumb** — Ghost links, chevron-right, current page as ink.
-26. **Pagination** — Ghost icon buttons + page number. Disabled at ends.
-27. **Table** — Header, row hover (ghost fill), selected row, empty + spinner. Not a spreadsheet.
-28. **Slider** — 1:1 with the pointer while dragging; spring only on release if we snap. Keyboard.
-29. **Combobox** — Input + filtered list (Select + Command patterns).
-30. **Menubar** — App-level File / Edit. Native menu is already used in the gallery; this is in-window if an app needs it.
+Empty. The planned kit is Paper-ready. Gallery is Now.
 
 ---
 
@@ -105,6 +96,6 @@ Each new component:
 
 - One gallery page, 1:1 with Paper
 - Keep scroll, theme toggle (`⌘D`), quit (`⌘Q`)
-- Page switcher stays (Buttons, Spinners, Inputs, Labels, Checkboxes, Switches, Radios, …)
+- Page switcher stays (Buttons, Spinners, Inputs, Labels, Checkboxes, Switches, Radios, Selects, Kbd, Separator, …)
 
 Window stays opaque. No frost unless asked.

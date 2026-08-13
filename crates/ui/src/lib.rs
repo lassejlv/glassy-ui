@@ -8,8 +8,11 @@ mod checkbox;
 mod chrome;
 mod icon;
 mod input;
+mod kbd;
 mod label;
 mod radio;
+mod select;
+mod separator;
 mod spinner;
 mod switch;
 
@@ -19,8 +22,11 @@ pub use checkbox::{CheckState, Checkbox};
 pub use chrome::{ButtonChrome, FieldChrome, FieldState};
 pub use icon::{Icon, IconName};
 pub use input::{textarea, Input};
+pub use kbd::Kbd;
 pub use label::Label;
 pub use radio::Radio;
+pub use select::{Select, SelectItem};
+pub use separator::{Separator, SeparatorOrientation};
 pub use spinner::{Spinner, SpinnerSize, SpinnerTone};
 pub use switch::Switch;
 

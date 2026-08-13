@@ -11,6 +11,10 @@ use crate::icon::{Icon, IconName};
 
 type CheckboxClickHandler = Box<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
 
+struct CheckboxState {
+    state: CheckState,
+}
+
 /// Unchecked / checked / mixed, from Paper Checkboxes.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum CheckState {
@@ -81,9 +85,14 @@ impl Styled for Checkbox {
 }
 
 impl RenderOnce for Checkbox {
-    fn render(self, _window: &mut Window, cx: &mut App) -> impl IntoElement {
+    fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
+        let initial = self.state;
+        let state = window.use_keyed_state(self.id.clone(), cx, move |_, _| CheckboxState {
+            state: initial,
+        });
+        let check = state.read(cx).state;
         let theme = cx.theme();
-        let filled = matches!(self.state, CheckState::On | CheckState::Mixed);
+        let filled = matches!(check, CheckState::On | CheckState::Mixed);
         let variant = if self.disabled {
             ButtonVariant::Ghost
         } else if filled {
@@ -117,10 +126,10 @@ impl RenderOnce for Checkbox {
             .border_color(chrome.border)
             .bg(chrome.bg)
             .shadow(shadows)
-            .when(self.state == CheckState::On, |el| {
+            .when(check == CheckState::On, |el| {
                 el.child(Icon::new(IconName::Check).px(px(10.)).color(mark))
             })
-            .when(self.state == CheckState::Mixed, |el| {
+            .when(check == CheckState::Mixed, |el| {
                 el.child(
                     div()
                         .w(px(8.))
@@ -160,11 +169,20 @@ impl RenderOnce for Checkbox {
             });
 
         if interactive {
-            if let Some(on_click) = self.on_click {
-                el.on_click(on_click)
-            } else {
-                el
-            }
+            let on_click = self.on_click;
+            el.on_click(move |event, window, cx| {
+                state.update(cx, |checkbox, cx| {
+                    checkbox.state = match checkbox.state {
+                        CheckState::Off => CheckState::On,
+                        CheckState::On => CheckState::Off,
+                        CheckState::Mixed => CheckState::On,
+                    };
+                    cx.notify();
+                });
+                if let Some(on_click) = &on_click {
+                    on_click(event, window, cx);
+                }
+            })
         } else {
             el
         }

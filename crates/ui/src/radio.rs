@@ -10,10 +10,15 @@ use crate::chrome::button_chrome;
 
 type RadioClickHandler = Box<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
 
+struct RadioGroupState {
+    selected: Option<SharedString>,
+}
+
 /// 16×16 circle matching Paper `Grafik UI` → Radios.
 #[derive(IntoElement)]
 pub struct Radio {
     id: SharedString,
+    group: Option<SharedString>,
     selected: bool,
     disabled: bool,
     label: Option<SharedString>,
@@ -25,12 +30,19 @@ impl Radio {
     pub fn new(id: impl Into<SharedString>) -> Self {
         Self {
             id: id.into(),
+            group: None,
             selected: false,
             disabled: false,
             label: None,
             style: StyleRefinement::default(),
             on_click: None,
         }
+    }
+
+    /// Radios that share a group keep one selection.
+    pub fn group(mut self, group: impl Into<SharedString>) -> Self {
+        self.group = Some(group.into());
+        self
     }
 
     pub fn selected(mut self, selected: bool) -> Self {
@@ -64,17 +76,34 @@ impl Styled for Radio {
 }
 
 impl RenderOnce for Radio {
-    fn render(self, _window: &mut Window, cx: &mut App) -> impl IntoElement {
+    fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
+        let radio_id = self.id.clone();
+        let initially_selected = self.selected;
+        let seed = radio_id.clone();
+        let state_key = self.group.clone().unwrap_or_else(|| self.id.clone());
+        let state = window.use_keyed_state(state_key, cx, move |_, _| RadioGroupState {
+            selected: if initially_selected { Some(seed) } else { None },
+        });
+        state.update(cx, |group, _| {
+            if group.selected.is_none() && initially_selected {
+                group.selected = Some(radio_id.clone());
+            }
+        });
+        let selected = state
+            .read(cx)
+            .selected
+            .as_ref()
+            .is_some_and(|id| id.as_ref() == self.id.as_ref());
         let theme = cx.theme();
         let variant = if self.disabled {
             ButtonVariant::Ghost
-        } else if self.selected {
+        } else if selected {
             ButtonVariant::Primary
         } else {
             ButtonVariant::Outline
         };
         let chrome = button_chrome(theme, variant);
-        let dot = if self.disabled && self.selected {
+        let dot = if self.disabled && selected {
             theme.muted_fg()
         } else {
             theme.on_solid
@@ -99,7 +128,7 @@ impl RenderOnce for Radio {
             .border_color(chrome.border)
             .bg(chrome.bg)
             .shadow(shadows)
-            .when(self.selected, |el| {
+            .when(selected, |el| {
                 el.child(div().size(px(6.)).flex_shrink_0().rounded(px(3.)).bg(dot))
             });
 
@@ -132,11 +161,16 @@ impl RenderOnce for Radio {
             });
 
         if interactive {
-            if let Some(on_click) = self.on_click {
-                el.on_click(on_click)
-            } else {
-                el
-            }
+            let on_click = self.on_click;
+            el.on_click(move |event, window, cx| {
+                state.update(cx, |group, cx| {
+                    group.selected = Some(radio_id.clone());
+                    cx.notify();
+                });
+                if let Some(on_click) = &on_click {
+                    on_click(event, window, cx);
+                }
+            })
         } else {
             el
         }

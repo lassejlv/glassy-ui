@@ -29,6 +29,7 @@ actions!(
         Paste,
         Cut,
         Copy,
+        Newline,
     ]
 );
 
@@ -51,6 +52,7 @@ pub fn init(cx: &mut App) {
         KeyBinding::new("ctrl-x", Cut, Some("KitInput")),
         KeyBinding::new("home", Home, Some("KitInput")),
         KeyBinding::new("end", End, Some("KitInput")),
+        KeyBinding::new("enter", Newline, Some("KitInput")),
     ]);
 }
 
@@ -236,6 +238,13 @@ impl InputState {
             self.content[self.selected_range.clone()].to_string(),
         ));
         self.replace_text_in_range(None, "", window, cx);
+    }
+
+    fn newline(&mut self, _: &Newline, window: &mut Window, cx: &mut gpui::Context<Self>) {
+        if self.disabled || !self.multiline {
+            return;
+        }
+        self.replace_text_in_range(None, "\n", window, cx);
     }
 
     fn move_to(&mut self, offset: usize, cx: &mut gpui::Context<Self>) {
@@ -494,6 +503,7 @@ struct TextElement {
     placeholder: Hsla,
     caret: Hsla,
     show_caret: bool,
+    fill: bool,
 }
 
 struct PrepaintState {
@@ -531,7 +541,11 @@ impl Element for TextElement {
     ) -> (LayoutId, Self::RequestLayoutState) {
         let mut style = Style::default();
         style.size.width = relative(1.).into();
-        style.size.height = window.line_height().into();
+        style.size.height = if self.fill {
+            relative(1.).into()
+        } else {
+            window.line_height().into()
+        };
         (window.request_layout(style, [], cx), ())
     }
 
@@ -552,7 +566,7 @@ impl Element for TextElement {
         let (display_text, text_color) = if empty {
             (input.placeholder.clone(), self.placeholder)
         } else {
-            (content, self.color)
+            (SharedString::from(content.replace('\n', " ")), self.color)
         };
 
         let run = TextRun {
@@ -785,8 +799,6 @@ impl RenderOnce for Input {
 
         let focus_handle = state.read(cx).focus_handle.clone();
         let focused = focus_handle.is_focused(window);
-        let content = state.read(cx).content.clone();
-        let placeholder_text = state.read(cx).placeholder.clone();
         let field_state = if self.disabled {
             FieldState::Disabled
         } else if self.invalid {
@@ -797,7 +809,7 @@ impl RenderOnce for Input {
             FieldState::Rest
         };
         let chrome = field_chrome(theme, field_state);
-        let show_caret = !self.disabled && !multiline && (self.show_focus || focused);
+        let show_caret = !self.disabled && (self.show_focus || focused);
         let has_icon = self.leading_icon.is_some();
         let pad_x = if has_icon || self.trailing.is_some() {
             14.0
@@ -809,7 +821,6 @@ impl RenderOnce for Input {
         let line_height = if multiline { 20.0 } else { 18.0 };
         let helper = self.helper.clone();
         let helper_color = theme.destructive;
-        let empty = content.is_empty();
 
         let mut shadows = vec![BoxShadow::new(px(0.), px(1.), chrome.inset).inset()];
         if chrome.shadow_blur > 0.0 {
@@ -860,6 +871,7 @@ impl RenderOnce for Input {
             .on_action(window.listener_for(&state, InputState::paste))
             .on_action(window.listener_for(&state, InputState::cut))
             .on_action(window.listener_for(&state, InputState::copy))
+            .on_action(window.listener_for(&state, InputState::newline))
             .on_mouse_down(
                 MouseButton::Left,
                 window.listener_for(&state, InputState::on_mouse_down),
@@ -876,17 +888,11 @@ impl RenderOnce for Input {
             .when_some(self.leading_icon, |el, icon| {
                 el.child(Icon::new(icon).px(px(16.)).color(chrome.placeholder))
             })
-            .child(if multiline {
+            .child(
                 div()
                     .flex_1()
                     .min_w(px(0.))
-                    .text_color(if empty { chrome.placeholder } else { chrome.fg })
-                    .child(if empty { placeholder_text } else { content })
-                    .into_any_element()
-            } else {
-                div()
-                    .flex_1()
-                    .min_w(px(0.))
+                    .when(multiline, |el| el.h_full())
                     .overflow_hidden()
                     .child(TextElement {
                         input: state.clone(),
@@ -894,9 +900,9 @@ impl RenderOnce for Input {
                         placeholder: chrome.placeholder,
                         caret: chrome.caret,
                         show_caret,
-                    })
-                    .into_any_element()
-            })
+                        fill: multiline,
+                    }),
+            )
             .when_some(self.trailing, |el, trailing| {
                 el.child(
                     div()
