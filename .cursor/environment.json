@@ -1,0 +1,5 @@
+{
+  "name": "grafik-ui (GPUI Kit)",
+  "install": "./.cursor/install.sh",
+  "start": "./.cursor/start.sh"
+}
