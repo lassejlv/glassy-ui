@@ -1,0 +1,11 @@
+[package]
+name = "gpui-kit-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "GPUI Kit components: Button, Spinner, Input, Label, Checkbox, Switch."
+
+[dependencies]
+gpui.workspace = true
+gpui-kit-motion.workspace = true
+gpui-kit-theme.workspace = true

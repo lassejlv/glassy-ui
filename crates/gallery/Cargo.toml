@@ -1,0 +1,15 @@
+[package]
+name = "gpui-kit-gallery"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "1:1 Paper gallery for GPUI Kit."
+
+[[bin]]
+name = "gpui-kit-gallery"
+path = "src/main.rs"
+
+[dependencies]
+gpui.workspace = true
+gpui_platform.workspace = true
+gpui-kit-ui.workspace = true

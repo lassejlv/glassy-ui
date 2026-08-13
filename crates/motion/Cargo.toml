@@ -1,0 +1,12 @@
+[package]
+name = "gpui-kit-motion"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Declarative motion primitives for GPUI, copied from loora-rs."
+
+[dependencies]
+gpui.workspace = true
+
+[dev-dependencies]
+gpui = { workspace = true, features = ["test-support"] }

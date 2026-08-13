@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = ["crates/motion", "crates/theme", "crates/ui", "crates/gallery"]
+default-members = ["crates/gallery"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+gpui = { git = "https://github.com/zed-industries/zed", rev = "101ca00a1352ed71ef398f21b47836565d1998e3" }
+gpui_platform = { git = "https://github.com/zed-industries/zed", rev = "101ca00a1352ed71ef398f21b47836565d1998e3", features = [
+    "font-kit",
+    "wayland",
+    "x11",
+] }
+gpui-kit-motion = { path = "crates/motion" }
+gpui-kit-theme = { path = "crates/theme" }
+gpui-kit-ui = { path = "crates/ui" }

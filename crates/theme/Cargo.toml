@@ -1,0 +1,9 @@
+[package]
+name = "gpui-kit-theme"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Active light/dark theme for GPUI Kit."
+
+[dependencies]
+gpui.workspace = true
