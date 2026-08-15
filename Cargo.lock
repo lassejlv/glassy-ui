@@ -2374,35 +2374,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "grafik-gallery"
-version = "0.1.0"
-dependencies = [
- "gpui",
- "gpui_platform",
- "grafik-ui",
-]
-
-[[package]]
-name = "grafik-motion"
-version = "0.1.0"
-dependencies = [
- "gpui",
-]
-
-[[package]]
-name = "grafik-theme"
-version = "0.1.0"
-dependencies = [
- "gpui",
-]
-
-[[package]]
 name = "grafik-ui"
 version = "0.1.0"
 dependencies = [
  "gpui",
- "grafik-motion",
- "grafik-theme",
+ "gpui_platform",
 ]
 
 [[package]]

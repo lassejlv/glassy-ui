@@ -59,7 +59,7 @@ Gallery window: 1440×900, opaque, transparent titlebar, vertical scroll (`flex_
 
 ## Color
 
-Zinc scale, plus one red. Semantic tokens live in `crates/theme`. Button *chrome* (fills, rims, shadows) stays in `crates/ui/src/chrome.rs` — it is material, not theme text.
+Zinc scale, plus one red. Semantic tokens live in `src/theme`. Button *chrome* (fills, rims, shadows) stays in `src/chrome.rs` — it is material, not theme text.
 
 ### Semantic (theme)
 
@@ -285,6 +285,14 @@ Inverse chip, 24 tall, radius 6, 12/500, padding-inline 8, gap 6 from the trigge
 
 Placements: Above, Below, Start, End.
 
+### Dropdown menu
+
+Trigger-anchored secondary glass, 240 wide, radius 6, padding 4, row gap 2. Rows are 32 tall with radius 4 and 10px horizontal padding. The panel sits 6px from its trigger.
+
+Items use 14/400/18 ink. Hover and keyboard highlight use `#FFFFFF47` light / `#FFFFFF12` dark. Disabled uses `label`; destructive uses `destructive`. Shortcuts reuse Kbd, separators are 1px zinc, and nested items use a 16px chevron-right.
+
+Click or Enter/Space opens. Up/Down skip separators and disabled items. Right enters a submenu, Left returns, Escape and outside click dismiss, and focus returns to the trigger after keyboard dismissal or activation.
+
 ### Progress
 
 Determinate. Linear fill, no bounce.
@@ -373,6 +381,8 @@ Rules:
 - Enter and exit along the same path.
 - Bounce only when the gesture had momentum. A button that merely appeared must not overshoot.
 - Reduced motion: opacity cross-fade, no elastic, spinner static.
+
+Implemented component motion uses `src/motion`: selection marks fade in over 140ms, anchored/modal surfaces fade in over 180ms, and switch thumbs slide over 180ms ease-out without bounce. Hover fills remain instant.
 
 Crate defaults today: tween 300ms ease-out; `Transition::spring()` is 500ms with bounce `0.25` (use that for momentum, not for chrome). Prefer a critically damped spring for ordinary UI when wiring new motion.
 

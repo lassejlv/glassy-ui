@@ -26,6 +26,11 @@ Paper page **and** gallery reconstruction.
 | Skeleton | Skeletons | Secondary glass pulse. Text line 180×12, avatar 32 circle, control 280×36. Reduced motion holds frame one. |
 | Tooltip | Tooltips | Inverse chip, 24 tall, radius 6. 300ms hover delay. Above / Below / Start / End. |
 | Progress | Progress | Linear 280×8 outline track + primary fill. 0 / 40 / 100. Circular 24px ring. |
+| Badge | Badges | Height 22, radius 6. Default primary, muted ghost, destructive. Counts 3 / 12 / 128. |
+| Dialog | Dialogs | Radius 10 panel, dim scrim. Title, field, Ghost + Primary. Esc and overlay dismiss. |
+| Alert dialog | Alert dialogs | Same panel. Title is the action. No field. Ghost + Destructive. Locked scrim, safe autofocus. |
+| Popover | Popovers | Secondary glass, radius 6. Origin at the trigger. Page meta card. |
+| Dropdown menu | Dropdown menus | 240px anchored list. Shortcut, nested, separator, disabled, destructive. Pointer + keyboard. |
 
 ---
 
@@ -35,11 +40,6 @@ Designed in Paper. Gallery reconstruction waits until this queue is finished.
 
 | Component | Paper page | Notes |
 | --- | --- | --- |
-| Badge | Badges | Height 22, radius 6. Default primary, muted ghost, destructive. Counts 3 / 12 / 128. |
-| Dialog | Dialogs | Radius 10 panel, dim scrim. Title, field, Ghost + Primary. Esc and overlay dismiss. |
-| Alert dialog | Alert dialogs | Same panel. Title is the action. No field. Ghost + Destructive. |
-| Popover | Popovers | Secondary glass, radius 6. Origin at the trigger. Page meta card. |
-| Dropdown menu | Dropdown menus | Items: hover, nested, separator, disabled, destructive, Kbd. File trigger. |
 | Context menu | Context menus | Same items as Dropdown. Opens at the pointer. |
 | Command | Command | ⌘K palette. Grouped rows, loading spinner, empty state. |
 | Toast | Toasts | 40 tall. Success, destructive, with Undo. Stacked bottom-end. |
@@ -58,7 +58,7 @@ Designed in Paper. Gallery reconstruction waits until this queue is finished.
 
 ## Now — Gallery
 
-Paper is done. Reconstruct gallery pages 1:1 with Paper, in Paper-ready order.
+Paper is done. Reconstruct gallery pages 1:1 with Paper, in Paper-ready order. Context menu is next.
 
 ---
 
@@ -96,6 +96,6 @@ Each new component:
 
 - One gallery page, 1:1 with Paper
 - Keep scroll, theme toggle (`⌘D`), quit (`⌘Q`)
-- Page switcher stays (Buttons, Skeletons, Tooltips, Progress, Spinners, Inputs, Labels, Checkboxes, Switches, Radios, Selects, Kbd, Separator, …)
+- Page switcher stays (Buttons, Skeletons, Tooltips, Progress, Spinners, Inputs, Labels, Checkboxes, Switches, Radios, Selects, Kbd, Separator, Badges, Dialogs, Alert dialogs, Popovers, …)
 
 Window stays opaque. No frost unless asked.
