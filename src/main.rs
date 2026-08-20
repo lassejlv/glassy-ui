@@ -7,7 +7,7 @@ use gpui::{
     WindowBackgroundAppearance, WindowBounds, WindowOptions,
 };
 use gpui_platform::application;
-use gpui_ui::{
+use glassy_ui::{
     init as init_ui, init_motion, init_theme, load_fonts, paint, rgb, textarea, ActiveTheme,
     AlertDialog, Assets, Badge, BadgeVariant, Button, ButtonGroup, ButtonSize, ButtonVariant,
     CheckState, Checkbox, CircularProgress, ContextMenu, Dialog, DialogContent, DialogDescription,
@@ -18,7 +18,7 @@ use gpui_ui::{
 };
 
 actions!(
-    gpui_gallery,
+    glassy_gallery,
     [
         Quit,
         ToggleTheme,
@@ -55,7 +55,7 @@ fn main() {
             init_ui(cx);
             load_fonts(cx).expect("register Inter");
 
-            cx.set_app_identity("dev.gpui.gallery", "gpui-ui");
+            cx.set_app_identity("dev.glassy.gallery", "Glassy UI");
             cx.on_action(|_: &Quit, cx| cx.quit());
             cx.on_action(|_: &ToggleTheme, cx| cx.toggle_theme());
             cx.bind_keys([
@@ -102,7 +102,7 @@ fn main() {
                 KeyBinding::new("cmd-]", ShowNextPage, None),
                 KeyBinding::new("ctrl-]", ShowNextPage, None),
             ]);
-            cx.set_menus([Menu::new("gpui-ui").items([
+            cx.set_menus([Menu::new("Glassy UI").items([
                 MenuItem::action("Buttons", ShowButtons),
                 MenuItem::action("Skeletons", ShowSkeletons),
                 MenuItem::action("Tooltips", ShowTooltips),
@@ -125,7 +125,7 @@ fn main() {
                 MenuItem::separator(),
                 MenuItem::action("Toggle Light / Dark", ToggleTheme),
                 MenuItem::separator(),
-                MenuItem::action("Quit gpui-ui", Quit),
+                MenuItem::action("Quit Glassy UI", Quit),
             ])]);
 
             open_gallery(cx);
@@ -140,9 +140,9 @@ fn open_gallery(cx: &mut App) {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
             window_min_size: Some(size(px(640.), px(420.))),
             window_background: WindowBackgroundAppearance::Opaque,
-            app_id: Some("dev.gpui.gallery".into()),
+            app_id: Some("dev.glassy.gallery".into()),
             titlebar: Some(TitlebarOptions {
-                title: Some("gpui-ui — Inputs".into()),
+                title: Some("Glassy UI — Inputs".into()),
                 appears_transparent: true,
                 ..Default::default()
             }),
@@ -179,25 +179,25 @@ enum GalleryPage {
 impl GalleryPage {
     fn title(self) -> &'static str {
         match self {
-            Self::Buttons => "gpui-ui — Buttons",
-            Self::Skeletons => "gpui-ui — Skeletons",
-            Self::Tooltips => "gpui-ui — Tooltips",
-            Self::Progress => "gpui-ui — Progress",
-            Self::Spinners => "gpui-ui — Spinners",
-            Self::Inputs => "gpui-ui — Inputs",
-            Self::Labels => "gpui-ui — Labels",
-            Self::Checkboxes => "gpui-ui — Checkboxes",
-            Self::Switches => "gpui-ui — Switches",
-            Self::Radios => "gpui-ui — Radios",
-            Self::Selects => "gpui-ui — Selects",
-            Self::Kbds => "gpui-ui — Kbd",
-            Self::Separators => "gpui-ui — Separators",
-            Self::Badges => "gpui-ui — Badges",
-            Self::Dialogs => "gpui-ui — Dialogs",
-            Self::AlertDialogs => "gpui-ui — Alert dialogs",
-            Self::Popovers => "gpui-ui — Popovers",
-            Self::DropdownMenus => "gpui-ui — Dropdown menus",
-            Self::ContextMenus => "gpui-ui — Context menus",
+            Self::Buttons => "Glassy UI — Buttons",
+            Self::Skeletons => "Glassy UI — Skeletons",
+            Self::Tooltips => "Glassy UI — Tooltips",
+            Self::Progress => "Glassy UI — Progress",
+            Self::Spinners => "Glassy UI — Spinners",
+            Self::Inputs => "Glassy UI — Inputs",
+            Self::Labels => "Glassy UI — Labels",
+            Self::Checkboxes => "Glassy UI — Checkboxes",
+            Self::Switches => "Glassy UI — Switches",
+            Self::Radios => "Glassy UI — Radios",
+            Self::Selects => "Glassy UI — Selects",
+            Self::Kbds => "Glassy UI — Kbd",
+            Self::Separators => "Glassy UI — Separators",
+            Self::Badges => "Glassy UI — Badges",
+            Self::Dialogs => "Glassy UI — Dialogs",
+            Self::AlertDialogs => "Glassy UI — Alert dialogs",
+            Self::Popovers => "Glassy UI — Popovers",
+            Self::DropdownMenus => "Glassy UI — Dropdown menus",
+            Self::ContextMenus => "Glassy UI — Context menus",
         }
     }
 
@@ -1226,7 +1226,7 @@ fn inputs_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .items_end()
                 .gap(px(16.))
                 .child(Input::new("project-placeholder").placeholder("Project name"))
-                .child(Input::new("project-filled").value("gpui-ui"))
+                .child(Input::new("project-filled").value("glassy-ui"))
                 .child(labeled_field(
                     Label::new("Email"),
                     Input::new("email").value("hello@paper.design"),
@@ -1265,7 +1265,7 @@ fn inputs_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .child(state_sample(
                     theme,
                     "Focus",
-                    Input::new("focus").value("gpui-ui").show_focus(true),
+                    Input::new("focus").value("glassy-ui").show_focus(true),
                 ))
                 .child(state_sample(
                     theme,
@@ -1315,7 +1315,7 @@ fn inputs_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .gap(px(16.))
                 .child(labeled_field(
                     Label::new("Name").required(true),
-                    Input::new("form-name").value("gpui-ui").w(px(360.)),
+                    Input::new("form-name").value("glassy-ui").w(px(360.)),
                 ))
                 .child(labeled_field(
                     Label::new("Description").optional(true),
@@ -1378,7 +1378,7 @@ fn labels_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 ))
                 .child(labeled_field(
                     Label::new("Name").required(true),
-                    Input::new("label-name").value("gpui-ui"),
+                    Input::new("label-name").value("glassy-ui"),
                 )),
         ))
         .child(section(
@@ -1393,7 +1393,7 @@ fn labels_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .gap(px(16.))
                 .child(labeled_field(
                     Label::new("Name").required(true),
-                    Input::new("label-form-name").value("gpui-ui").w(px(360.)),
+                    Input::new("label-form-name").value("glassy-ui").w(px(360.)),
                 ))
                 .child(labeled_field(
                     Label::new("Description").optional(true),

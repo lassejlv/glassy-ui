@@ -1,10 +1,10 @@
-# gpui-ui
+# Glassy UI
 
 A shadcn-shaped component kit for native [GPUI](https://github.com/zed-industries/zed). One component per Paper page, light and dark. It should look like a control and behave like a control.
 
 Quiet zinc glass on a mineral canvas. Opaque window. Translucency on controls, not the frame. One saturated color (destructive red). Radius 6. Inter only.
 
-Paper (`Grafik UI`) is the visual contract. Code matches computed values, not screenshots.
+Paper (`Glassy UI`) is the visual contract. Code matches computed values, not screenshots.
 
 ## Docs
 

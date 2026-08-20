@@ -7,7 +7,7 @@ Requires Rust 2021 and a host that can build GPUI (macOS, or Linux with Wayland/
 From this repo:
 
 ```sh
-cargo run                 # gpui-gallery
+cargo run                 # glassy-gallery
 cargo test
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all -- --check
@@ -19,7 +19,7 @@ Gallery: 1440×900, opaque window, `⌘D` theme, `⌘]` next page, `⌘Q` quit.
 
 ```toml
 [dependencies]
-gpui-ui = { git = "https://github.com/lassejlv/gpui-ui" }
+glassy-ui = { git = "https://github.com/lassejlv/glassy-ui" }
 gpui = { git = "https://github.com/zed-industries/zed", rev = "101ca00a1352ed71ef398f21b47836565d1998e3" }
 gpui_platform = { git = "https://github.com/zed-industries/zed", rev = "101ca00a1352ed71ef398f21b47836565d1998e3", features = [
     "font-kit",
@@ -35,7 +35,7 @@ Install `Assets`, then init in this order. `src/main.rs` is the executable refer
 ```rust
 use gpui::App;
 use gpui_platform::application;
-use gpui_ui::{init, init_motion, init_theme, load_fonts, Assets};
+use glassy_ui::{init, init_motion, init_theme, load_fonts, Assets};
 
 fn main() {
     application()
@@ -59,7 +59,7 @@ IDs must be stable across rerenders (hover, focus, and keyed state use them).
 
 ```rust
 use gpui::{div, prelude::*, px};
-use gpui_ui::{ActiveTheme, Button, ButtonVariant};
+use glassy_ui::{ActiveTheme, Button, ButtonVariant};
 
 fn toolbar(cx: &mut gpui::App) -> impl gpui::IntoElement {
     let theme = cx.theme();

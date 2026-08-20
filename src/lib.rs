@@ -1,6 +1,6 @@
-//! gpui-ui components.
+//! Glassy UI components.
 //!
-//! Visual contract: Paper file `Grafik UI`.
+//! Visual contract: Paper file `Glassy UI`.
 
 pub mod motion;
 pub mod theme;

@@ -55,7 +55,7 @@ impl CheckState {
     }
 }
 
-/// 16×16 radius-6 mark matching Paper `Grafik UI` → Checkboxes.
+/// 16×16 radius-6 mark matching Paper `Glassy UI` → Checkboxes.
 ///
 /// Without [`Checkbox::on_change`] / [`Checkbox::on_click`] the mark keeps its
 /// own state (gallery specimens). With a listener, [`Checkbox::state`] /

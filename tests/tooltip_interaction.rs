@@ -4,7 +4,7 @@ use gpui::{
     div, prelude::*, px, size, Context, Modifiers, Render, TestAppContext, VisualTestContext,
     Window,
 };
-use gpui_ui::{init_theme, Button, ButtonVariant, IconName, Tooltip, TooltipPlacement};
+use glassy_ui::{init_theme, Button, ButtonVariant, IconName, Tooltip, TooltipPlacement};
 
 struct TooltipHarness {
     placement: TooltipPlacement,

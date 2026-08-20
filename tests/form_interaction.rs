@@ -4,7 +4,7 @@ use gpui::{
     div, prelude::*, px, size, Context, Modifiers, Render, SharedString, TestAppContext,
     VisualTestContext, Window,
 };
-use gpui_ui::{init as init_ui, init_theme, CheckState, Checkbox, Input, Radio, Switch};
+use glassy_ui::{init as init_ui, init_theme, CheckState, Checkbox, Input, Radio, Switch};
 
 struct FormHarness {
     check: CheckState,

@@ -4,7 +4,7 @@ use gpui::{
     div, point, prelude::*, px, size, Context, Modifiers, MouseButton, Render, TestAppContext,
     VisualTestContext, Window,
 };
-use gpui_ui::{init_theme, ContextMenu, DropdownMenuEntry, DropdownMenuItem};
+use glassy_ui::{init_theme, ContextMenu, DropdownMenuEntry, DropdownMenuItem};
 
 struct ContextHarness {
     selected: Rc<Cell<usize>>,

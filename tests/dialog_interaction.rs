@@ -4,7 +4,7 @@ use gpui::{
     div, point, prelude::*, px, size, Context, FocusHandle, KeyDownEvent, Modifiers, Render,
     TestAppContext, VisualTestContext, Window,
 };
-use gpui_ui::{
+use glassy_ui::{
     init_theme, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 };
 

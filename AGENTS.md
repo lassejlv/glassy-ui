@@ -2,8 +2,8 @@
 
 ## Sources Of Truth
 
-- This is one `gpui-ui` package, not a workspace. `src/lib.rs` is the library surface; `src/main.rs` is the `gpui-gallery` demo binary and default run target.
-- For visual work, `DESIGN.md` and the Paper file `Grafik UI` are the contract. Use Paper `get_jsx` / `get_computed_styles`; screenshots are only QA. Preserve exact pixels and `RRGGBB_AA` alpha values rather than approximating them.
+- This is one `glassy-ui` package, not a workspace. `src/lib.rs` is the library surface; `src/main.rs` is the `glassy-gallery` demo binary and default run target.
+- For visual work, `DESIGN.md` and the Paper file `Glassy UI` are the contract. Use Paper `get_jsx` / `get_computed_styles`; screenshots are only QA. Preserve exact pixels and `RRGGBB_AA` alpha values rather than approximating them.
 - `PLAN.md` distinguishes implemented components from the Paper-ready queue. Do not implement items under "Not unless asked."
 
 ## Architecture Constraints
@@ -13,11 +13,11 @@
 - Use `src/motion`; do not introduce another animation stack. Ordinary UI motion is critically damped/interruptible, hover fills are immediate, and reduced motion must remain static or opacity-only.
 - The project intentionally has no direct third-party runtime dependencies besides pinned Zed GPUI crates. Do not add a crate to replace the local theme or motion implementations.
 - Asset embedding is an explicit match/list in `src/assets.rs`. Adding or renaming an icon/font requires updating both `AssetSource::load` and `AssetSource::list`.
-- A consuming app must install `Assets`, then call `init_motion`, `init_theme`, `gpui_ui::init` (input keybindings), and `load_fonts`; `src/main.rs` is the executable reference.
+- A consuming app must install `Assets`, then call `init_motion`, `init_theme`, `glassy_ui::init` (input keybindings), and `load_fonts`; `src/main.rs` is the executable reference.
 
 ## Commands
 
-- Run the gallery: `cargo run` (equivalent to `cargo run --bin gpui-gallery`).
+- Run the gallery: `cargo run` (equivalent to `cargo run --bin glassy-gallery`).
 - Full verification: `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, then `cargo test`.
 - Library/unit tests only: `cargo test --lib`.
 - One integration target: `cargo test --test select_interaction` (targets also include `dialog_interaction`, `alert_dialog_interaction`, and `popover_interaction`).

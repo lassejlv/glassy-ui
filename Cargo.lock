@@ -2001,6 +2001,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "glassy-ui"
+version = "0.1.0"
+dependencies = [
+ "gpui",
+ "gpui_platform",
+]
+
+[[package]]
 name = "glob"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2145,14 +2153,6 @@ dependencies = [
  "zed-font-kit",
  "zed-scap",
  "ztracing",
-]
-
-[[package]]
-name = "gpui-ui"
-version = "0.1.0"
-dependencies = [
- "gpui",
- "gpui_platform",
 ]
 
 [[package]]

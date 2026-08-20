@@ -21,7 +21,7 @@ struct SwitchState {
     rendered: bool,
 }
 
-/// 36×20 pill matching Paper `Grafik UI` → Switches.
+/// 36×20 pill matching Paper `Glassy UI` → Switches.
 ///
 /// Without a listener the thumb keeps its own state. With [`Switch::on_change`]
 /// or [`Switch::on_click`], [`Switch::on`] is the source of truth each render.

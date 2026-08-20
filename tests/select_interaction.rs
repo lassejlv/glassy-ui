@@ -4,7 +4,7 @@ use gpui::{
     div, point, prelude::*, px, size, Context, Modifiers, Render, TestAppContext,
     VisualTestContext, Window,
 };
-use gpui_ui::{init_theme, Select, SelectItem};
+use glassy_ui::{init_theme, Select, SelectItem};
 
 struct SelectHarness {
     first_picked: Rc<Cell<bool>>,

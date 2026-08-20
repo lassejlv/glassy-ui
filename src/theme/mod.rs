@@ -1,7 +1,7 @@
-//! Process-wide light/dark theme for gpui-ui.
+//! Process-wide light/dark theme for Glassy UI.
 //!
 //! ```ignore
-//! use gpui_ui::{init_theme, ActiveTheme, Theme};
+//! use glassy_ui::{init_theme, ActiveTheme, Theme};
 //!
 //! fn main() {
 //!     application().run(|cx| {

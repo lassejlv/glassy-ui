@@ -14,7 +14,7 @@ use crate::button::ButtonVariant;
 use crate::chrome::button_chrome;
 use crate::spinner::{paint_dot, paint_ring, point_on_circle, spinner_paints, SpinnerTone};
 
-/// Determinate linear progress matching Paper `Grafik UI` → Progress.
+/// Determinate linear progress matching Paper `Glassy UI` → Progress.
 ///
 /// Values are clamped to `0.0..=1.0`. The default geometry is 280×8; width can
 /// be changed through [`Styled`] and the fill remains proportional.
@@ -82,7 +82,7 @@ impl RenderOnce for Progress {
     }
 }
 
-/// Determinate 24px circular progress matching Paper `Grafik UI` → Progress.
+/// Determinate 24px circular progress matching Paper `Glassy UI` → Progress.
 #[derive(IntoElement)]
 pub struct CircularProgress {
     value: f32,

@@ -81,7 +81,7 @@ textarea("notes")
 - Default field is 280×36. Textarea is 320×96, line-height 20.
 - `.invalid(true)` paints the invalid glass and shows helper in `destructive`.
 - `.show_focus(true)` is a specimen switch: it paints the focus ring without window focus.
-- Call `gpui_ui::init(cx)` once or Backspace / arrows / paste will not bind.
+- Call `glassy_ui::init(cx)` once or Backspace / arrows / paste will not bind.
 - Textarea wrap is visual. The caret is still a single shaped line.
 
 Without `on_change`, typing is kept internally. Parent `.value(...)` is applied when that prop changes.

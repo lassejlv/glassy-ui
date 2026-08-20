@@ -1,4 +1,4 @@
-# gpui-ui — Plan
+# Glassy UI — Plan
 
 What to design in Paper and implement in GPUI next. Visual rules: [`DESIGN.md`](./DESIGN.md).
 
@@ -70,7 +70,7 @@ Empty. The planned kit is Paper-ready. Gallery is Now.
 
 ## Not unless asked
 
-These are shadcn staples that do not earn a page in gpui-ui yet:
+These are shadcn staples that do not earn a page in Glassy UI yet:
 
 - Carousel, chart, calendar, date picker, OTP, sidebar, drawer/sheet, resizable panels, hover card, toggle group, sonner-as-a-brand.
 

@@ -13,7 +13,7 @@ pub enum SeparatorOrientation {
     Vertical,
 }
 
-/// 1px rule matching Paper `Grafik UI` → Separators.
+/// 1px rule matching Paper `Glassy UI` → Separators.
 #[derive(IntoElement)]
 pub struct Separator {
     orientation: SeparatorOrientation,

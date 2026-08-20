@@ -1,6 +1,6 @@
 # Components
 
-All of these are re-exported from `gpui_ui`. Implementations stay private modules.
+All of these are re-exported from `glassy_ui`. Implementations stay private modules.
 
 IDs must be stable. Most controls implement `Styled`.
 

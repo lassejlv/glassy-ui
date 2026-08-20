@@ -18,7 +18,7 @@ use crate::icon::{Icon, IconName};
 type InputChangeHandler = Rc<dyn Fn(SharedString, &mut Window, &mut App) + 'static>;
 
 actions!(
-    gpui_input,
+    glassy_input,
     [
         Backspace,
         Delete,
@@ -721,7 +721,7 @@ impl Element for TextElement {
     }
 }
 
-/// Single-line field matching Paper `Grafik UI` → Inputs.
+/// Single-line field matching Paper `Glassy UI` → Inputs.
 #[derive(IntoElement)]
 pub struct Input {
     id: SharedString,

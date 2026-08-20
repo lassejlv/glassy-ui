@@ -1,13 +1,13 @@
 [package]
-name = "gpui-ui"
+name = "glassy-ui"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "gpui-ui components for native GPUI interfaces."
-default-run = "gpui-gallery"
+description = "Glassy UI components for native GPUI interfaces."
+default-run = "glassy-gallery"
 
 [[bin]]
-name = "gpui-gallery"
+name = "glassy-gallery"
 path = "src/main.rs"
 
 [dependencies]

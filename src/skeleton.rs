@@ -33,7 +33,7 @@ impl SkeletonShape {
     }
 }
 
-/// Pulsing secondary-glass placeholder matching Paper `Grafik UI` → Skeletons.
+/// Pulsing secondary-glass placeholder matching Paper `Glassy UI` → Skeletons.
 ///
 /// GPUI automatically holds repeating animations at their first frame when
 /// reduced motion is enabled, so the static state remains the full-strength

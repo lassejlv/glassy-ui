@@ -15,7 +15,7 @@ const BADGE_HEIGHT: f32 = 22.0;
 const BADGE_RADIUS: f32 = 6.0;
 const BADGE_PAD_X: f32 = 8.0;
 
-/// Visual treatment from Paper `Grafik UI` → Badges.
+/// Visual treatment from Paper `Glassy UI` → Badges.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum BadgeVariant {
     #[default]

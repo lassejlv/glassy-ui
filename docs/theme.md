@@ -34,7 +34,7 @@ Radius is 6 for controls. Panels that are clearly a card (dialog, empty spinner 
 
 ## Motion
 
-Use `gpui_ui::motion`. Do not add another animation stack.
+Use `glassy_ui::motion`. Do not add another animation stack.
 
 - Default UI springs are critically damped.
 - Hover fills are immediate.

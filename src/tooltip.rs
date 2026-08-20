@@ -14,7 +14,7 @@ use gpui::{
 const DEFAULT_SHOW_DELAY: Duration = Duration::from_millis(300);
 const TOOLTIP_GAP: f32 = 6.0;
 
-/// Inverse-glass tooltip matching Paper `Grafik UI` → Tooltips.
+/// Inverse-glass tooltip matching Paper `Glassy UI` → Tooltips.
 ///
 /// Render it directly for a visible specimen, or attach it to a [`crate::Button`]
 /// with [`crate::Button::tooltip`] for delayed hover behavior.

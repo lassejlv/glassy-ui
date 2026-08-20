@@ -1,6 +1,6 @@
 # Docs
 
-gpui-ui is a shadcn-shaped component kit for native [GPUI](https://github.com/zed-industries/zed). Paper is the visual contract. This folder is how you use the crate.
+Glassy UI is a shadcn-shaped component kit for native [GPUI](https://github.com/zed-industries/zed). Paper is the visual contract. This folder is how you use the crate.
 
 | Guide | What it covers |
 | --- | --- |

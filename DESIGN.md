@@ -1,6 +1,6 @@
-# gpui-ui — Design
+# Glassy UI — Design
 
-A shadcn-shaped component kit for native GPUI. The visual contract lives in Paper (`Grafik UI`). Code must match `get_jsx` / `get_computed_styles`, not screenshots.
+A shadcn-shaped component kit for native GPUI. The visual contract lives in Paper (`Glassy UI`). Code must match `get_jsx` / `get_computed_styles`, not screenshots.
 
 This document describes the system we actually ship: **quiet zinc glass on a mineral canvas**. Apple’s interface language (WWDC *Designing Fluid Interfaces*, materials, type) is the feel we aim for. Paper pixels are the law.
 

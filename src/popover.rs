@@ -317,7 +317,7 @@ fn popover_chrome(theme: Theme) -> PopoverChrome {
     }
 }
 
-/// Secondary-glass popover panel matching Paper `Grafik UI` → Popovers.
+/// Secondary-glass popover panel matching Paper `Glassy UI` → Popovers.
 #[derive(IntoElement)]
 pub struct PopoverContent {
     style: StyleRefinement,

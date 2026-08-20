@@ -82,7 +82,7 @@ impl ButtonSize {
     }
 }
 
-/// Clickable glass button matching Paper `Grafik UI` → Buttons.
+/// Clickable glass button matching Paper `Glassy UI` → Buttons.
 #[derive(IntoElement)]
 pub struct Button {
     id: SharedString,
