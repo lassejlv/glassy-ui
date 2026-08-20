@@ -131,3 +131,47 @@ ContextMenu::new("page")
 ```
 
 Right-click the child to open at `event.position`. Escape and outside click dismiss and restore focus. `.open(true)` is controlled, same as Popover.
+
+## Paper screenshots
+
+### Dialogs
+
+| Light | Dark |
+| --- | --- |
+| ![Dialog specimens in the light theme](./images/paper/dialog-light.png) | ![Dialog specimens in the dark theme](./images/paper/dialog-dark.png) |
+
+### Alert dialogs
+
+| Light | Dark |
+| --- | --- |
+| ![Alert dialog specimens in the light theme](./images/paper/alert-light.png) | ![Alert dialog specimens in the dark theme](./images/paper/alert-dark.png) |
+
+### Popovers
+
+| Light | Dark |
+| --- | --- |
+| ![Popover specimens in the light theme](./images/paper/popover-light.png) | ![Popover specimens in the dark theme](./images/paper/popover-dark.png) |
+
+### Tooltips
+
+| Light | Dark |
+| --- | --- |
+| ![Tooltip specimens in the light theme](./images/paper/tooltip-light.png) | ![Tooltip specimens in the dark theme](./images/paper/tooltip-dark.png) |
+
+### Dropdown menus
+
+| Light | Dark |
+| --- | --- |
+| ![Dropdown menu specimens in the light theme](./images/paper/dropdown-light.png) | ![Dropdown menu specimens in the dark theme](./images/paper/dropdown-dark.png) |
+
+### Context menus
+
+| Light | Dark |
+| --- | --- |
+| ![Context menu specimens in the light theme](./images/paper/context-light.png) | ![Context menu specimens in the dark theme](./images/paper/context-dark.png) |
+
+### Menubars
+
+| Light | Dark |
+| --- | --- |
+| ![Menubar specimens in the light theme](./images/paper/menubar-light.png) | ![Menubar specimens in the dark theme](./images/paper/menubar-dark.png) |

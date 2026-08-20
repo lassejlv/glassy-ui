@@ -123,3 +123,47 @@ Give the label an `.id(...)` if two “Email” labels share a tree.
 ## Keyboard and roles
 
 Checkbox, Switch, and Radio are Tab stops with a 3px focus ring. Space and Enter activate. Input is `TextInput`. Select is `ComboBox` with `aria-expanded`.
+
+## Paper screenshots
+
+### Inputs and textareas
+
+| Light | Dark |
+| --- | --- |
+| ![Input specimens in the light theme](./images/paper/input-light.png) | ![Input specimens in the dark theme](./images/paper/input-dark.png) |
+
+### Selects
+
+| Light | Dark |
+| --- | --- |
+| ![Select specimens in the light theme](./images/paper/select-light.png) | ![Select specimens in the dark theme](./images/paper/select-dark.png) |
+
+### Switches
+
+| Light | Dark |
+| --- | --- |
+| ![Switch specimens in the light theme](./images/paper/switch-light.png) | ![Switch specimens in the dark theme](./images/paper/switch-dark.png) |
+
+### Checkboxes
+
+| Light | Dark |
+| --- | --- |
+| ![Checkbox specimens in the light theme](./images/paper/checkbox-light.png) | ![Checkbox specimens in the dark theme](./images/paper/checkbox-dark.png) |
+
+### Radios
+
+| Light | Dark |
+| --- | --- |
+| ![Radio specimens in the light theme](./images/paper/radio-light.png) | ![Radio specimens in the dark theme](./images/paper/radio-dark.png) |
+
+### Labels
+
+| Light | Dark |
+| --- | --- |
+| ![Label specimens in the light theme](./images/paper/label-light.png) | ![Label specimens in the dark theme](./images/paper/label-dark.png) |
+
+### Comboboxes
+
+| Light | Dark |
+| --- | --- |
+| ![Combobox specimens in the light theme](./images/paper/combobox-light.png) | ![Combobox specimens in the dark theme](./images/paper/combobox-dark.png) |

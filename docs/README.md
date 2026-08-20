@@ -14,3 +14,11 @@ Also at the repo root:
 
 - [`DESIGN.md`](../DESIGN.md) — pixels, glass, type, light/dark
 - [`PLAN.md`](../PLAN.md) — shipped vs Paper-ready queue
+
+## Paper preview
+
+Every Paper page is captured in the component, form, or overlay guide. The source artboards include both light and dark specimens.
+
+| Light | Dark |
+| --- | --- |
+| ![Button specimens in the light theme](./images/paper/button-light.png) | ![Button specimens in the dark theme](./images/paper/button-dark.png) |

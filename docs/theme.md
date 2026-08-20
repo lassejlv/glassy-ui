@@ -22,6 +22,12 @@ Semantic text and canvas colors live in `theme`. Button fills, rims, inset catch
 
 Exact Paper alphas are `RRGGBB_AA`. Helpers: `rgb(0x18181B)`, `paint(0x18181B_B8)`.
 
+## Paper themes
+
+| Light | Dark |
+| --- | --- |
+| ![Light theme button specimens](./images/paper/button-light.png) | ![Dark theme button specimens](./images/paper/button-dark.png) |
+
 ## Material
 
 Glass is fill + 1px rim + inset 1px highlight + (sometimes) a soft drop shadow. GPUI has no per-control backdrop-filter; on this canvas the Paper blur is nearly a no-op, so alpha + rim + inset is the native material.

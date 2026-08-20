@@ -84,3 +84,11 @@ Components implement `Styled`. You can override width, padding, and similar afte
 | Jump | `⌘1`–`⌘9`, `⌘0`, plus shift chords for later pages |
 
 The window stays opaque. Frost belongs on controls, not the frame.
+
+## Gallery preview
+
+The Paper artboards are the visual source of truth for the gallery.
+
+| Light | Dark |
+| --- | --- |
+| ![Glassy UI button gallery in the light theme](./images/paper/button-light.png) | ![Glassy UI button gallery in the dark theme](./images/paper/button-dark.png) |
