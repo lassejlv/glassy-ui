@@ -1,9 +1,9 @@
-//! Paper hex+alpha is grouped as `RRGGBB_AA`.
+//! Design-spec hex+alpha is grouped as `RRGGBB_AA`.
 #![allow(clippy::unusual_byte_groupings)]
 
 use gpui::{rgba, Hsla};
 
-/// Typeface used on the Paper kit pages.
+/// Typeface used on the design spec kit pages.
 pub const FONT_FAMILY: &str = "Inter Variable";
 
 /// Light or dark kit surface.
@@ -138,7 +138,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn light_and_dark_match_paper() {
+    fn light_and_dark_match_spec() {
         let light = Theme::light();
         assert_eq!(light.canvas, rgb(0xE8EAEE));
         assert_eq!(light.heading, rgb(0x18181B));

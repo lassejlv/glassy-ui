@@ -155,7 +155,7 @@ fn open_alert(cx: &mut VisualTestContext) {
 }
 
 #[gpui::test]
-fn alert_dialog_matches_paper_geometry(cx: &mut TestAppContext) {
+fn alert_dialog_matches_spec_geometry(cx: &mut TestAppContext) {
     let mut test = setup(cx);
     let background_before = test
         .cx

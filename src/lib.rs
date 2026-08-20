@@ -1,6 +1,6 @@
 //! Glassy UI components.
 //!
-//! Visual contract: Paper file `Glassy UI`.
+//! Visual contract: design spec file `Glassy UI`.
 
 pub mod motion;
 pub mod theme;

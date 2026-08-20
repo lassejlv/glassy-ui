@@ -1,6 +1,6 @@
 # Docs
 
-Glassy UI is a shadcn-shaped component kit for native [GPUI](https://github.com/zed-industries/zed). Paper is the visual contract. This folder is how you use the crate.
+Glassy UI is a shadcn-shaped component kit for native [GPUI](https://github.com/zed-industries/zed). The design source is the visual contract. This folder is how you use the crate.
 
 | Guide | What it covers |
 | --- | --- |
@@ -13,12 +13,12 @@ Glassy UI is a shadcn-shaped component kit for native [GPUI](https://github.com/
 Also at the repo root:
 
 - [`DESIGN.md`](../DESIGN.md) — pixels, glass, type, light/dark
-- [`PLAN.md`](../PLAN.md) — shipped vs Paper-ready queue
+- [`PLAN.md`](../PLAN.md) — shipped vs design-ready queue
 
-## Paper preview
+## Component preview
 
-Every Paper page is captured in the component, form, or overlay guide. The source artboards include both light and dark specimens.
+Every design page is captured in the component, form, or overlay guide. The source artboards include both light and dark specimens.
 
 | Light | Dark |
 | --- | --- |
-| ![Button specimens in the light theme](./images/paper/button-light.png) | ![Button specimens in the dark theme](./images/paper/button-dark.png) |
+| ![Button specimens in the light theme](./images/specimens/button-light.png) | ![Button specimens in the dark theme](./images/specimens/button-dark.png) |

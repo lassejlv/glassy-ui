@@ -24,7 +24,7 @@ struct RadioFocusState {
     focus_handle: FocusHandle,
 }
 
-/// 16×16 circle matching Paper `Glassy UI` → Radios.
+/// 16×16 circle matching the design spec `Glassy UI` → Radios.
 ///
 /// Radios that share [`Radio::group`] keep one selection. Without a listener
 /// the group owns that selection; with [`Radio::on_change`] / [`Radio::on_click`],

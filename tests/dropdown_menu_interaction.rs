@@ -136,7 +136,7 @@ fn click_trigger(cx: &mut VisualTestContext) {
 }
 
 #[gpui::test]
-fn menu_matches_paper_geometry_without_reflow(cx: &mut TestAppContext) {
+fn menu_matches_spec_geometry_without_reflow(cx: &mut TestAppContext) {
     let mut test = setup(cx);
     let sentinel_before = test
         .cx

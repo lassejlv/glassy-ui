@@ -1,4 +1,4 @@
-//! Paper hex+alpha is grouped as `RRGGBB_AA`.
+//! Design-spec hex+alpha is grouped as `RRGGBB_AA`.
 #![allow(clippy::unusual_byte_groupings)]
 
 use std::f32::consts::PI;
@@ -11,7 +11,7 @@ use gpui::{
     ParentElement, PathBuilder, Pixels, Point, RenderOnce, StyleRefinement, Styled, Window,
 };
 
-/// Paper sizes: 16 / 20 / 24 / 32.
+/// Design-spec sizes: 16 / 20 / 24 / 32.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum SpinnerSize {
     Small,
@@ -41,7 +41,7 @@ impl SpinnerSize {
     }
 }
 
-/// Paper Color row: Default / Muted / Inverse / Destructive.
+/// Design-spec color row: Default / Muted / Inverse / Destructive.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum SpinnerTone {
     #[default]
@@ -160,11 +160,11 @@ fn resolve_paints(
     arc: Option<Hsla>,
     track: Option<Hsla>,
 ) -> (Hsla, Hsla) {
-    let (paper_track, paper_arc) = spinner_paints(theme, tone);
-    let arc = arc.unwrap_or(paper_arc);
+    let (spec_track, spec_arc) = spinner_paints(theme, tone);
+    let arc = arc.unwrap_or(spec_arc);
     let track = track.unwrap_or_else(|| {
-        if arc == paper_arc {
-            paper_track
+        if arc == spec_arc {
+            spec_track
         } else {
             arc.alpha(0.22)
         }
@@ -172,7 +172,7 @@ fn resolve_paints(
     (track, arc)
 }
 
-/// `(track, arc)` from Paper Spinners, computed styles.
+/// `(track, arc)` from the Spinners design page's computed styles.
 pub fn spinner_paints(theme: Theme, tone: SpinnerTone) -> (Hsla, Hsla) {
     match (theme.kind, tone) {
         (ThemeKind::Light, SpinnerTone::Default) => (paint(0x18181B_33), rgb(0x18181B)),
@@ -285,7 +285,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn sizes_match_paper() {
+    fn sizes_match_spec() {
         assert_eq!(SpinnerSize::Small.px(), 16.0);
         assert_eq!(SpinnerSize::Small.stroke(), 1.5);
         assert_eq!(SpinnerSize::Default.px(), 20.0);
@@ -298,14 +298,14 @@ mod tests {
     }
 
     #[test]
-    fn light_default_matches_paper() {
+    fn light_default_matches_spec() {
         let (track, arc) = spinner_paints(Theme::light(), SpinnerTone::Default);
         assert_eq!(arc, rgb(0x18181B));
         assert_eq!(track, paint(0x18181B_33));
     }
 
     #[test]
-    fn dark_muted_matches_paper() {
+    fn dark_muted_matches_spec() {
         let (track, arc) = spinner_paints(Theme::dark(), SpinnerTone::Muted);
         assert_eq!(arc, rgb(0xA1A1AA));
         assert_eq!(track, paint(0xA1A1AA_47));

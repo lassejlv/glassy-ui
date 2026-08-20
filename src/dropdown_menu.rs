@@ -731,7 +731,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn materials_match_paper() {
+    fn materials_match_spec() {
         let light = menu_chrome(Theme::light());
         assert_eq!(light.background, paint(0xFFFFFF85));
         assert_eq!(light.border, paint(0xFFFFFFB8));

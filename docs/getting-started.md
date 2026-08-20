@@ -87,8 +87,8 @@ The window stays opaque. Frost belongs on controls, not the frame.
 
 ## Gallery preview
 
-The Paper artboards are the visual source of truth for the gallery.
+The design artboards are the visual source of truth for the gallery.
 
 | Light | Dark |
 | --- | --- |
-| ![Glassy UI button gallery in the light theme](./images/paper/button-light.png) | ![Glassy UI button gallery in the dark theme](./images/paper/button-dark.png) |
+| ![Glassy UI button gallery in the light theme](./images/specimens/button-light.png) | ![Glassy UI button gallery in the dark theme](./images/specimens/button-dark.png) |

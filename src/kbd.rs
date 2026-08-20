@@ -8,7 +8,7 @@ use gpui::{
 use crate::button::ButtonVariant;
 use crate::chrome::{box_shadow, button_chrome};
 
-/// Ghost glass chip matching Paper `Glassy UI` → Kbd. Not a button.
+/// Ghost glass chip matching the design spec `Glassy UI` → Kbd. Not a button.
 #[derive(IntoElement)]
 pub struct Kbd {
     keys: SharedString,

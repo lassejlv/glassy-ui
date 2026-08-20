@@ -1,4 +1,4 @@
-//! Paper hex+alpha is grouped as `RRGGBB_AA`.
+//! Design-spec hex+alpha is grouped as `RRGGBB_AA`.
 #![allow(clippy::unusual_byte_groupings)]
 
 use std::time::Duration;
@@ -16,7 +16,7 @@ use crate::compat::{AccessibilityExt, Role, StyleCompatExt};
 const DEFAULT_SHOW_DELAY: Duration = Duration::from_millis(300);
 const TOOLTIP_GAP: f32 = 6.0;
 
-/// Inverse-glass tooltip matching Paper `Glassy UI` → Tooltips.
+/// Inverse-glass tooltip matching the design spec `Glassy UI` → Tooltips.
 ///
 /// Render it directly for a visible specimen, or attach it to a [`crate::Button`]
 /// with [`crate::Button::tooltip`] for delayed hover behavior.
@@ -29,7 +29,7 @@ pub struct Tooltip {
     style: StyleRefinement,
 }
 
-/// Paper placements: above / below / start / end of the trigger.
+/// Design-spec placements: above / below / start / end of the trigger.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum TooltipPlacement {
     #[default]
@@ -298,7 +298,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_delay_matches_paper() {
+    fn default_delay_matches_spec() {
         assert_eq!(Tooltip::new("Export PNG").delay(), DEFAULT_SHOW_DELAY);
     }
 
@@ -311,7 +311,7 @@ mod tests {
     }
 
     #[test]
-    fn light_material_matches_paper() {
+    fn light_material_matches_spec() {
         let chrome = tooltip_chrome(Theme::light());
         assert_eq!(chrome.bg, paint(0x18181B_B8));
         assert_eq!(chrome.border, paint(0xFFFFFF_29));
@@ -322,7 +322,7 @@ mod tests {
     }
 
     #[test]
-    fn dark_material_matches_paper() {
+    fn dark_material_matches_spec() {
         let chrome = tooltip_chrome(Theme::dark());
         assert_eq!(chrome.bg, rgb(0xFAFAFA));
         assert_eq!(chrome.border, paint(0xFFFFFF_B8));

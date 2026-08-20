@@ -1,4 +1,4 @@
-//! Paper hex+alpha is grouped as `RRGGBB_AA`.
+//! Design-spec hex+alpha is grouped as `RRGGBB_AA`.
 #![allow(clippy::unusual_byte_groupings)]
 
 use std::f32::consts::TAU;
@@ -14,7 +14,7 @@ use gpui::{
 use crate::button::ButtonVariant;
 use crate::chrome::{box_shadow, button_chrome};
 
-/// Paper Skeleton shapes and their default geometry.
+/// Design-spec skeleton shapes and their default geometry.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum SkeletonShape {
     #[default]
@@ -33,11 +33,11 @@ impl SkeletonShape {
     }
 }
 
-/// Pulsing secondary-glass placeholder matching Paper `Glassy UI` → Skeletons.
+/// Pulsing secondary-glass placeholder matching the design spec `Glassy UI` → Skeletons.
 ///
 /// GPUI automatically holds repeating animations at their first frame when
 /// reduced motion is enabled, so the static state remains the full-strength
-/// Paper material.
+/// Design-spec material.
 #[derive(IntoElement)]
 pub struct Skeleton {
     id: SharedString,
@@ -125,14 +125,14 @@ mod tests {
     use crate::theme::{paint, Theme};
 
     #[test]
-    fn presets_match_paper_geometry() {
+    fn presets_match_spec_geometry() {
         assert_eq!(SkeletonShape::Text.metrics(), (180.0, 12.0, 6.0));
         assert_eq!(SkeletonShape::Avatar.metrics(), (32.0, 32.0, 16.0));
         assert_eq!(SkeletonShape::Control.metrics(), (280.0, 36.0, 6.0));
     }
 
     #[test]
-    fn secondary_glass_matches_paper() {
+    fn secondary_glass_matches_spec() {
         let light = button_chrome(Theme::light(), ButtonVariant::Secondary);
         assert_eq!(light.bg, paint(0xFFFFFF_85));
         assert_eq!(light.border, paint(0xFFFFFF_B8));

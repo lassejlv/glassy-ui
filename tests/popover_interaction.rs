@@ -131,7 +131,7 @@ fn click_trigger(cx: &mut VisualTestContext) {
 }
 
 #[gpui::test]
-fn panel_matches_paper_and_does_not_reflow(cx: &mut TestAppContext) {
+fn panel_matches_spec_and_does_not_reflow(cx: &mut TestAppContext) {
     let mut test = setup(cx, PopoverPlacement::Bottom, false);
     let sentinel_before = test
         .cx

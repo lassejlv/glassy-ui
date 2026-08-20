@@ -261,7 +261,7 @@ impl RenderOnce for Dialog {
     }
 }
 
-/// Radius-10 dialog panel matching the Paper material.
+/// Radius-10 dialog panel matching the design spec material.
 #[derive(IntoElement)]
 pub struct DialogContent {
     style: StyleRefinement,
@@ -487,7 +487,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn light_material_matches_paper() {
+    fn light_material_matches_spec() {
         let chrome = dialog_chrome(Theme::light());
         assert_eq!(chrome.background, paint(0xFFFFFF85));
         assert_eq!(chrome.border, paint(0xFFFFFFB8));
@@ -497,7 +497,7 @@ mod tests {
     }
 
     #[test]
-    fn dark_material_matches_paper() {
+    fn dark_material_matches_spec() {
         let chrome = dialog_chrome(Theme::dark());
         assert_eq!(chrome.background, paint(0xFFFFFF12));
         assert_eq!(chrome.border, paint(0xFFFFFF1A));

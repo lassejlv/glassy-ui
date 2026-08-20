@@ -21,7 +21,7 @@ struct ButtonState {
     focus_handle: FocusHandle,
 }
 
-/// Visual treatment from the Paper Buttons page.
+/// Visual treatment from the Buttons design page.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ButtonVariant {
     #[default]
@@ -33,7 +33,7 @@ pub enum ButtonVariant {
     Ghost,
 }
 
-/// Height / type scale from Paper.
+/// Height / type scale from the design source.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ButtonSize {
     Small,
@@ -84,7 +84,7 @@ impl ButtonSize {
     }
 }
 
-/// Clickable glass button matching Paper `Glassy UI` → Buttons.
+/// Clickable glass button matching the design spec `Glassy UI` → Buttons.
 #[derive(IntoElement)]
 pub struct Button {
     id: SharedString,
@@ -352,7 +352,7 @@ impl RenderOnce for Button {
     }
 }
 
-/// Clipped outline pill used for the Paper "Save draft | Publish" pair.
+/// Clipped outline pill used for the design spec "Save draft | Publish" pair.
 #[derive(IntoElement)]
 pub struct ButtonGroup {
     theme: Option<Theme>,

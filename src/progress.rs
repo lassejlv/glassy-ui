@@ -1,4 +1,4 @@
-//! Paper hex+alpha is grouped as `RRGGBB_AA`.
+//! Design-spec hex+alpha is grouped as `RRGGBB_AA`.
 #![allow(clippy::unusual_byte_groupings)]
 
 use std::f32::consts::{PI, TAU};
@@ -14,7 +14,7 @@ use crate::button::ButtonVariant;
 use crate::chrome::{box_shadow, button_chrome};
 use crate::spinner::{paint_dot, paint_ring, point_on_circle, spinner_paints, SpinnerTone};
 
-/// Determinate linear progress matching Paper `Glassy UI` → Progress.
+/// Determinate linear progress matching the design spec `Glassy UI` → Progress.
 ///
 /// Values are clamped to `0.0..=1.0`. The default geometry is 280×8; width can
 /// be changed through [`Styled`] and the fill remains proportional.
@@ -81,7 +81,7 @@ impl RenderOnce for Progress {
     }
 }
 
-/// Determinate 24px circular progress matching Paper `Glassy UI` → Progress.
+/// Determinate 24px circular progress matching the design spec `Glassy UI` → Progress.
 #[derive(IntoElement)]
 pub struct CircularProgress {
     value: f32,
@@ -190,7 +190,7 @@ mod tests {
     }
 
     #[test]
-    fn linear_material_matches_paper() {
+    fn linear_material_matches_spec() {
         let light_track = button_chrome(Theme::light(), ButtonVariant::Outline);
         let light_fill = button_chrome(Theme::light(), ButtonVariant::Primary);
         assert_eq!(light_track.bg, paint(0xFFFFFF_47));
@@ -207,7 +207,7 @@ mod tests {
     }
 
     #[test]
-    fn circular_paints_match_paper() {
+    fn circular_paints_match_spec() {
         assert_eq!(
             spinner_paints(Theme::light(), SpinnerTone::Default),
             (paint(0x18181B_33), rgb(0x18181B))

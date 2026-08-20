@@ -4,7 +4,7 @@ use gpui::{
     Window,
 };
 
-/// Icons used on the Paper Buttons page.
+/// Icons used on the design spec Buttons page.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum IconName {
     Plus,

@@ -340,7 +340,7 @@ fn popover_chrome(theme: Theme) -> PopoverChrome {
     }
 }
 
-/// Secondary-glass popover panel matching Paper `Glassy UI` → Popovers.
+/// Secondary-glass popover panel matching the design spec `Glassy UI` → Popovers.
 #[derive(IntoElement)]
 pub struct PopoverContent {
     style: StyleRefinement,
@@ -475,7 +475,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn light_material_matches_paper() {
+    fn light_material_matches_spec() {
         let chrome = popover_chrome(Theme::light());
         assert_eq!(chrome.background, paint(0xFFFFFF85));
         assert_eq!(chrome.border, paint(0xFFFFFFB8));
@@ -484,7 +484,7 @@ mod tests {
     }
 
     #[test]
-    fn dark_material_matches_paper() {
+    fn dark_material_matches_spec() {
         let chrome = popover_chrome(Theme::dark());
         assert_eq!(chrome.background, paint(0xFFFFFF12));
         assert_eq!(chrome.border, paint(0xFFFFFF1A));

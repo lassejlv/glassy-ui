@@ -1,10 +1,10 @@
 # Glassy UI
 
-A shadcn-shaped component kit for native [GPUI](https://github.com/zed-industries/zed). One component per Paper page, light and dark. It should look like a control and behave like a control.
+A shadcn-shaped component kit for native [GPUI](https://github.com/zed-industries/zed). One component per design page, light and dark. It should look like a control and behave like a control.
 
 Quiet zinc glass on a mineral canvas. Opaque window. Translucency on controls, not the frame. One saturated color (destructive red). Radius 6. Inter only.
 
-Paper (`Glassy UI`) is the visual contract. Code matches computed values, not screenshots.
+The `Glassy UI` design spec is the visual contract. Code matches computed values, not screenshots.
 
 ## Docs
 
@@ -29,7 +29,7 @@ Glassy UI targets the published `gpui` 0.2.2 crate. Full setup is in [getting st
 
 Button, Input, Textarea, Select, Checkbox, Switch, Radio, Label, Kbd, Badge, Separator, Skeleton, Spinner, Progress, Tooltip, Dialog, Alert dialog, Popover, Dropdown menu, Context menu.
 
-Next in Paper order: Command, then Toast. See [`PLAN.md`](PLAN.md).
+Next in gallery order: Command, then Toast. See [`PLAN.md`](PLAN.md).
 
 ## License
 

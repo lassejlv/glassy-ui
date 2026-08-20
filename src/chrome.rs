@@ -1,4 +1,4 @@
-//! Paper hex+alpha is grouped as `RRGGBB_AA`.
+//! Design-spec hex+alpha is grouped as `RRGGBB_AA`.
 #![allow(clippy::unusual_byte_groupings)]
 
 use crate::theme::{paint, rgb, Theme, ThemeKind};
@@ -303,7 +303,7 @@ mod tests {
     use crate::button::ButtonVariant;
 
     #[test]
-    fn light_primary_matches_paper() {
+    fn light_primary_matches_spec() {
         let chrome = button_chrome(Theme::light(), ButtonVariant::Primary);
         assert_eq!(chrome.bg, paint(0x18181B_B8));
         assert_eq!(chrome.border, paint(0xFFFFFF_29));
@@ -320,7 +320,7 @@ mod tests {
     }
 
     #[test]
-    fn light_focus_matches_paper() {
+    fn light_focus_matches_spec() {
         let chrome = field_chrome(Theme::light(), FieldState::Focus);
         assert_eq!(chrome.bg, paint(0xFFFFFF_5C));
         assert_eq!(chrome.border, paint(0x18181B_47));
@@ -328,7 +328,7 @@ mod tests {
     }
 
     #[test]
-    fn dark_invalid_matches_paper() {
+    fn dark_invalid_matches_spec() {
         let chrome = field_chrome(Theme::dark(), FieldState::Invalid);
         assert_eq!(chrome.bg, paint(0x7F1D1D_47));
         assert_eq!(chrome.border, paint(0xF87171_47));

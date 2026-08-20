@@ -3,8 +3,8 @@
 ## Sources Of Truth
 
 - This is one `glassy-ui` package, not a workspace. `src/lib.rs` is the library surface; `src/main.rs` is the `glassy-gallery` demo binary and default run target.
-- For visual work, `DESIGN.md` and the Paper file `Glassy UI` are the contract. Use Paper `get_jsx` / `get_computed_styles`; screenshots are only QA. Preserve exact pixels and `RRGGBB_AA` alpha values rather than approximating them.
-- `PLAN.md` distinguishes implemented components from the Paper-ready queue. Do not implement items under "Not unless asked."
+- For visual work, `DESIGN.md` and the `Glassy UI` design file are the contract. Use `get_jsx` / `get_computed_styles`; screenshots are only QA. Preserve exact pixels and `RRGGBB_AA` alpha values rather than approximating them.
+- `PLAN.md` distinguishes implemented components from the design-ready queue. Do not implement items under "Not unless asked."
 
 ## Architecture Constraints
 

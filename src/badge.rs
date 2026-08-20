@@ -1,4 +1,4 @@
-//! Paper hex+alpha is grouped as `RRGGBB_AA`.
+//! Design-spec hex+alpha is grouped as `RRGGBB_AA`.
 #![allow(clippy::unusual_byte_groupings)]
 
 use crate::motion::StyledSlot;
@@ -15,7 +15,7 @@ const BADGE_HEIGHT: f32 = 22.0;
 const BADGE_RADIUS: f32 = 6.0;
 const BADGE_PAD_X: f32 = 8.0;
 
-/// Visual treatment from Paper `Glassy UI` → Badges.
+/// Visual treatment from the design source `Glassy UI` → Badges.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum BadgeVariant {
     #[default]
@@ -118,14 +118,14 @@ mod tests {
     use crate::theme::{paint, rgb};
 
     #[test]
-    fn metrics_match_paper() {
+    fn metrics_match_spec() {
         assert_eq!(BADGE_HEIGHT, 22.0);
         assert_eq!(BADGE_RADIUS, 6.0);
         assert_eq!(BADGE_PAD_X, 8.0);
     }
 
     #[test]
-    fn light_variants_match_paper() {
+    fn light_variants_match_spec() {
         let theme = Theme::light();
         let default = badge_chrome(theme, BadgeVariant::Default);
         assert_eq!(default.bg, paint(0x18181B_B8));
@@ -144,7 +144,7 @@ mod tests {
     }
 
     #[test]
-    fn dark_variants_match_paper() {
+    fn dark_variants_match_spec() {
         let theme = Theme::dark();
         let default = badge_chrome(theme, BadgeVariant::Default);
         assert_eq!(default.bg, paint(0xFFFFFF_29));

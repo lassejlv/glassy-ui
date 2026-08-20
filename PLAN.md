@@ -1,16 +1,16 @@
 # Glassy UI — Plan
 
-What to design in Paper and implement in GPUI next. Visual rules: [`DESIGN.md`](./DESIGN.md).
+What to design and implement in GPUI next. Visual rules: [`DESIGN.md`](./DESIGN.md).
 
-**Paper queue is empty.** Planned kit has light + dark pages. Gallery reconstruction is next. Skip the “Not unless asked” list.
+**Design queue is empty.** Planned kit has light + dark pages. Gallery reconstruction is next. Skip the “Not unless asked” list.
 
 ---
 
 ## Done
 
-Paper page **and** gallery reconstruction.
+Design page **and** gallery reconstruction.
 
-| Component | Paper page | Notes |
+| Component | Design page | Notes |
 | --- | --- | --- |
 | Button | Buttons | Six variants, three sizes, icon, disabled, loading, group |
 | Spinner | Spinners | Track + 120° arc, sizes, tones, labeled, in-use |
@@ -35,11 +35,11 @@ Paper page **and** gallery reconstruction.
 
 ---
 
-## Paper ready
+## Design ready
 
-Designed in Paper. Gallery reconstruction waits until this queue is finished.
+Designed in the design source. Gallery reconstruction waits until this queue is finished.
 
-| Component | Paper page | Notes |
+| Component | Design page | Notes |
 | --- | --- | --- |
 | Command | Command | ⌘K palette. Grouped rows, loading spinner, empty state. |
 | Toast | Toasts | 40 tall. Success, destructive, with Undo. Stacked bottom-end. |
@@ -58,13 +58,13 @@ Designed in Paper. Gallery reconstruction waits until this queue is finished.
 
 ## Now — Gallery
 
-Paper is done. Reconstruct gallery pages 1:1 with Paper, in Paper-ready order. Command is next.
+The design work is done. Reconstruct gallery pages 1:1 with the design spec, in design-ready order. Command is next.
 
 ---
 
 ## Later
 
-Empty. The planned kit is Paper-ready. Gallery is Now.
+Empty. The planned kit is design-ready. Gallery is Now.
 
 ---
 
@@ -94,7 +94,7 @@ Focus must be visible. Do not rely on hover alone.
 
 Each new component:
 
-- One gallery page, 1:1 with Paper
+- One gallery page, 1:1 with the design spec
 - Keep scroll, theme toggle (`⌘D`), quit (`⌘Q`)
 - Page switcher stays (Buttons, Skeletons, Tooltips, Progress, Spinners, Inputs, Labels, Checkboxes, Switches, Radios, Selects, Kbd, Separator, Badges, Dialogs, Alert dialogs, Popovers, Dropdown menus, Context menus, …)
 

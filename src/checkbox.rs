@@ -22,7 +22,7 @@ struct CheckboxState {
     last_prop: CheckState,
 }
 
-/// Unchecked / checked / mixed, from Paper Checkboxes.
+/// Unchecked / checked / mixed, defined by the Checkboxes design page.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum CheckState {
     #[default]
@@ -57,7 +57,7 @@ impl CheckState {
     }
 }
 
-/// 16×16 radius-6 mark matching Paper `Glassy UI` → Checkboxes.
+/// 16×16 radius-6 mark matching the design spec `Glassy UI` → Checkboxes.
 ///
 /// Without [`Checkbox::on_change`] / [`Checkbox::on_click`] the mark keeps its
 /// own state (gallery specimens). With a listener, [`Checkbox::state`] /

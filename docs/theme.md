@@ -20,17 +20,17 @@ Semantic text and canvas colors live in `theme`. Button fills, rims, inset catch
 
 `cx.theme()`, `cx.set_theme(Theme::dark())`, `cx.toggle_theme()`. `FONT_FAMILY` is `"Inter Variable"`.
 
-Exact Paper alphas are `RRGGBB_AA`. Helpers: `rgb(0x18181B)`, `paint(0x18181B_B8)`.
+Exact design alphas are `RRGGBB_AA`. Helpers: `rgb(0x18181B)`, `paint(0x18181B_B8)`.
 
-## Paper themes
+## Theme specimens
 
 | Light | Dark |
 | --- | --- |
-| ![Light theme button specimens](./images/paper/button-light.png) | ![Dark theme button specimens](./images/paper/button-dark.png) |
+| ![Light theme button specimens](./images/specimens/button-light.png) | ![Dark theme button specimens](./images/specimens/button-dark.png) |
 
 ## Material
 
-Glass is fill + 1px rim + inset 1px highlight + (sometimes) a soft drop shadow. GPUI has no per-control backdrop-filter; on this canvas the Paper blur is nearly a no-op, so alpha + rim + inset is the native material.
+Glass is fill + 1px rim + inset 1px highlight + (sometimes) a soft drop shadow. GPUI has no per-control backdrop-filter; on this canvas the design spec blur is nearly a no-op, so alpha + rim + inset is the native material.
 
 Primary is **not** opaque black. Light primary is zinc at 72%. Dark primary **inverts** to white glass.
 

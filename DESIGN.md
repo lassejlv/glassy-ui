@@ -1,8 +1,8 @@
 # Glassy UI — Design
 
-A shadcn-shaped component kit for native GPUI. The visual contract lives in Paper (`Glassy UI`). Code must match `get_jsx` / `get_computed_styles`, not screenshots.
+A shadcn-shaped component kit for native GPUI. The visual contract lives in the design source (`Glassy UI`). Code must match `get_jsx` / `get_computed_styles`, not screenshots.
 
-This document describes the system we actually ship: **quiet zinc glass on a mineral canvas**. Apple’s interface language (WWDC *Designing Fluid Interfaces*, materials, type) is the feel we aim for. Paper pixels are the law.
+This document describes the system we actually ship: **quiet zinc glass on a mineral canvas**. Apple’s interface language (WWDC *Designing Fluid Interfaces*, materials, type) is the feel we aim for. Exact design pixels are the law.
 
 ---
 
@@ -12,7 +12,7 @@ This document describes the system we actually ship: **quiet zinc glass on a min
 
 **Emotion:** calm, precise, slightly cool. Controls feel like thin pieces of glass sitting on stone — you can see the ground through them, but they still have an edge, a catch-light, and a little weight.
 
-**Purpose:** one component per Paper page, light and dark, so an app can pick a button or a spinner and get the same object Apple would call *familiar*: it looks like a control, it behaves like a control, nothing extra is asking for attention.
+**Purpose:** one component per design page, light and dark, so an app can pick a button or a spinner and get the same object Apple would call *familiar*: it looks like a control, it behaves like a control, nothing extra is asking for attention.
 
 Four human needs, applied here:
 
@@ -27,8 +27,8 @@ Four human needs, applied here:
 
 ## Principles
 
-1. **Paper is the source.** Exact pixels (`px(6)`, `px(36)`, `rgba(24,24,27,0.72)`). Do not round to a Tailwind scale. Do not invent a parallel palette.
-2. **Inter only.** No second family. Variable face in GPUI (`Inter Variable`); Paper artboards use Inter.
+1. **The design spec is the source.** Exact pixels (`px(6)`, `px(36)`, `rgba(24,24,27,0.72)`). Do not round to a Tailwind scale. Do not invent a parallel palette.
+2. **Inter only.** No second family. Variable face in GPUI (`Inter Variable`); design artboards use Inter.
 3. **Glass is the control, canvas is the ground.** The window is **opaque**. Do not put blur on the window unless asked. Translucency belongs on *controls and panels*, not the app chrome.
 4. **Material weight encodes hierarchy.** Heavier / darker glass = primary action. Lighter / thinner glass = secondary, outline, ghost. Never stack a light translucent surface on another light translucent surface.
 5. **One intense color.** Destructive red (`#DC2626` / `#F87171`). Everything else is zinc.
@@ -79,7 +79,7 @@ Light muted inline copy (spinner “Fetching logs”) uses `#52525B` — one ste
 
 ### How glass is mixed
 
-Paper paints glass as **zinc or white at an alpha**, then a **white rim**, then an **inset 1px highlight** (light catching the top of the material), then a **soft ground shadow**. Intended CSS also uses `backdrop-filter: blur(20px) saturate(160–180%)`. GPUI has no per-control backdrop-filter; on this flat canvas that filter is nearly a no-op, so **alpha fills + rim + inset + shadow** are the native material.
+The design spec paints glass as **zinc or white at an alpha**, then a **white rim**, then an **inset 1px highlight** (light catching the top of the material), then a **soft ground shadow**. Intended CSS also uses `backdrop-filter: blur(20px) saturate(160–180%)`. GPUI has no per-control backdrop-filter; on this flat canvas that filter is nearly a no-op, so **alpha fills + rim + inset + shadow** are the native material.
 
 Never use opaque `#18181B` for a primary button. The 72% zinc *is* the primary.
 
@@ -98,7 +98,7 @@ Always, in this order:
 3. Inset shadow `0 1px 0` (catch-light)
 4. Drop shadow only if the variant has weight (ghost has none)
 
-Hover **lifts the fill** a step (more opaque). Rest state is the Paper default. Do not scale, bounce, or glow on hover.
+Hover **lifts the fill** a step (more opaque). Rest state is the design default. Do not scale, bounce, or glow on hover.
 
 ### Light control chrome
 
@@ -145,11 +145,11 @@ A 40×40 primary-weight tile so a light spinner can sit on dark glass (and the r
 
 ## Typography
 
-Face: **Inter** (Paper) / **Inter Variable** (GPUI). Weights 400 / 500 / 600 only.
+Face: **Inter** (design source) / **Inter Variable** (GPUI). Weights 400 / 500 / 600 only.
 
 Apple: tracking is size-specific; leading tightens as type grows; hierarchy is weight + size + leading together.
 
-| Role | Size | Weight | Line-height | Tracking (Paper) | Color |
+| Role | Size | Weight | Line-height | Tracking (design source) | Color |
 | --- | --- | --- | --- | --- | --- |
 | Eyebrow (`BUTTON`, `SPINNER`) | 13 | 500 | 16 | `0.04em` | `label` |
 | Page title | 36 | 600 | 40 | `-0.03em` | `heading` |
@@ -169,7 +169,7 @@ Do not use type smaller than 12 except on `ButtonSize::Small`. Do not introduce 
 ## Layout
 
 - Flex, not absolute, unless something actually overlaps.
-- Page header: column, gap 10, padding `72 80 0`. Trailing gallery controls (theme, page) sit `space-between` — they are app chrome, not Paper.
+- Page header: column, gap 10, padding `72 80 0`. Trailing gallery controls (theme, page) sit `space-between` — they are app chrome, not part of the visual spec.
 - Sample rows: `align-items: center` (or `flex-end` when sizes differ), gap 12 for buttons, 32 for spinner sizes, 24 for spinner colors, 28 for labeled spinners, 16 for in-use.
 - Icon gap inside a button: 8. Icon-bearing horizontal pad: 14. Text-only pad: 12 / 16 / 20 (S/M/L).
 - Icon-only control: 36×36, no extra pad.
@@ -406,7 +406,7 @@ Toggle is global (`cx.theme()`, `cx.toggle_theme()`). Components read the active
 
 ---
 
-## Page language (Paper)
+## Page language
 
 One page per component. Two artboards: `{Name} / Light` and `{Name} / Dark`.
 
@@ -430,7 +430,7 @@ Copy stays dry. No marketing flourish beyond the one-line promise.
 
 ## Platform deltas (do not “fix” with fakes)
 
-| Paper | GPUI |
+| Design source | GPUI |
 | --- | --- |
 | `backdrop-filter: blur(20px) saturate(160–180%)` | No API. Alpha fills stand in. |
 | Letter-spacing `0.04em` / `-0.03em` / `-0.01em` | Not exposed. |
@@ -443,11 +443,11 @@ Do not rasterize text or controls to chase screenshot fidelity. Do not restore w
 
 ## Adding a component
 
-1. Design it in Paper: one page, light + dark, this document’s type, radius, zinc, and red.
+1. Design it in the design source: one page, light + dark, this document’s type, radius, zinc, and red.
 2. Read `get_jsx` (inline styles) and `get_computed_styles`. Screenshots are QA, not source.
 3. Put semantic color in `theme` only if it is text/ground. Put material (fill, rim, shadow) next to the component, like `chrome.rs`.
-4. Use exact Paper pixels. Reuse Button / Spinner / theme. Do not add a second radius or a second family.
+4. Use exact design pixels. Reuse Button / Spinner / theme. Do not add a second radius or a second family.
 5. Motion: critically damped by default; spinner-like status stays linear.
-6. Gallery: reconstruct the Paper page 1:1, keep scroll, theme toggle, ⌘Q.
+6. Gallery: reconstruct the design page 1:1, keep scroll, theme toggle, ⌘Q.
 
-If a choice is not in this file and not in Paper, it does not belong in the kit.
+If a choice is not in this file and not in the design source, it does not belong in the kit.

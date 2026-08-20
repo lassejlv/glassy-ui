@@ -717,7 +717,7 @@ impl Element for TextElement {
     }
 }
 
-/// Single-line field matching Paper `Glassy UI` → Inputs.
+/// Single-line field matching the design spec `Glassy UI` → Inputs.
 #[derive(IntoElement)]
 pub struct Input {
     id: SharedString,
@@ -772,7 +772,7 @@ impl Input {
         self
     }
 
-    /// Paint the Paper focus ring and caret even when the field is not focused.
+    /// Paint the design spec focus ring and caret even when the field is not focused.
     pub fn show_focus(mut self, show_focus: bool) -> Self {
         self.show_focus = show_focus;
         self

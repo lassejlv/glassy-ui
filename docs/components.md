@@ -65,7 +65,7 @@ Skeleton::avatar("owner")
 Skeleton::control("field")
 ```
 
-Separator defaults to the Paper specimen (280×1 or 1×36). Override with `Styled` (`.w_full()`). Skeleton pulse is 1600ms; reduced motion holds frame one.
+Separator defaults to the design spec specimen (280×1 or 1×36). Override with `Styled` (`.w_full()`). Skeleton pulse is 1600ms; reduced motion holds frame one.
 
 ## Label, Checkbox, Switch, Radio, Input, Select
 
@@ -75,110 +75,110 @@ See [Forms](./forms.md).
 
 See [Overlays](./overlays.md).
 
-## Paper screenshots
+## Screenshots
 
 ### Buttons
 
 | Light | Dark |
 | --- | --- |
-| ![Button specimens in the light theme](./images/paper/button-light.png) | ![Button specimens in the dark theme](./images/paper/button-dark.png) |
+| ![Button specimens in the light theme](./images/specimens/button-light.png) | ![Button specimens in the dark theme](./images/specimens/button-dark.png) |
 
 ### Spinners
 
 | Light | Dark |
 | --- | --- |
-| ![Spinner specimens in the light theme](./images/paper/spinner-light.png) | ![Spinner specimens in the dark theme](./images/paper/spinner-dark.png) |
+| ![Spinner specimens in the light theme](./images/specimens/spinner-light.png) | ![Spinner specimens in the dark theme](./images/specimens/spinner-dark.png) |
 
 ### Progress
 
 | Light | Dark |
 | --- | --- |
-| ![Progress specimens in the light theme](./images/paper/progress-light.png) | ![Progress specimens in the dark theme](./images/paper/progress-dark.png) |
+| ![Progress specimens in the light theme](./images/specimens/progress-light.png) | ![Progress specimens in the dark theme](./images/specimens/progress-dark.png) |
 
 ### Badges
 
 | Light | Dark |
 | --- | --- |
-| ![Badge specimens in the light theme](./images/paper/badge-light.png) | ![Badge specimens in the dark theme](./images/paper/badge-dark.png) |
+| ![Badge specimens in the light theme](./images/specimens/badge-light.png) | ![Badge specimens in the dark theme](./images/specimens/badge-dark.png) |
 
 ### Keyboard hints
 
 | Light | Dark |
 | --- | --- |
-| ![Keyboard hint specimens in the light theme](./images/paper/kbd-light.png) | ![Keyboard hint specimens in the dark theme](./images/paper/kbd-dark.png) |
+| ![Keyboard hint specimens in the light theme](./images/specimens/kbd-light.png) | ![Keyboard hint specimens in the dark theme](./images/specimens/kbd-dark.png) |
 
 ### Separators
 
 | Light | Dark |
 | --- | --- |
-| ![Separator specimens in the light theme](./images/paper/separator-light.png) | ![Separator specimens in the dark theme](./images/paper/separator-dark.png) |
+| ![Separator specimens in the light theme](./images/specimens/separator-light.png) | ![Separator specimens in the dark theme](./images/specimens/separator-dark.png) |
 
 ### Skeletons
 
 | Light | Dark |
 | --- | --- |
-| ![Skeleton specimens in the light theme](./images/paper/skeleton-light.png) | ![Skeleton specimens in the dark theme](./images/paper/skeleton-dark.png) |
+| ![Skeleton specimens in the light theme](./images/specimens/skeleton-light.png) | ![Skeleton specimens in the dark theme](./images/specimens/skeleton-dark.png) |
 
 ### Cards
 
 | Light | Dark |
 | --- | --- |
-| ![Card specimens in the light theme](./images/paper/card-light.png) | ![Card specimens in the dark theme](./images/paper/card-dark.png) |
+| ![Card specimens in the light theme](./images/specimens/card-light.png) | ![Card specimens in the dark theme](./images/specimens/card-dark.png) |
 
 ### Command
 
 | Light | Dark |
 | --- | --- |
-| ![Command specimens in the light theme](./images/paper/command-light.png) | ![Command specimens in the dark theme](./images/paper/command-dark.png) |
+| ![Command specimens in the light theme](./images/specimens/command-light.png) | ![Command specimens in the dark theme](./images/specimens/command-dark.png) |
 
 ### Toasts
 
 | Light | Dark |
 | --- | --- |
-| ![Toast specimens in the light theme](./images/paper/toast-light.png) | ![Toast specimens in the dark theme](./images/paper/toast-dark.png) |
+| ![Toast specimens in the light theme](./images/specimens/toast-light.png) | ![Toast specimens in the dark theme](./images/specimens/toast-dark.png) |
 
 ### Breadcrumbs
 
 | Light | Dark |
 | --- | --- |
-| ![Breadcrumb specimens in the light theme](./images/paper/breadcrumb-light.png) | ![Breadcrumb specimens in the dark theme](./images/paper/breadcrumb-dark.png) |
+| ![Breadcrumb specimens in the light theme](./images/specimens/breadcrumb-light.png) | ![Breadcrumb specimens in the dark theme](./images/specimens/breadcrumb-dark.png) |
 
 ### Pagination
 
 | Light | Dark |
 | --- | --- |
-| ![Pagination specimens in the light theme](./images/paper/pagination-light.png) | ![Pagination specimens in the dark theme](./images/paper/pagination-dark.png) |
+| ![Pagination specimens in the light theme](./images/specimens/pagination-light.png) | ![Pagination specimens in the dark theme](./images/specimens/pagination-dark.png) |
 
 ### Tables
 
 | Light | Dark |
 | --- | --- |
-| ![Table specimens in the light theme](./images/paper/table-light.png) | ![Table specimens in the dark theme](./images/paper/table-dark.png) |
+| ![Table specimens in the light theme](./images/specimens/table-light.png) | ![Table specimens in the dark theme](./images/specimens/table-dark.png) |
 
 ### Sliders
 
 | Light | Dark |
 | --- | --- |
-| ![Slider specimens in the light theme](./images/paper/slider-light.png) | ![Slider specimens in the dark theme](./images/paper/slider-dark.png) |
+| ![Slider specimens in the light theme](./images/specimens/slider-light.png) | ![Slider specimens in the dark theme](./images/specimens/slider-dark.png) |
 
 ### Tabs
 
 | Light | Dark |
 | --- | --- |
-| ![Tab specimens in the light theme](./images/paper/tabs-light.png) | ![Tab specimens in the dark theme](./images/paper/tabs-dark.png) |
+| ![Tab specimens in the light theme](./images/specimens/tabs-light.png) | ![Tab specimens in the dark theme](./images/specimens/tabs-dark.png) |
 
 ### Accordions
 
 | Light | Dark |
 | --- | --- |
-| ![Accordion specimens in the light theme](./images/paper/accordion-light.png) | ![Accordion specimens in the dark theme](./images/paper/accordion-dark.png) |
+| ![Accordion specimens in the light theme](./images/specimens/accordion-light.png) | ![Accordion specimens in the dark theme](./images/specimens/accordion-dark.png) |
 
 ### Avatars
 
 | Light | Dark |
 | --- | --- |
-| ![Avatar specimens in the light theme](./images/paper/avatar-light.png) | ![Avatar specimens in the dark theme](./images/paper/avatar-dark.png) |
+| ![Avatar specimens in the light theme](./images/specimens/avatar-light.png) | ![Avatar specimens in the dark theme](./images/specimens/avatar-dark.png) |
 
 ## Planned
 
-Command, Toast, Card, Tabs, Accordion, Avatar, Breadcrumb, Pagination, Table, Slider, Combobox, Menubar. Their Paper pages are ready, but the components are not implemented. Do not batch shadcn leftovers (calendar, sidebar, drawer, charts) unless an app needs that one page.
+Command, Toast, Card, Tabs, Accordion, Avatar, Breadcrumb, Pagination, Table, Slider, Combobox, Menubar. Their design pages are ready, but the components are not implemented. Do not batch shadcn leftovers (calendar, sidebar, drawer, charts) unless an app needs that one page.

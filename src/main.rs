@@ -1,4 +1,4 @@
-//! Paper hex+alpha is grouped as `RRGGBB_AA`.
+//! Design-spec hex+alpha is grouped as `RRGGBB_AA`.
 #![allow(clippy::unusual_byte_groupings)]
 
 use glassy_ui::{
@@ -1248,7 +1248,7 @@ fn inputs_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .child(Input::new("project-filled").value("glassy-ui"))
                 .child(labeled_field(
                     Label::new("Email"),
-                    Input::new("email").value("hello@paper.design"),
+                    Input::new("email").value("hello@studio.dev"),
                 )),
         ))
         .child(section(
@@ -1393,7 +1393,7 @@ fn labels_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .gap(px(16.))
                 .child(labeled_field(
                     Label::new("Email"),
-                    Input::new("label-email").value("hello@paper.design"),
+                    Input::new("label-email").value("hello@studio.dev"),
                 ))
                 .child(labeled_field(
                     Label::new("Name").required(true),

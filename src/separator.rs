@@ -1,4 +1,4 @@
-//! Paper hex+alpha is grouped as `RRGGBB_AA`.
+//! Design-spec hex+alpha is grouped as `RRGGBB_AA`.
 #![allow(clippy::unusual_byte_groupings)]
 
 use crate::motion::StyledSlot;
@@ -13,7 +13,7 @@ pub enum SeparatorOrientation {
     Vertical,
 }
 
-/// 1px rule matching Paper `Glassy UI` → Separators.
+/// 1px rule matching the design spec `Glassy UI` → Separators.
 #[derive(IntoElement)]
 pub struct Separator {
     orientation: SeparatorOrientation,
