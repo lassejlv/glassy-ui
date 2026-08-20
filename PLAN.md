@@ -32,6 +32,7 @@ Design page **and** gallery reconstruction.
 | Popover | Popovers | Secondary glass, radius 6. Origin at the trigger. Page meta card. |
 | Dropdown menu | Dropdown menus | 240px anchored list. Shortcut, nested, separator, disabled, destructive. Pointer + keyboard. |
 | Context menu | Context menus | Same items as Dropdown. Opens at the pointer. |
+| Command | Command | ⌘K palette. Grouped rows, loading spinner, empty state, filtering, pointer + keyboard. |
 
 ---
 
@@ -41,7 +42,6 @@ Designed in the design source. Gallery reconstruction waits until this queue is 
 
 | Component | Design page | Notes |
 | --- | --- | --- |
-| Command | Command | ⌘K palette. Grouped rows, loading spinner, empty state. |
 | Toast | Toasts | 40 tall. Success, destructive, with Undo. Stacked bottom-end. |
 | Card | Cards | Radius 10 panel. Header, body, Ghost + Primary footer. |
 | Tabs | Tabs | Underline or ghost pill. Selected is ink. |
@@ -58,7 +58,7 @@ Designed in the design source. Gallery reconstruction waits until this queue is 
 
 ## Now — Gallery
 
-The design work is done. Reconstruct gallery pages 1:1 with the design spec, in design-ready order. Command is next.
+The design work is done. Reconstruct gallery pages 1:1 with the design spec, in design-ready order. Toast is next.
 
 ---
 

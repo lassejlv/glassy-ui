@@ -58,6 +58,24 @@ pub fn init(cx: &mut App) {
         KeyBinding::new("end", End, Some("KitInput")),
         KeyBinding::new("enter", Newline, Some("KitInput")),
     ]);
+    cx.bind_keys([
+        KeyBinding::new("backspace", Backspace, Some("KitCommandInput")),
+        KeyBinding::new("delete", Delete, Some("KitCommandInput")),
+        KeyBinding::new("left", Left, Some("KitCommandInput")),
+        KeyBinding::new("right", Right, Some("KitCommandInput")),
+        KeyBinding::new("shift-left", SelectLeft, Some("KitCommandInput")),
+        KeyBinding::new("shift-right", SelectRight, Some("KitCommandInput")),
+        KeyBinding::new("cmd-a", SelectAll, Some("KitCommandInput")),
+        KeyBinding::new("ctrl-a", SelectAll, Some("KitCommandInput")),
+        KeyBinding::new("cmd-v", Paste, Some("KitCommandInput")),
+        KeyBinding::new("ctrl-v", Paste, Some("KitCommandInput")),
+        KeyBinding::new("cmd-c", Copy, Some("KitCommandInput")),
+        KeyBinding::new("ctrl-c", Copy, Some("KitCommandInput")),
+        KeyBinding::new("cmd-x", Cut, Some("KitCommandInput")),
+        KeyBinding::new("ctrl-x", Cut, Some("KitCommandInput")),
+        KeyBinding::new("home", Home, Some("KitCommandInput")),
+        KeyBinding::new("end", End, Some("KitCommandInput")),
+    ]);
 }
 
 pub(crate) struct InputState {
@@ -82,10 +100,11 @@ impl InputState {
         placeholder: SharedString,
         content: SharedString,
         multiline: bool,
+        focus_handle: Option<FocusHandle>,
     ) -> Self {
         let len = content.len();
         Self {
-            focus_handle: cx.focus_handle(),
+            focus_handle: focus_handle.unwrap_or_else(|| cx.focus_handle()),
             content: content.clone(),
             placeholder,
             selected_range: len..len,
@@ -730,6 +749,10 @@ pub struct Input {
     trailing: Option<SharedString>,
     helper: Option<SharedString>,
     multiline: bool,
+    focus_handle: Option<FocusHandle>,
+    content_padding_x: Option<Pixels>,
+    composite_base: Option<Hsla>,
+    key_context: &'static str,
     on_change: Option<InputChangeHandler>,
     style: StyleRefinement,
 }
@@ -747,6 +770,10 @@ impl Input {
             trailing: None,
             helper: None,
             multiline: false,
+            focus_handle: None,
+            content_padding_x: None,
+            composite_base: None,
+            key_context: "KitInput",
             on_change: None,
             style: StyleRefinement::default(),
         }
@@ -798,6 +825,27 @@ impl Input {
         self
     }
 
+    /// Use an existing focus handle, for example when a dialog must focus this field.
+    pub fn focus_handle(mut self, focus_handle: FocusHandle) -> Self {
+        self.focus_handle = Some(focus_handle);
+        self
+    }
+
+    pub(crate) fn content_padding_x(mut self, padding: impl Into<Pixels>) -> Self {
+        self.content_padding_x = Some(padding.into());
+        self
+    }
+
+    pub(crate) fn composite_base(mut self, base: Hsla) -> Self {
+        self.composite_base = Some(base);
+        self
+    }
+
+    pub(crate) fn key_context(mut self, key_context: &'static str) -> Self {
+        self.key_context = key_context;
+        self
+    }
+
     /// Fired after the field text changes. `value` is the current contents.
     pub fn on_change(
         mut self,
@@ -821,14 +869,18 @@ impl RenderOnce for Input {
         let value = self.value.clone();
         let multiline = self.multiline;
         let disabled = self.disabled;
+        let initial_focus_handle = self.focus_handle.clone();
         let on_change = self.on_change.clone();
         let state = window.use_keyed_state(self.id.clone(), cx, move |_, cx| {
-            InputState::new(cx, placeholder, value, multiline)
+            InputState::new(cx, placeholder, value, multiline, initial_focus_handle)
         });
         state.update(cx, |input, _| {
             input.disabled = disabled;
             input.multiline = multiline;
             input.on_change = on_change;
+            if let Some(focus_handle) = self.focus_handle.clone() {
+                input.focus_handle = focus_handle;
+            }
             if input.value_prop.as_ref() != self.value.as_ref() {
                 input.content = self.value.clone();
                 input.value_prop = self.value.clone();
@@ -848,12 +900,18 @@ impl RenderOnce for Input {
             FieldState::Rest
         };
         let chrome = field_chrome(theme, field_state);
+        let field_bg = self
+            .composite_base
+            .map(|base| base.blend(chrome.bg))
+            .unwrap_or(chrome.bg);
         let show_caret = !self.disabled && (self.show_focus || focused);
         let has_icon = self.leading_icon.is_some();
-        let pad_x = if has_icon || self.trailing.is_some() {
-            14.0
+        let pad_x = if let Some(padding) = self.content_padding_x {
+            padding
+        } else if has_icon || self.trailing.is_some() {
+            px(14.0)
         } else {
-            16.0
+            px(16.0)
         };
         let width = if multiline { px(320.) } else { px(280.) };
         let height = if multiline { px(96.) } else { px(36.) };
@@ -879,7 +937,7 @@ impl RenderOnce for Input {
         let field = div()
             .id(self.id.clone())
             .debug_selector(move || input_debug_selector.clone())
-            .key_context("KitInput")
+            .key_context(self.key_context)
             .role(Role::TextInput)
             .when(!self.placeholder.is_empty(), |el| {
                 el.aria_placeholder(self.placeholder.clone())
@@ -893,12 +951,12 @@ impl RenderOnce for Input {
             .w_full()
             .h(height)
             .flex_shrink_0()
-            .px(px(pad_x))
+            .px(pad_x)
             .when(multiline, |el| el.py(px(10.)))
             .rounded(px(6.))
             .border_1()
             .border_color(chrome.border)
-            .bg(chrome.bg)
+            .bg(field_bg)
             .shadow(shadows)
             .text_color(chrome.fg)
             .font_family(theme.font_family)

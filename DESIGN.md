@@ -297,6 +297,14 @@ Click or Enter/Space opens. Up/Down skip separators and disabled items. Right en
 
 The same panel as Dropdown. No trigger. Origin is the pointer. Right-click opens, Escape and outside click dismiss, focus returns to the surface.
 
+### Command
+
+Palette panel is 400 wide, radius 10, padding 8, using panel glass. Search is full-width, 36 tall, radius 6, padding-inline 10, gap 8, with the 16px search icon. Groups start 8px below the preceding content and use 2px row gaps. Group labels are 13/500/16 in `label`; rows are 32 tall, radius 4, padding-inline 10, 14/400/18. Selected and hovered rows use `#FFFFFF47` light / `#FFFFFF12` dark. The footer is 12/500/16 in `label`, padding 8px 10px 4px.
+
+Loading and empty specimens are 280 wide, radius 10, padding 16, gap 12. Loading uses the 16px spinner plus 14/500/18 text with 12px vertical padding. Empty copy is centered 14/400/18 body text with 16px vertical padding.
+
+The sheet filters labels and keywords locally unless the caller supplies pre-filtered results. Up/Down wrap and skip disabled rows; Enter activates; Escape asks the modal host to dismiss. The app owns Cmd/Ctrl-K and uses Dialog for focus ownership, scrim dismissal, and restoration.
+
 ### Progress
 
 Determinate. Linear fill, no bounce.

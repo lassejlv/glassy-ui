@@ -11,6 +11,7 @@ mod badge;
 mod button;
 mod checkbox;
 mod chrome;
+mod command;
 mod compat;
 mod context_menu;
 mod dialog;
@@ -35,6 +36,7 @@ pub use badge::{Badge, BadgeVariant};
 pub use button::{Button, ButtonGroup, ButtonSize, ButtonVariant};
 pub use checkbox::{CheckState, Checkbox};
 pub use chrome::{ButtonChrome, FieldChrome, FieldState};
+pub use command::{Command, CommandGroup, CommandItem, CommandSize};
 pub use context_menu::ContextMenu;
 pub use dialog::{
     Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
@@ -62,7 +64,8 @@ pub use motion::{
 
 pub use theme::{init as init_theme, paint, rgb, ActiveTheme, Theme, ThemeKind, FONT_FAMILY};
 
-/// Bind kit keystrokes (text fields). Call once at startup.
+/// Bind kit keystrokes for text fields and command navigation. Call once at startup.
 pub fn init(cx: &mut gpui::App) {
     input::init(cx);
+    command::init(cx);
 }

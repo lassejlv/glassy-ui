@@ -4,11 +4,12 @@
 use glassy_ui::{
     init as init_ui, init_motion, init_theme, load_fonts, paint, rgb, textarea, ActiveTheme,
     AlertDialog, Assets, Badge, BadgeVariant, Button, ButtonGroup, ButtonSize, ButtonVariant,
-    CheckState, Checkbox, CircularProgress, ContextMenu, Dialog, DialogContent, DialogDescription,
-    DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuEntry, DropdownMenuItem,
-    Icon, IconName, Input, Kbd, Label, Popover, PopoverContent, PopoverDescription, PopoverTitle,
-    Progress, Radio, Select, SelectItem, Separator, Skeleton, Spinner, SpinnerSize, SpinnerTone,
-    Switch, Theme, Tooltip, TooltipPlacement,
+    CheckState, Checkbox, CircularProgress, Command, CommandGroup, CommandItem, CommandSize,
+    ContextMenu, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+    DropdownMenu, DropdownMenuEntry, DropdownMenuItem, Icon, IconName, Input, Kbd, Label, Popover,
+    PopoverContent, PopoverDescription, PopoverTitle, Progress, Radio, Select, SelectItem,
+    Separator, Skeleton, Spinner, SpinnerSize, SpinnerTone, Switch, Theme, Tooltip,
+    TooltipPlacement,
 };
 use gpui::{
     actions, div, point, prelude::*, px, size, App, Application, Bounds, BoxShadow, FocusHandle,
@@ -40,6 +41,8 @@ actions!(
         ShowPopovers,
         ShowDropdownMenus,
         ShowContextMenus,
+        ShowCommand,
+        ToggleCommand,
         ShowNextPage,
     ]
 );
@@ -103,6 +106,10 @@ fn main() {
             KeyBinding::new("ctrl-shift-m", ShowDropdownMenus, None),
             KeyBinding::new("cmd-shift-c", ShowContextMenus, None),
             KeyBinding::new("ctrl-shift-c", ShowContextMenus, None),
+            KeyBinding::new("cmd-shift-k", ShowCommand, None),
+            KeyBinding::new("ctrl-shift-k", ShowCommand, None),
+            KeyBinding::new("cmd-k", ToggleCommand, None),
+            KeyBinding::new("ctrl-k", ToggleCommand, None),
             KeyBinding::new("cmd-]", ShowNextPage, None),
             KeyBinding::new("ctrl-]", ShowNextPage, None),
         ]);
@@ -128,6 +135,7 @@ fn main() {
                 MenuItem::action("Popovers", ShowPopovers),
                 MenuItem::action("Dropdown menus", ShowDropdownMenus),
                 MenuItem::action("Context menus", ShowContextMenus),
+                MenuItem::action("Command", ShowCommand),
                 MenuItem::separator(),
                 MenuItem::action("Toggle Light / Dark", ToggleTheme),
                 MenuItem::separator(),
@@ -188,6 +196,7 @@ enum GalleryPage {
     Popovers,
     DropdownMenus,
     ContextMenus,
+    Command,
 }
 
 impl GalleryPage {
@@ -212,6 +221,7 @@ impl GalleryPage {
             Self::Popovers => "Glassy UI — Popovers",
             Self::DropdownMenus => "Glassy UI — Dropdown menus",
             Self::ContextMenus => "Glassy UI — Context menus",
+            Self::Command => "Glassy UI — Command",
         }
     }
 
@@ -240,6 +250,7 @@ impl GalleryPage {
             Self::Popovers => "Popovers",
             Self::DropdownMenus => "Dropdown menus",
             Self::ContextMenus => "Context menus",
+            Self::Command => "Command",
         }
     }
 
@@ -263,7 +274,8 @@ impl GalleryPage {
             Self::AlertDialogs => Self::Popovers,
             Self::Popovers => Self::DropdownMenus,
             Self::DropdownMenus => Self::ContextMenus,
-            Self::ContextMenus => Self::Buttons,
+            Self::ContextMenus => Self::Command,
+            Self::Command => Self::Buttons,
         }
     }
 }
@@ -273,17 +285,22 @@ struct Gallery {
     page: GalleryPage,
     dialog_open: bool,
     alert_dialog_open: bool,
+    command_open: bool,
+    command_focus: FocusHandle,
 }
 
 impl Gallery {
     fn new(window: &mut Window, cx: &mut gpui::Context<Self>) -> Self {
         let focus_handle = cx.focus_handle();
+        let command_focus = cx.focus_handle().tab_stop(true);
         focus_handle.focus(window);
         Self {
             focus_handle,
             page: GalleryPage::Inputs,
             dialog_open: false,
             alert_dialog_open: false,
+            command_open: false,
+            command_focus,
         }
     }
 
@@ -431,6 +448,20 @@ impl Gallery {
         self.set_page(GalleryPage::ContextMenus, window, cx);
     }
 
+    fn show_command(&mut self, _: &ShowCommand, window: &mut Window, cx: &mut gpui::Context<Self>) {
+        self.set_page(GalleryPage::Command, window, cx);
+    }
+
+    fn toggle_command(
+        &mut self,
+        _: &ToggleCommand,
+        _window: &mut Window,
+        cx: &mut gpui::Context<Self>,
+    ) {
+        self.command_open = !self.command_open;
+        cx.notify();
+    }
+
     fn show_next_page(
         &mut self,
         _: &ShowNextPage,
@@ -444,6 +475,7 @@ impl Gallery {
         self.page = page;
         self.dialog_open = false;
         self.alert_dialog_open = false;
+        self.command_open = false;
         window.set_window_title(self.page.title());
         cx.notify();
     }
@@ -461,7 +493,11 @@ impl gpui::Render for Gallery {
         let page = self.page;
         let dialog_open = self.dialog_open;
         let alert_dialog_open = self.alert_dialog_open;
+        let command_open = self.command_open;
+        let command_focus = self.command_focus.clone();
         let gallery = cx.entity();
+        let command_dismiss_gallery = gallery.clone();
+        let command_item_gallery = gallery.clone();
 
         div()
             .id("gallery")
@@ -494,6 +530,8 @@ impl gpui::Render for Gallery {
             .on_action(cx.listener(Self::show_popovers))
             .on_action(cx.listener(Self::show_dropdown_menus))
             .on_action(cx.listener(Self::show_context_menus))
+            .on_action(cx.listener(Self::show_command))
+            .on_action(cx.listener(Self::toggle_command))
             .on_action(cx.listener(Self::show_next_page))
             .child(
                 div()
@@ -522,7 +560,7 @@ impl gpui::Render for Gallery {
                                 .into_any_element()
                         }
                         GalleryPage::AlertDialogs => {
-                            alert_dialogs_page(theme, page, alert_dialog_open, gallery)
+                            alert_dialogs_page(theme, page, alert_dialog_open, gallery.clone())
                                 .into_any_element()
                         }
                         GalleryPage::Popovers => popovers_page(theme, page).into_any_element(),
@@ -532,7 +570,20 @@ impl gpui::Render for Gallery {
                         GalleryPage::ContextMenus => {
                             context_menus_page(theme, page).into_any_element()
                         }
+                        GalleryPage::Command => command_page(theme, page).into_any_element(),
                     }),
+            )
+            .child(
+                Dialog::new("gallery-command-dialog")
+                    .open(command_open)
+                    .initial_focus(command_focus.clone())
+                    .on_dismiss(move |_, cx| {
+                        command_dismiss_gallery.update(cx, |gallery, cx| {
+                            gallery.command_open = false;
+                            cx.notify();
+                        });
+                    })
+                    .child(gallery_command(command_item_gallery, command_focus)),
             )
     }
 }
@@ -2297,6 +2348,118 @@ fn context_menus_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
         ))
 }
 
+fn command_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .w_full()
+        .child(header(
+            theme,
+            page,
+            "COMMAND",
+            "Jump.",
+            "⌘K. Input on top, grouped rows. Spinner while loading. Empty when nothing matches.",
+        ))
+        .child(section(
+            theme,
+            "Palette",
+            56.0,
+            false,
+            Command::new("command-specimen")
+                .default_query("Home")
+                .filtering(false)
+                .groups(command_specimen_groups()),
+        ))
+        .child(section(
+            theme,
+            "States",
+            40.0,
+            true,
+            div()
+                .flex()
+                .items_start()
+                .gap(px(32.))
+                .child(command_state_sample(
+                    theme,
+                    "Loading",
+                    Command::new("command-loading")
+                        .size(CommandSize::Compact)
+                        .default_query("Home")
+                        .loading(true)
+                        .loading_label("Searching pages")
+                        .show_footer(false),
+                ))
+                .child(command_state_sample(
+                    theme,
+                    "Empty",
+                    Command::new("command-empty")
+                        .size(CommandSize::Compact)
+                        .default_query("xyzzy")
+                        .empty_label("No pages match.")
+                        .show_footer(false),
+                )),
+        ))
+}
+
+fn command_specimen_groups() -> Vec<CommandGroup> {
+    vec![
+        CommandGroup::new("Pages").items([
+            CommandItem::new("home", "Home"),
+            CommandItem::new("buttons", "Buttons"),
+        ]),
+        CommandGroup::new("Actions").item(CommandItem::new("new-file", "New file").shortcut("⌘N")),
+    ]
+}
+
+fn gallery_command(gallery: gpui::Entity<Gallery>, focus_handle: FocusHandle) -> Command {
+    let home_gallery = gallery.clone();
+    let buttons_gallery = gallery.clone();
+    let command_gallery = gallery.clone();
+    let dismiss_gallery = gallery;
+
+    Command::new("gallery-command")
+        .placeholder("Search pages or actions…")
+        .focus_handle(focus_handle)
+        .groups([
+            CommandGroup::new("Pages").items([
+                CommandItem::new("home", "Home").on_select(move |_, window, cx| {
+                    home_gallery.update(cx, |gallery, cx| {
+                        gallery.set_page(GalleryPage::Inputs, window, cx)
+                    });
+                }),
+                CommandItem::new("buttons", "Buttons").on_select(move |_, window, cx| {
+                    buttons_gallery.update(cx, |gallery, cx| {
+                        gallery.set_page(GalleryPage::Buttons, window, cx)
+                    });
+                }),
+                CommandItem::new("command", "Command").on_select(move |_, window, cx| {
+                    command_gallery.update(cx, |gallery, cx| {
+                        gallery.set_page(GalleryPage::Command, window, cx)
+                    });
+                }),
+            ]),
+            CommandGroup::new("Actions")
+                .item(CommandItem::new("new-file", "New file").shortcut("⌘N")),
+        ])
+        .on_dismiss(move |_, cx| {
+            dismiss_gallery.update(cx, |gallery, cx| {
+                gallery.command_open = false;
+                cx.notify();
+            });
+        })
+}
+
+fn command_state_sample(theme: Theme, label: &'static str, command: Command) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .w(px(280.))
+        .flex_shrink_0()
+        .gap(px(10.))
+        .child(caption(theme, label))
+        .child(command)
+}
+
 fn context_target(theme: Theme) -> impl IntoElement {
     let chrome = if theme.is_dark() {
         (paint(0xFFFFFF12), paint(0xFFFFFF1A), paint(0xFFFFFF1F))
@@ -2726,4 +2889,51 @@ fn section(
                 .child(title),
         )
         .child(row)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use gpui::{size, TestAppContext, VisualTestContext};
+
+    fn setup(cx: &mut TestAppContext) -> VisualTestContext {
+        cx.update(|cx| {
+            init_motion(cx);
+            init_theme(cx);
+            init_ui(cx);
+            cx.bind_keys([
+                KeyBinding::new("cmd-k", ToggleCommand, None),
+                KeyBinding::new("ctrl-k", ToggleCommand, None),
+                KeyBinding::new("cmd-]", ShowNextPage, None),
+                KeyBinding::new("ctrl-]", ShowNextPage, None),
+            ]);
+        });
+        let window = cx.add_window(Gallery::new);
+        cx.simulate_window_resize(window.into(), size(px(800.), px(700.)));
+        cx.run_until_parked();
+        VisualTestContext::from_window(window.into(), cx)
+    }
+
+    #[gpui::test]
+    fn command_shortcut_filters_selects_and_closes(cx: &mut TestAppContext) {
+        let mut cx = setup(cx);
+        assert!(cx.debug_bounds("gallery-command-dialog-overlay").is_none());
+
+        cx.simulate_keystrokes("cmd-k");
+        assert!(cx.debug_bounds("gallery-command-dialog-overlay").is_some());
+        cx.simulate_input("but");
+        cx.simulate_keystrokes("enter");
+
+        assert_eq!(cx.window_title().as_deref(), Some("Glassy UI — Buttons"));
+    }
+
+    #[gpui::test]
+    fn escape_closes_command_and_restores_gallery_focus(cx: &mut TestAppContext) {
+        let mut cx = setup(cx);
+        cx.simulate_keystrokes("cmd-k escape");
+        assert!(cx.debug_bounds("gallery-command-dialog-overlay").is_none());
+
+        cx.simulate_keystrokes("cmd-]");
+        assert_eq!(cx.window_title().as_deref(), Some("Glassy UI — Labels"));
+    }
 }

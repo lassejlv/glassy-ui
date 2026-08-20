@@ -19,7 +19,7 @@ The `Glassy UI` design spec is the visual contract. Code matches computed values
 ## Run
 
 ```sh
-cargo run          # gallery (⌘D theme, ⌘] next page, ⌘Q quit)
+cargo run          # gallery (⌘K command, ⌘D theme, ⌘] next page, ⌘Q quit)
 cargo test
 ```
 
@@ -27,9 +27,9 @@ Glassy UI targets the published `gpui` 0.2.2 crate. Full setup is in [getting st
 
 ## Components
 
-Button, Input, Textarea, Select, Checkbox, Switch, Radio, Label, Kbd, Badge, Separator, Skeleton, Spinner, Progress, Tooltip, Dialog, Alert dialog, Popover, Dropdown menu, Context menu.
+Button, Input, Textarea, Select, Checkbox, Switch, Radio, Label, Kbd, Badge, Separator, Skeleton, Spinner, Progress, Tooltip, Dialog, Alert dialog, Popover, Dropdown menu, Context menu, Command.
 
-Next in gallery order: Command, then Toast. See [`PLAN.md`](PLAN.md).
+Next in gallery order: Toast. See [`PLAN.md`](PLAN.md).
 
 ## License
 

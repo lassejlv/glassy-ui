@@ -36,6 +36,38 @@ Dialog::new("rename")
 - Focus is saved on open and restored on close.
 - Pass `.focus_cycle(...)` so Tab stays inside the panel.
 
+## Command palette
+
+`Command` is the reusable sheet. The app owns the global shortcut and hosts it in `Dialog`, so opening, scrim dismissal, and focus restoration stay explicit:
+
+```rust
+let dialog_owner = cx.entity();
+let command_owner = cx.entity();
+
+Dialog::new("command-dialog")
+    .open(self.command_open)
+    .initial_focus(self.command_focus.clone())
+    .on_dismiss(move |_, cx| {
+        dialog_owner.update(cx, |this, cx| {
+            this.command_open = false;
+            cx.notify();
+        });
+    })
+    .child(
+        Command::new("command")
+            .focus_handle(self.command_focus.clone())
+            .groups(command_groups)
+            .on_dismiss(move |_, cx| {
+                command_owner.update(cx, |this, cx| {
+                    this.command_open = false;
+                    cx.notify();
+                });
+            }),
+    )
+```
+
+Bind Cmd/Ctrl-K as an app action that toggles `command_open`. `glassy_ui::init` installs the search editing and command navigation bindings.
+
 ## Alert dialog
 
 Same panel. No field. Cancel is the safe autofocus. Scrim is locked.

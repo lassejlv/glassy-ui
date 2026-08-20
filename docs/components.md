@@ -71,6 +71,26 @@ Separator defaults to the design spec specimen (280×1 or 1×36). Override with 
 
 See [Forms](./forms.md).
 
+## Command
+
+`Command` owns its query, local filtering, highlight, pointer selection, and Up/Down/Enter/Escape behavior. Item IDs must be stable and unique.
+
+```rust
+Command::new("page-command")
+    .placeholder("Search pages or actions…")
+    .groups([
+        CommandGroup::new("Pages").items([
+            CommandItem::new("home", "Home"),
+            CommandItem::new("buttons", "Buttons").keywords(["controls"]),
+        ]),
+        CommandGroup::new("Actions")
+            .item(CommandItem::new("new-file", "New file").shortcut("⌘N")),
+    ])
+    .on_select(|id, _, _| {})
+```
+
+Use `.loading(true)` for the spinner state and an empty group set for the empty state. `CommandSize::Compact` matches the 280px state specimen; the default palette is 400px. Set `.filtering(false)` when an external search supplies already-filtered results. See [Overlays](./overlays.md) for the Cmd-K modal host pattern.
+
 ## Dialog, Alert, Popover, Tooltip, Dropdown, Context menu
 
 See [Overlays](./overlays.md).
@@ -181,4 +201,4 @@ See [Overlays](./overlays.md).
 
 ## Planned
 
-Command, Toast, Card, Tabs, Accordion, Avatar, Breadcrumb, Pagination, Table, Slider, Combobox, Menubar. Their design pages are ready, but the components are not implemented. Do not batch shadcn leftovers (calendar, sidebar, drawer, charts) unless an app needs that one page.
+Toast, Card, Tabs, Accordion, Avatar, Breadcrumb, Pagination, Table, Slider, Combobox, Menubar. Their design pages are ready, but the components are not implemented. Do not batch shadcn leftovers (calendar, sidebar, drawer, charts) unless an app needs that one page.

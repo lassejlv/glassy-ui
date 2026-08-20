@@ -13,7 +13,7 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all -- --check
 ```
 
-Gallery: 1440×900, opaque window, `⌘D` theme, `⌘]` next page, `⌘Q` quit.
+Gallery: 1440×900, opaque window, `⌘K` command, `⌘D` theme, `⌘]` next page, `⌘Q` quit.
 
 ## Add the crate
 
@@ -41,13 +41,13 @@ fn main() {
         .run(|cx: &mut App| {
             init_motion(cx);
             init_theme(cx);
-            init(cx); // Input / Textarea keybindings
+            init(cx); // Input, Textarea, and Command keybindings
             load_fonts(cx).expect("register Inter");
         });
 }
 ```
 
-`init_theme` installs light as the process default. `load_fonts` registers the bundled Inter Variable face (`FONT_FAMILY`). `init` binds field keys under the `KitInput` context.
+`init_theme` installs light as the process default. `load_fonts` registers the bundled Inter Variable face (`FONT_FAMILY`). `init` binds field keys under `KitInput` and command search/navigation under `KitCommandInput`.
 
 If you skip `Assets`, kit icons will not load. If you skip `init`, text fields will not handle backspace, arrows, or clipboard.
 
@@ -79,6 +79,7 @@ Components implement `Styled`. You can override width, padding, and similar afte
 | Action | Shortcut |
 | --- | --- |
 | Toggle light / dark | `⌘D` / `Ctrl+D` |
+| Open / close Command | `⌘K` / `Ctrl+K` |
 | Quit | `⌘Q` / `Ctrl+Q` |
 | Next page | `⌘]` / `Ctrl+]` |
 | Jump | `⌘1`–`⌘9`, `⌘0`, plus shift chords for later pages |
