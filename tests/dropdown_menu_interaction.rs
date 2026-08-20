@@ -4,7 +4,7 @@ use gpui::{
     div, prelude::*, px, size, Context, KeyDownEvent, Modifiers, Render, TestAppContext,
     VisualTestContext, Window,
 };
-use grafik_ui::{init_theme, DropdownMenu, DropdownMenuEntry, DropdownMenuItem};
+use gpui_ui::{init_theme, DropdownMenu, DropdownMenuEntry, DropdownMenuItem};
 
 struct DropdownHarness {
     selected: Rc<Cell<usize>>,

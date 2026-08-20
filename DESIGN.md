@@ -1,4 +1,4 @@
-# Grafik — Design
+# gpui-ui — Design
 
 A shadcn-shaped component kit for native GPUI. The visual contract lives in Paper (`Grafik UI`). Code must match `get_jsx` / `get_computed_styles`, not screenshots.
 
@@ -292,6 +292,10 @@ Trigger-anchored secondary glass, 240 wide, radius 6, padding 4, row gap 2. Rows
 Items use 14/400/18 ink. Hover and keyboard highlight use `#FFFFFF47` light / `#FFFFFF12` dark. Disabled uses `label`; destructive uses `destructive`. Shortcuts reuse Kbd, separators are 1px zinc, and nested items use a 16px chevron-right.
 
 Click or Enter/Space opens. Up/Down skip separators and disabled items. Right enters a submenu, Left returns, Escape and outside click dismiss, and focus returns to the trigger after keyboard dismissal or activation.
+
+### Context menu
+
+The same panel as Dropdown. No trigger. Origin is the pointer. Right-click opens, Escape and outside click dismiss, focus returns to the surface.
 
 ### Progress
 

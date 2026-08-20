@@ -2,23 +2,23 @@
 #![allow(clippy::unusual_byte_groupings)]
 
 use gpui::{
-    actions, div, prelude::*, px, size, App, Bounds, BoxShadow, FocusHandle, Focusable, FontWeight,
-    KeyBinding, Menu, MenuItem, QuitMode, TitlebarOptions, Window, WindowBackgroundAppearance,
-    WindowBounds, WindowOptions,
+    actions, div, point, prelude::*, px, size, App, Bounds, BoxShadow, FocusHandle, Focusable,
+    FontWeight, KeyBinding, Menu, MenuItem, QuitMode, TitlebarOptions, Window,
+    WindowBackgroundAppearance, WindowBounds, WindowOptions,
 };
 use gpui_platform::application;
-use grafik_ui::{
+use gpui_ui::{
     init as init_ui, init_motion, init_theme, load_fonts, paint, rgb, textarea, ActiveTheme,
     AlertDialog, Assets, Badge, BadgeVariant, Button, ButtonGroup, ButtonSize, ButtonVariant,
-    CheckState, Checkbox, CircularProgress, Dialog, DialogContent, DialogDescription, DialogFooter,
-    DialogHeader, DialogTitle, DropdownMenu, DropdownMenuEntry, DropdownMenuItem, Icon, IconName,
-    Input, Kbd, Label, Popover, PopoverContent, PopoverDescription, PopoverTitle, Progress, Radio,
-    Select, SelectItem, Separator, Skeleton, Spinner, SpinnerSize, SpinnerTone, Switch, Theme,
-    Tooltip,
+    CheckState, Checkbox, CircularProgress, ContextMenu, Dialog, DialogContent, DialogDescription,
+    DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuEntry, DropdownMenuItem,
+    Icon, IconName, Input, Kbd, Label, Popover, PopoverContent, PopoverDescription, PopoverTitle,
+    Progress, Radio, Select, SelectItem, Separator, Skeleton, Spinner, SpinnerSize, SpinnerTone,
+    Switch, Theme, Tooltip, TooltipPlacement,
 };
 
 actions!(
-    grafik_gallery,
+    gpui_gallery,
     [
         Quit,
         ToggleTheme,
@@ -40,6 +40,7 @@ actions!(
         ShowAlertDialogs,
         ShowPopovers,
         ShowDropdownMenus,
+        ShowContextMenus,
         ShowNextPage,
     ]
 );
@@ -54,7 +55,7 @@ fn main() {
             init_ui(cx);
             load_fonts(cx).expect("register Inter");
 
-            cx.set_app_identity("dev.grafik.gallery", "Grafik");
+            cx.set_app_identity("dev.gpui.gallery", "gpui-ui");
             cx.on_action(|_: &Quit, cx| cx.quit());
             cx.on_action(|_: &ToggleTheme, cx| cx.toggle_theme());
             cx.bind_keys([
@@ -96,10 +97,12 @@ fn main() {
                 KeyBinding::new("ctrl-shift-p", ShowPopovers, None),
                 KeyBinding::new("cmd-shift-m", ShowDropdownMenus, None),
                 KeyBinding::new("ctrl-shift-m", ShowDropdownMenus, None),
+                KeyBinding::new("cmd-shift-c", ShowContextMenus, None),
+                KeyBinding::new("ctrl-shift-c", ShowContextMenus, None),
                 KeyBinding::new("cmd-]", ShowNextPage, None),
                 KeyBinding::new("ctrl-]", ShowNextPage, None),
             ]);
-            cx.set_menus([Menu::new("Grafik").items([
+            cx.set_menus([Menu::new("gpui-ui").items([
                 MenuItem::action("Buttons", ShowButtons),
                 MenuItem::action("Skeletons", ShowSkeletons),
                 MenuItem::action("Tooltips", ShowTooltips),
@@ -118,10 +121,11 @@ fn main() {
                 MenuItem::action("Alert dialogs", ShowAlertDialogs),
                 MenuItem::action("Popovers", ShowPopovers),
                 MenuItem::action("Dropdown menus", ShowDropdownMenus),
+                MenuItem::action("Context menus", ShowContextMenus),
                 MenuItem::separator(),
                 MenuItem::action("Toggle Light / Dark", ToggleTheme),
                 MenuItem::separator(),
-                MenuItem::action("Quit Grafik", Quit),
+                MenuItem::action("Quit gpui-ui", Quit),
             ])]);
 
             open_gallery(cx);
@@ -136,9 +140,9 @@ fn open_gallery(cx: &mut App) {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
             window_min_size: Some(size(px(640.), px(420.))),
             window_background: WindowBackgroundAppearance::Opaque,
-            app_id: Some("dev.grafik.gallery".into()),
+            app_id: Some("dev.gpui.gallery".into()),
             titlebar: Some(TitlebarOptions {
-                title: Some("Grafik — Inputs".into()),
+                title: Some("gpui-ui — Inputs".into()),
                 appears_transparent: true,
                 ..Default::default()
             }),
@@ -169,29 +173,31 @@ enum GalleryPage {
     AlertDialogs,
     Popovers,
     DropdownMenus,
+    ContextMenus,
 }
 
 impl GalleryPage {
     fn title(self) -> &'static str {
         match self {
-            Self::Buttons => "Grafik — Buttons",
-            Self::Skeletons => "Grafik — Skeletons",
-            Self::Tooltips => "Grafik — Tooltips",
-            Self::Progress => "Grafik — Progress",
-            Self::Spinners => "Grafik — Spinners",
-            Self::Inputs => "Grafik — Inputs",
-            Self::Labels => "Grafik — Labels",
-            Self::Checkboxes => "Grafik — Checkboxes",
-            Self::Switches => "Grafik — Switches",
-            Self::Radios => "Grafik — Radios",
-            Self::Selects => "Grafik — Selects",
-            Self::Kbds => "Grafik — Kbd",
-            Self::Separators => "Grafik — Separators",
-            Self::Badges => "Grafik — Badges",
-            Self::Dialogs => "Grafik — Dialogs",
-            Self::AlertDialogs => "Grafik — Alert dialogs",
-            Self::Popovers => "Grafik — Popovers",
-            Self::DropdownMenus => "Grafik — Dropdown menus",
+            Self::Buttons => "gpui-ui — Buttons",
+            Self::Skeletons => "gpui-ui — Skeletons",
+            Self::Tooltips => "gpui-ui — Tooltips",
+            Self::Progress => "gpui-ui — Progress",
+            Self::Spinners => "gpui-ui — Spinners",
+            Self::Inputs => "gpui-ui — Inputs",
+            Self::Labels => "gpui-ui — Labels",
+            Self::Checkboxes => "gpui-ui — Checkboxes",
+            Self::Switches => "gpui-ui — Switches",
+            Self::Radios => "gpui-ui — Radios",
+            Self::Selects => "gpui-ui — Selects",
+            Self::Kbds => "gpui-ui — Kbd",
+            Self::Separators => "gpui-ui — Separators",
+            Self::Badges => "gpui-ui — Badges",
+            Self::Dialogs => "gpui-ui — Dialogs",
+            Self::AlertDialogs => "gpui-ui — Alert dialogs",
+            Self::Popovers => "gpui-ui — Popovers",
+            Self::DropdownMenus => "gpui-ui — Dropdown menus",
+            Self::ContextMenus => "gpui-ui — Context menus",
         }
     }
 
@@ -219,6 +225,7 @@ impl GalleryPage {
             Self::AlertDialogs => "Alert dialogs",
             Self::Popovers => "Popovers",
             Self::DropdownMenus => "Dropdown menus",
+            Self::ContextMenus => "Context menus",
         }
     }
 
@@ -241,7 +248,8 @@ impl GalleryPage {
             Self::Dialogs => Self::AlertDialogs,
             Self::AlertDialogs => Self::Popovers,
             Self::Popovers => Self::DropdownMenus,
-            Self::DropdownMenus => Self::Buttons,
+            Self::DropdownMenus => Self::ContextMenus,
+            Self::ContextMenus => Self::Buttons,
         }
     }
 }
@@ -400,6 +408,15 @@ impl Gallery {
         self.set_page(GalleryPage::DropdownMenus, window, cx);
     }
 
+    fn show_context_menus(
+        &mut self,
+        _: &ShowContextMenus,
+        window: &mut Window,
+        cx: &mut gpui::Context<Self>,
+    ) {
+        self.set_page(GalleryPage::ContextMenus, window, cx);
+    }
+
     fn show_next_page(
         &mut self,
         _: &ShowNextPage,
@@ -462,6 +479,7 @@ impl gpui::Render for Gallery {
             .on_action(cx.listener(Self::show_alert_dialogs))
             .on_action(cx.listener(Self::show_popovers))
             .on_action(cx.listener(Self::show_dropdown_menus))
+            .on_action(cx.listener(Self::show_context_menus))
             .on_action(cx.listener(Self::show_next_page))
             .child(
                 div()
@@ -496,6 +514,9 @@ impl gpui::Render for Gallery {
                         GalleryPage::Popovers => popovers_page(theme, page).into_any_element(),
                         GalleryPage::DropdownMenus => {
                             dropdown_menus_page(theme, page).into_any_element()
+                        }
+                        GalleryPage::ContextMenus => {
+                            context_menus_page(theme, page).into_any_element()
                         }
                     }),
             )
@@ -720,14 +741,6 @@ fn skeleton_list_row(id: &'static str, title_width: f32, body_width: f32) -> imp
         )
 }
 
-#[derive(Clone, Copy)]
-enum TooltipPlacement {
-    Above,
-    Below,
-    Start,
-    End,
-}
-
 fn tooltips_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
     div()
         .flex()
@@ -789,12 +802,12 @@ fn tooltips_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .child(
                     Button::icon_only("tooltip-search", IconName::Search)
                         .variant(ButtonVariant::Ghost)
-                        .tooltip(Tooltip::new("Search")),
+                        .tooltip(Tooltip::new("Search").placement(TooltipPlacement::Above)),
                 )
                 .child(
                     Button::icon_only("tooltip-new", IconName::Plus)
                         .variant(ButtonVariant::Ghost)
-                        .tooltip(Tooltip::new("New page")),
+                        .tooltip(Tooltip::new("New page").placement(TooltipPlacement::Above)),
                 )
                 .child(
                     div()
@@ -803,7 +816,10 @@ fn tooltips_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                         .items_center()
                         .gap(px(6.))
                         .child(Tooltip::new("Export PNG"))
-                        .child(tooltip_trigger("tooltip-export-in-use")),
+                        .child(tooltip_trigger(
+                            "tooltip-export-in-use",
+                            TooltipPlacement::Above,
+                        )),
                 ),
         ))
 }
@@ -842,29 +858,29 @@ fn tooltip_specimen(
                 )
                 .gap(px(6.))
                 .when(matches!(placement, TooltipPlacement::Below), |el| {
-                    el.child(tooltip_trigger(trigger_id))
+                    el.child(tooltip_trigger(trigger_id, placement))
                         .child(Tooltip::new("Export PNG"))
                 })
                 .when(matches!(placement, TooltipPlacement::Above), |el| {
                     el.child(Tooltip::new("Export PNG"))
-                        .child(tooltip_trigger(trigger_id))
+                        .child(tooltip_trigger(trigger_id, placement))
                 })
                 .when(matches!(placement, TooltipPlacement::Start), |el| {
                     el.child(Tooltip::new("Export PNG"))
-                        .child(tooltip_trigger(trigger_id))
+                        .child(tooltip_trigger(trigger_id, placement))
                 })
                 .when(matches!(placement, TooltipPlacement::End), |el| {
-                    el.child(tooltip_trigger(trigger_id))
+                    el.child(tooltip_trigger(trigger_id, placement))
                         .child(Tooltip::new("Export PNG"))
                 }),
         )
         .when_some(label, |el, label| el.child(caption(theme, label)))
 }
 
-fn tooltip_trigger(id: &'static str) -> Button {
+fn tooltip_trigger(id: &'static str, placement: TooltipPlacement) -> Button {
     Button::icon_only(id, IconName::Download)
         .variant(ButtonVariant::Ghost)
-        .tooltip(Tooltip::new("Export PNG"))
+        .tooltip(Tooltip::new("Export PNG").placement(placement))
 }
 
 fn progress_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
@@ -1210,7 +1226,7 @@ fn inputs_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .items_end()
                 .gap(px(16.))
                 .child(Input::new("project-placeholder").placeholder("Project name"))
-                .child(Input::new("project-filled").value("Grafik"))
+                .child(Input::new("project-filled").value("gpui-ui"))
                 .child(labeled_field(
                     Label::new("Email"),
                     Input::new("email").value("hello@paper.design"),
@@ -1249,7 +1265,7 @@ fn inputs_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .child(state_sample(
                     theme,
                     "Focus",
-                    Input::new("focus").value("Grafik").show_focus(true),
+                    Input::new("focus").value("gpui-ui").show_focus(true),
                 ))
                 .child(state_sample(
                     theme,
@@ -1299,7 +1315,7 @@ fn inputs_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .gap(px(16.))
                 .child(labeled_field(
                     Label::new("Name").required(true),
-                    Input::new("form-name").value("Grafik").w(px(360.)),
+                    Input::new("form-name").value("gpui-ui").w(px(360.)),
                 ))
                 .child(labeled_field(
                     Label::new("Description").optional(true),
@@ -1362,7 +1378,7 @@ fn labels_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 ))
                 .child(labeled_field(
                     Label::new("Name").required(true),
-                    Input::new("label-name").value("Grafik"),
+                    Input::new("label-name").value("gpui-ui"),
                 )),
         ))
         .child(section(
@@ -1377,7 +1393,7 @@ fn labels_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
                 .gap(px(16.))
                 .child(labeled_field(
                     Label::new("Name").required(true),
-                    Input::new("label-form-name").value("Grafik").w(px(360.)),
+                    Input::new("label-form-name").value("gpui-ui").w(px(360.)),
                 ))
                 .child(labeled_field(
                     Label::new("Description").optional(true),
@@ -2218,6 +2234,89 @@ fn file_menu_entries() -> Vec<DropdownMenuEntry> {
             .destructive(true)
             .into(),
     ]
+}
+
+fn context_menus_page(theme: Theme, page: GalleryPage) -> impl IntoElement {
+    div()
+        .flex()
+        .flex_col()
+        .w_full()
+        .child(header(
+            theme,
+            page,
+            "CONTEXT",
+            "At the pointer.",
+            "Same items as Dropdown. Opens where you click. Escape and outside click dismiss.",
+        ))
+        .child(section(
+            theme,
+            "Menu",
+            56.0,
+            false,
+            div()
+                .relative()
+                .w(px(240.))
+                .h(px(248.))
+                .flex_shrink_0()
+                .child(
+                    ContextMenu::new("context-specimen")
+                        .open(true)
+                        .position(point(px(0.), px(0.)))
+                        .entries(file_menu_entries()),
+                ),
+        ))
+        .child(section(
+            theme,
+            "In use",
+            40.0,
+            true,
+            ContextMenu::new("page-context")
+                .default_open(true)
+                .position(point(px(48.), px(40.)))
+                .entries(file_menu_entries())
+                .child(context_target(theme)),
+        ))
+}
+
+fn context_target(theme: Theme) -> impl IntoElement {
+    let chrome = if theme.is_dark() {
+        (paint(0xFFFFFF12), paint(0xFFFFFF1A), paint(0xFFFFFF1F))
+    } else {
+        (paint(0xFFFFFF85), paint(0xFFFFFFB8), paint(0xFFFFFFE6))
+    };
+
+    div()
+        .flex()
+        .flex_col()
+        .items_center()
+        .justify_center()
+        .gap(px(8.))
+        .w(px(360.))
+        .h(px(148.))
+        .flex_shrink_0()
+        .rounded(px(10.))
+        .border_1()
+        .border_color(chrome.1)
+        .bg(chrome.0)
+        .shadow(vec![BoxShadow::new(px(0.), px(1.), chrome.2).inset()])
+        .child(
+            div()
+                .font_family(theme.font_family)
+                .font_weight(FontWeight::SEMIBOLD)
+                .text_size(px(16.))
+                .line_height(px(20.))
+                .text_color(theme.heading)
+                .child("Home"),
+        )
+        .child(
+            div()
+                .font_family(theme.font_family)
+                .font_weight(FontWeight::MEDIUM)
+                .text_size(px(13.))
+                .line_height(px(16.))
+                .text_color(theme.label)
+                .child("Right-click"),
+        )
 }
 
 fn dropdown_file_trigger(theme: Theme) -> impl IntoElement {

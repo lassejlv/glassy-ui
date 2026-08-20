@@ -6,11 +6,13 @@ use std::time::Duration;
 use crate::motion::{Motion, StyledSlot};
 use crate::theme::{paint, rgb, ActiveTheme, Theme, ThemeKind};
 use gpui::{
-    div, prelude::*, px, App, BoxShadow, Div, FontWeight, IntoElement, Render, RenderOnce,
-    SharedString, Stateful, StyleRefinement, Styled, Window,
+    anchored, deferred, div, point, prelude::*, px, relative, Anchor, App, BoxShadow, Div,
+    FontWeight, IntoElement, Pixels, RenderOnce, Role, SharedString, Stateful, StyleRefinement,
+    Styled, Window,
 };
 
 const DEFAULT_SHOW_DELAY: Duration = Duration::from_millis(300);
+const TOOLTIP_GAP: f32 = 6.0;
 
 /// Inverse-glass tooltip matching Paper `Grafik UI` → Tooltips.
 ///
@@ -21,7 +23,53 @@ pub struct Tooltip {
     label: SharedString,
     theme: Option<Theme>,
     show_delay: Duration,
+    placement: TooltipPlacement,
     style: StyleRefinement,
+}
+
+/// Paper placements: above / below / start / end of the trigger.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum TooltipPlacement {
+    #[default]
+    Above,
+    Below,
+    Start,
+    End,
+}
+
+impl TooltipPlacement {
+    fn anchor(self) -> Anchor {
+        match self {
+            Self::Above => Anchor::BottomLeft,
+            Self::Below => Anchor::TopLeft,
+            Self::Start => Anchor::RightCenter,
+            Self::End => Anchor::LeftCenter,
+        }
+    }
+
+    fn offset(self, gap: Pixels) -> gpui::Point<Pixels> {
+        match self {
+            Self::Above => point(px(0.), -gap),
+            Self::Below => point(px(0.), gap),
+            Self::Start => point(-gap, px(0.)),
+            Self::End => point(gap, px(0.)),
+        }
+    }
+
+    fn marker(self) -> Div {
+        let marker = div().absolute().size(px(0.));
+        match self {
+            Self::Above => marker.left(px(0.)).top(px(0.)),
+            Self::Below => marker.left(px(0.)).top(relative(1.)),
+            Self::Start => marker.left(px(0.)).top(relative(0.5)),
+            Self::End => marker.left(relative(1.)).top(relative(0.5)),
+        }
+    }
+}
+
+struct TooltipAttachState {
+    open: bool,
+    hover_generation: u64,
 }
 
 impl Tooltip {
@@ -30,6 +78,7 @@ impl Tooltip {
             label: label.into(),
             theme: None,
             show_delay: DEFAULT_SHOW_DELAY,
+            placement: TooltipPlacement::Above,
             style: StyleRefinement::default(),
         }
     }
@@ -45,20 +94,102 @@ impl Tooltip {
         self
     }
 
+    pub fn placement(mut self, placement: TooltipPlacement) -> Self {
+        self.placement = placement;
+        self
+    }
+
     pub fn delay(&self) -> Duration {
         self.show_delay
     }
 
-    pub(crate) fn attach(self, trigger: Stateful<Div>) -> Stateful<Div> {
+    pub fn placement_kind(&self) -> TooltipPlacement {
+        self.placement
+    }
+
+    pub(crate) fn attach(
+        self,
+        trigger_id: SharedString,
+        trigger: Stateful<Div>,
+        window: &mut Window,
+        cx: &mut App,
+    ) -> impl IntoElement {
         let delay = self.show_delay;
-        trigger
-            .tooltip(move |_, cx| {
-                cx.new(|_| TooltipView {
-                    tooltip: self.clone(),
-                })
-                .into()
-            })
-            .tooltip_show_delay(delay)
+        let placement = self.placement;
+        let state_id = SharedString::from(format!("{trigger_id}-tooltip-state"));
+        let chip_selector = format!("{trigger_id}-tooltip");
+        let state = window.use_keyed_state(state_id, cx, |_, _| TooltipAttachState {
+            open: false,
+            hover_generation: 0,
+        });
+        let open = state.read(cx).open;
+        let hover_state = state.clone();
+
+        let trigger = trigger.on_hover(move |hovered, window, cx| {
+            if *hovered {
+                if delay.is_zero() {
+                    hover_state.update(cx, |tooltip, cx| {
+                        tooltip.open = true;
+                        cx.notify();
+                    });
+                    return;
+                }
+                hover_state.update(cx, |tooltip, _| {
+                    tooltip.hover_generation += 1;
+                });
+                let generation = hover_state.read(cx).hover_generation;
+                let pending = hover_state.downgrade();
+                window
+                    .spawn(cx, async move |cx| {
+                        cx.background_executor().timer(delay).await;
+                        pending
+                            .update(cx, |tooltip, cx| {
+                                if tooltip.hover_generation == generation {
+                                    tooltip.open = true;
+                                    cx.notify();
+                                }
+                            })
+                            .ok();
+                    })
+                    .detach();
+            } else {
+                hover_state.update(cx, |tooltip, cx| {
+                    tooltip.hover_generation += 1;
+                    tooltip.open = false;
+                    cx.notify();
+                });
+            }
+        });
+
+        let popup = placement.marker().child(
+            deferred(
+                anchored()
+                    .anchor(placement.anchor())
+                    .offset(placement.offset(px(TOOLTIP_GAP)))
+                    .snap_to_window_with_margin(px(8.))
+                    .child(
+                        Motion::new()
+                            .id(format!("{trigger_id}-tooltip-surface"))
+                            .surface_in()
+                            .child(
+                                div()
+                                    .id(SharedString::from(chip_selector.clone()))
+                                    .debug_selector(move || chip_selector.clone())
+                                    .child(self),
+                            ),
+                    ),
+            )
+            .with_priority(4),
+        );
+
+        div()
+            .relative()
+            .flex()
+            .flex_none()
+            .self_start()
+            .items_center()
+            .child(trigger)
+            .when(open, |el| el.child(popup))
     }
 }
 
@@ -74,6 +205,7 @@ impl RenderOnce for Tooltip {
         let chrome = tooltip_chrome(theme);
 
         div()
+            .id(SharedString::from(format!("tooltip-{}", self.label)))
             .h(px(24.))
             .flex()
             .items_center()
@@ -88,6 +220,7 @@ impl RenderOnce for Tooltip {
                 BoxShadow::new(px(0.), px(chrome.shadow_y), chrome.shadow)
                     .blur_radius(px(chrome.shadow_blur)),
             ])
+            .role(Role::Tooltip)
             .font_family(theme.font_family)
             .font_weight(FontWeight::MEDIUM)
             .text_size(px(12.))
@@ -95,23 +228,6 @@ impl RenderOnce for Tooltip {
             .text_color(chrome.fg)
             .refine_style(&self.style)
             .child(self.label)
-    }
-}
-
-struct TooltipView {
-    tooltip: Tooltip,
-}
-
-impl Render for TooltipView {
-    fn render(&mut self, _window: &mut Window, _cx: &mut gpui::Context<Self>) -> impl IntoElement {
-        // GPUI positions tooltips at the pointer. This transparent lead-in keeps
-        // the visible chip away from the cursor while retaining edge avoidance.
-        div().pt(px(7.)).pl(px(7.)).child(
-            Motion::new()
-                .id(format!("tooltip-{}", self.tooltip.label))
-                .surface_in()
-                .child(self.tooltip.clone()),
-        )
     }
 }
 
@@ -156,6 +272,14 @@ mod tests {
     #[test]
     fn default_delay_matches_paper() {
         assert_eq!(Tooltip::new("Export PNG").delay(), DEFAULT_SHOW_DELAY);
+    }
+
+    #[test]
+    fn default_placement_is_above() {
+        assert_eq!(
+            Tooltip::new("Export PNG").placement_kind(),
+            TooltipPlacement::Above
+        );
     }
 
     #[test]

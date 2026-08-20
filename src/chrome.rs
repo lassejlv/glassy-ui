@@ -2,9 +2,23 @@
 #![allow(clippy::unusual_byte_groupings)]
 
 use crate::theme::{paint, rgb, Theme, ThemeKind};
-use gpui::Hsla;
+use gpui::{px, BoxShadow, Hsla};
 
 use crate::button::ButtonVariant;
+
+/// 3px zinc/white spread used by focused controls.
+pub(crate) fn focus_ring(theme: Theme) -> BoxShadow {
+    BoxShadow::new(
+        px(0.),
+        px(0.),
+        if theme.is_dark() {
+            paint(0xFFFFFF24)
+        } else {
+            paint(0x18181B24)
+        },
+    )
+    .spread_radius(px(3.))
+}
 
 /// Rest / focus / disabled / invalid paint for Input and Textarea.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]

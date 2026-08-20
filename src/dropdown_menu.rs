@@ -2,8 +2,8 @@ use std::rc::Rc;
 
 use gpui::{
     anchored, deferred, div, point, prelude::*, px, relative, AnyElement, App, BoxShadow, Entity,
-    FocusHandle, FontWeight, IntoElement, KeyDownEvent, MouseButton, ParentElement, RenderOnce,
-    Role, SharedString, StyleRefinement, Styled, Window,
+    FocusHandle, FontWeight, IntoElement, KeyDownEvent, MouseButton, ParentElement, Pixels, Point,
+    RenderOnce, Role, SharedString, StyleRefinement, Styled, Window,
 };
 
 use crate::icon::{Icon, IconName};
@@ -12,7 +12,7 @@ use crate::motion::{Motion, StyledSlot};
 use crate::theme::{paint, ActiveTheme, Theme, ThemeKind};
 
 type MenuAction = Rc<dyn Fn(&mut Window, &mut App) + 'static>;
-type OpenChangeHandler = Rc<dyn Fn(bool, &mut Window, &mut App) + 'static>;
+pub(crate) type OpenChangeHandler = Rc<dyn Fn(bool, &mut Window, &mut App) + 'static>;
 
 #[derive(Clone)]
 pub enum DropdownMenuEntry {
@@ -84,20 +84,23 @@ impl From<DropdownMenuItem> for DropdownMenuEntry {
     }
 }
 
-struct DropdownMenuState {
-    focus_handle: FocusHandle,
-    open: bool,
-    highlighted: Option<usize>,
-    submenu: Option<SubmenuState>,
+pub(crate) struct DropdownMenuState {
+    pub(crate) focus_handle: FocusHandle,
+    pub(crate) open: bool,
+    pub(crate) highlighted: Option<usize>,
+    pub(crate) submenu: Option<SubmenuState>,
+    pub(crate) origin: Point<Pixels>,
+    pub(crate) origin_window: bool,
+    pub(crate) previous_focus: Option<FocusHandle>,
 }
 
 #[derive(Clone, Copy)]
-struct SubmenuState {
-    parent: usize,
-    highlighted: Option<usize>,
+pub(crate) struct SubmenuState {
+    pub(crate) parent: usize,
+    pub(crate) highlighted: Option<usize>,
 }
 
-fn item_at(entries: &[DropdownMenuEntry], index: usize) -> Option<&DropdownMenuItem> {
+pub(crate) fn item_at(entries: &[DropdownMenuEntry], index: usize) -> Option<&DropdownMenuItem> {
     match entries.get(index) {
         Some(DropdownMenuEntry::Item(item)) => Some(item),
         _ => None,
@@ -108,14 +111,14 @@ fn enabled(entries: &[DropdownMenuEntry], index: usize) -> bool {
     item_at(entries, index).is_some_and(|item| !item.disabled)
 }
 
-fn initial_highlight(entries: &[DropdownMenuEntry]) -> Option<usize> {
+pub(crate) fn initial_highlight(entries: &[DropdownMenuEntry]) -> Option<usize> {
     entries
         .iter()
         .enumerate()
         .find_map(|(index, _)| enabled(entries, index).then_some(index))
 }
 
-fn next_enabled(
+pub(crate) fn next_enabled(
     entries: &[DropdownMenuEntry],
     current: Option<usize>,
     forward: bool,
@@ -143,7 +146,7 @@ fn next_enabled(
     }
 }
 
-fn set_open(
+pub(crate) fn set_open(
     state: &Entity<DropdownMenuState>,
     open: bool,
     entries: &[DropdownMenuEntry],
@@ -167,7 +170,7 @@ fn set_open(
     }
 }
 
-fn activate_item(
+pub(crate) fn activate_item(
     item: &DropdownMenuItem,
     state: &Entity<DropdownMenuState>,
     entries: &[DropdownMenuEntry],
@@ -184,6 +187,119 @@ fn activate_item(
     focus_handle.focus(window, cx);
     if let Some(on_select) = &item.on_select {
         on_select(window, cx);
+    }
+}
+
+pub(crate) fn handle_menu_keydown(
+    event: &KeyDownEvent,
+    state: &Entity<DropdownMenuState>,
+    entries: &[DropdownMenuEntry],
+    on_open_change: Option<&OpenChangeHandler>,
+    focus_handle: &FocusHandle,
+    window: &mut Window,
+    cx: &mut App,
+) {
+    if event.keystroke.modifiers.modified() {
+        return;
+    }
+
+    let key = event.keystroke.key.as_str();
+    let snapshot = state.read(cx);
+    let was_open = snapshot.open;
+    let root_highlighted = snapshot.highlighted;
+    let submenu_state = snapshot.submenu;
+
+    match key {
+        "down" | "up" => {
+            let forward = key == "down";
+            state.update(cx, |menu, cx| {
+                if !menu.open {
+                    menu.open = true;
+                    menu.highlighted = initial_highlight(entries);
+                } else if let Some(submenu) = &mut menu.submenu {
+                    if let Some(parent) = item_at(entries, submenu.parent) {
+                        submenu.highlighted =
+                            next_enabled(&parent.submenu, submenu.highlighted, forward);
+                    }
+                } else {
+                    menu.highlighted = next_enabled(entries, menu.highlighted, forward);
+                }
+                cx.notify();
+            });
+            if !was_open {
+                if let Some(on_open_change) = on_open_change {
+                    on_open_change(true, window, cx);
+                }
+            }
+            cx.stop_propagation();
+        }
+        "enter" | "space" if !was_open => {
+            set_open(state, true, entries, on_open_change, window, cx);
+            cx.stop_propagation();
+        }
+        "right" if was_open && submenu_state.is_none() => {
+            if let Some((parent, item)) = root_highlighted
+                .and_then(|index| item_at(entries, index).map(|item| (index, item)))
+                .filter(|(_, item)| !item.disabled && !item.submenu.is_empty())
+            {
+                state.update(cx, |menu, cx| {
+                    menu.submenu = Some(SubmenuState {
+                        parent,
+                        highlighted: initial_highlight(&item.submenu),
+                    });
+                    cx.notify();
+                });
+                cx.stop_propagation();
+            }
+        }
+        "left" if submenu_state.is_some() => {
+            state.update(cx, |menu, cx| {
+                menu.submenu = None;
+                cx.notify();
+            });
+            cx.stop_propagation();
+        }
+        "enter" | "space" if was_open => {
+            let picked = if let Some(submenu) = submenu_state {
+                item_at(entries, submenu.parent).and_then(|parent| {
+                    submenu
+                        .highlighted
+                        .and_then(|index| item_at(&parent.submenu, index))
+                })
+            } else {
+                root_highlighted.and_then(|index| item_at(entries, index))
+            };
+
+            if let Some(item) = picked.filter(|item| !item.disabled) {
+                if !item.submenu.is_empty() && submenu_state.is_none() {
+                    let parent = root_highlighted.expect("highlighted root item");
+                    state.update(cx, |menu, cx| {
+                        menu.submenu = Some(SubmenuState {
+                            parent,
+                            highlighted: initial_highlight(&item.submenu),
+                        });
+                        cx.notify();
+                    });
+                } else {
+                    activate_item(
+                        item,
+                        state,
+                        entries,
+                        on_open_change,
+                        focus_handle,
+                        window,
+                        cx,
+                    );
+                }
+            }
+            cx.stop_propagation();
+        }
+        "escape" if was_open => {
+            set_open(state, false, entries, on_open_change, window, cx);
+            focus_handle.focus(window, cx);
+            cx.stop_propagation();
+        }
+        _ => {}
     }
 }
 
@@ -216,14 +332,14 @@ fn menu_chrome(theme: Theme) -> MenuChrome {
 }
 
 #[derive(Clone)]
-struct MenuPanelContext {
-    state: Entity<DropdownMenuState>,
-    root_entries: Vec<DropdownMenuEntry>,
-    focus_handle: FocusHandle,
-    on_open_change: Option<OpenChangeHandler>,
+pub(crate) struct MenuPanelContext {
+    pub(crate) state: Entity<DropdownMenuState>,
+    pub(crate) root_entries: Vec<DropdownMenuEntry>,
+    pub(crate) focus_handle: FocusHandle,
+    pub(crate) on_open_change: Option<OpenChangeHandler>,
 }
 
-fn render_panel(
+pub(crate) fn render_panel(
     id: SharedString,
     entries: Vec<DropdownMenuEntry>,
     highlighted: Option<usize>,
@@ -493,6 +609,9 @@ impl RenderOnce for DropdownMenu {
                 .then(|| initial_highlight(&initial_entries))
                 .flatten(),
             submenu: None,
+            origin: point(px(0.), px(0.)),
+            origin_window: false,
+            previous_focus: None,
         });
 
         if let Some(controlled_open) = self.controlled_open {
@@ -546,125 +665,15 @@ impl RenderOnce for DropdownMenu {
                 );
             })
             .on_key_down(move |event: &KeyDownEvent, window, cx| {
-                if event.keystroke.modifiers.modified() {
-                    return;
-                }
-
-                let key = event.keystroke.key.as_str();
-                let snapshot = keyboard_state.read(cx);
-                let was_open = snapshot.open;
-                let root_highlighted = snapshot.highlighted;
-                let submenu_state = snapshot.submenu;
-
-                match key {
-                    "down" | "up" => {
-                        let forward = key == "down";
-                        keyboard_state.update(cx, |menu, cx| {
-                            if !menu.open {
-                                menu.open = true;
-                                menu.highlighted = initial_highlight(&keyboard_entries);
-                            } else if let Some(submenu) = &mut menu.submenu {
-                                if let Some(parent) = item_at(&keyboard_entries, submenu.parent) {
-                                    submenu.highlighted =
-                                        next_enabled(&parent.submenu, submenu.highlighted, forward);
-                                }
-                            } else {
-                                menu.highlighted =
-                                    next_enabled(&keyboard_entries, menu.highlighted, forward);
-                            }
-                            cx.notify();
-                        });
-                        if !was_open {
-                            if let Some(on_open_change) = &keyboard_change {
-                                on_open_change(true, window, cx);
-                            }
-                        }
-                        cx.stop_propagation();
-                    }
-                    "enter" | "space" if !was_open => {
-                        set_open(
-                            &keyboard_state,
-                            true,
-                            &keyboard_entries,
-                            keyboard_change.as_ref(),
-                            window,
-                            cx,
-                        );
-                        cx.stop_propagation();
-                    }
-                    "right" if was_open && submenu_state.is_none() => {
-                        if let Some((parent, item)) = root_highlighted
-                            .and_then(|index| {
-                                item_at(&keyboard_entries, index).map(|item| (index, item))
-                            })
-                            .filter(|(_, item)| !item.disabled && !item.submenu.is_empty())
-                        {
-                            keyboard_state.update(cx, |menu, cx| {
-                                menu.submenu = Some(SubmenuState {
-                                    parent,
-                                    highlighted: initial_highlight(&item.submenu),
-                                });
-                                cx.notify();
-                            });
-                            cx.stop_propagation();
-                        }
-                    }
-                    "left" if submenu_state.is_some() => {
-                        keyboard_state.update(cx, |menu, cx| {
-                            menu.submenu = None;
-                            cx.notify();
-                        });
-                        cx.stop_propagation();
-                    }
-                    "enter" | "space" if was_open => {
-                        let picked = if let Some(submenu) = submenu_state {
-                            item_at(&keyboard_entries, submenu.parent).and_then(|parent| {
-                                submenu
-                                    .highlighted
-                                    .and_then(|index| item_at(&parent.submenu, index))
-                            })
-                        } else {
-                            root_highlighted.and_then(|index| item_at(&keyboard_entries, index))
-                        };
-
-                        if let Some(item) = picked.filter(|item| !item.disabled) {
-                            if !item.submenu.is_empty() && submenu_state.is_none() {
-                                let parent = root_highlighted.expect("highlighted root item");
-                                keyboard_state.update(cx, |menu, cx| {
-                                    menu.submenu = Some(SubmenuState {
-                                        parent,
-                                        highlighted: initial_highlight(&item.submenu),
-                                    });
-                                    cx.notify();
-                                });
-                            } else {
-                                activate_item(
-                                    item,
-                                    &keyboard_state,
-                                    &keyboard_entries,
-                                    keyboard_change.as_ref(),
-                                    &keyboard_focus,
-                                    window,
-                                    cx,
-                                );
-                            }
-                        }
-                        cx.stop_propagation();
-                    }
-                    "escape" if was_open => {
-                        set_open(
-                            &keyboard_state,
-                            false,
-                            &keyboard_entries,
-                            keyboard_change.as_ref(),
-                            window,
-                            cx,
-                        );
-                        keyboard_focus.focus(window, cx);
-                        cx.stop_propagation();
-                    }
-                    _ => {}
-                }
+                handle_menu_keydown(
+                    event,
+                    &keyboard_state,
+                    &keyboard_entries,
+                    keyboard_change.as_ref(),
+                    &keyboard_focus,
+                    window,
+                    cx,
+                );
             })
             .when_some(self.trigger, |trigger, content| trigger.child(content));
 

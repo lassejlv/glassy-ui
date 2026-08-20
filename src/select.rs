@@ -4,7 +4,7 @@ use crate::motion::{Motion, StyledSlot};
 use crate::theme::{rgb, ActiveTheme, Theme, ThemeKind};
 use gpui::{
     anchored, deferred, div, point, prelude::*, px, App, BoxShadow, ClickEvent, FocusHandle,
-    FontWeight, IntoElement, KeyDownEvent, RenderOnce, SharedString, StyleRefinement, Styled,
+    FontWeight, IntoElement, KeyDownEvent, RenderOnce, Role, SharedString, StyleRefinement, Styled,
     Window,
 };
 
@@ -14,11 +14,13 @@ use crate::icon::{Icon, IconName};
 
 type SelectClickHandler = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
 type SelectPickHandler = Rc<dyn Fn(&SharedString, &mut Window, &mut App) + 'static>;
+type SelectOpenHandler = Rc<dyn Fn(bool, &mut Window, &mut App) + 'static>;
 
 struct SelectState {
     focus_handle: FocusHandle,
     open: bool,
     value: Option<SharedString>,
+    last_value_prop: Option<SharedString>,
     highlighted: Option<usize>,
 }
 
@@ -89,10 +91,12 @@ pub struct Select {
     items: Vec<SelectItem>,
     disabled: bool,
     focused: bool,
-    open: bool,
+    controlled_open: Option<bool>,
+    default_open: bool,
     style: StyleRefinement,
     on_click: Option<SelectClickHandler>,
     on_select: Option<SelectPickHandler>,
+    on_open_change: Option<SelectOpenHandler>,
 }
 
 impl Select {
@@ -104,10 +108,12 @@ impl Select {
             items: Vec::new(),
             disabled: false,
             focused: false,
-            open: false,
+            controlled_open: None,
+            default_open: false,
             style: StyleRefinement::default(),
             on_click: None,
             on_select: None,
+            on_open_change: None,
         }
     }
 
@@ -136,8 +142,14 @@ impl Select {
         self
     }
 
+    /// Keep the list open or closed from parent state.
     pub fn open(mut self, open: bool) -> Self {
-        self.open = open;
+        self.controlled_open = Some(open);
+        self
+    }
+
+    pub fn default_open(mut self, open: bool) -> Self {
+        self.default_open = open;
         self
     }
 
@@ -156,6 +168,14 @@ impl Select {
         self.on_select = Some(Rc::new(listener));
         self
     }
+
+    pub fn on_open_change(
+        mut self,
+        listener: impl Fn(bool, &mut Window, &mut App) + 'static,
+    ) -> Self {
+        self.on_open_change = Some(Rc::new(listener));
+        self
+    }
 }
 
 impl Styled for Select {
@@ -164,9 +184,35 @@ impl Styled for Select {
     }
 }
 
+fn set_open(
+    state: &gpui::Entity<SelectState>,
+    open: bool,
+    items: &[SelectItem],
+    on_open_change: Option<&SelectOpenHandler>,
+    window: &mut Window,
+    cx: &mut App,
+) {
+    if state.read(cx).open == open {
+        return;
+    }
+    state.update(cx, |select, cx| {
+        select.open = open;
+        select.highlighted = open
+            .then(|| initial_highlight(items, select.value.as_ref()))
+            .flatten();
+        if !open {
+            select.highlighted = None;
+        }
+        cx.notify();
+    });
+    if let Some(on_open_change) = on_open_change {
+        on_open_change(open, window, cx);
+    }
+}
+
 impl RenderOnce for Select {
     fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
-        let initial_open = self.open;
+        let initial_open = self.controlled_open.unwrap_or(self.default_open);
         let initial_value = self.value.clone();
         let initial_items = self.items.clone();
         let state = window.use_keyed_state(self.id.clone(), cx, move |_, cx| SelectState {
@@ -175,8 +221,27 @@ impl RenderOnce for Select {
             highlighted: initial_open
                 .then(|| initial_highlight(&initial_items, initial_value.as_ref()))
                 .flatten(),
-            value: initial_value,
+            value: initial_value.clone(),
+            last_value_prop: initial_value,
         });
+
+        if let Some(controlled_open) = self.controlled_open {
+            if state.read(cx).open != controlled_open {
+                state.update(cx, |select, _| {
+                    select.open = controlled_open;
+                    select.highlighted = controlled_open
+                        .then(|| initial_highlight(&self.items, select.value.as_ref()))
+                        .flatten();
+                });
+            }
+        }
+        if state.read(cx).last_value_prop != self.value {
+            state.update(cx, |select, _| {
+                select.value = self.value.clone();
+                select.last_value_prop = self.value.clone();
+            });
+        }
+
         let open = state.read(cx).open;
         let value = state.read(cx).value.clone();
         let highlighted = state.read(cx).highlighted;
@@ -215,14 +280,18 @@ impl RenderOnce for Select {
 
         let interactive = !self.disabled;
         let on_click = self.on_click.clone();
+        let on_open_change = self.on_open_change.clone();
         let trigger_state = state.clone();
         let trigger_items = self.items.clone();
         let trigger_focus = focus_handle.clone();
+        let trigger_open_change = on_open_change.clone();
         let next_open = !open;
         let trigger_debug_selector = format!("{}-trigger", self.id);
         let mut trigger = div()
             .id(self.id.clone())
             .debug_selector(move || trigger_debug_selector)
+            .role(Role::ComboBox)
+            .aria_expanded(open)
             .flex()
             .items_center()
             .gap(px(8.))
@@ -257,13 +326,14 @@ impl RenderOnce for Select {
         if interactive {
             trigger = trigger.on_click(move |event, window, cx| {
                 trigger_focus.focus(window, cx);
-                trigger_state.update(cx, |select, cx| {
-                    select.open = next_open;
-                    select.highlighted = next_open
-                        .then(|| initial_highlight(&trigger_items, select.value.as_ref()))
-                        .flatten();
-                    cx.notify();
-                });
+                set_open(
+                    &trigger_state,
+                    next_open,
+                    &trigger_items,
+                    trigger_open_change.as_ref(),
+                    window,
+                    cx,
+                );
                 if let Some(on_click) = &on_click {
                     on_click(event, window, cx);
                 }
@@ -287,6 +357,8 @@ impl RenderOnce for Select {
         let select_id = self.id.clone();
         let popup_debug_selector = format!("{select_id}-popup");
         let dismiss_state = state.clone();
+        let dismiss_items = self.items.clone();
+        let dismiss_open_change = on_open_change.clone();
         let list = div()
             .id(SharedString::from(format!("{select_id}-popup")))
             .debug_selector(move || popup_debug_selector)
@@ -301,14 +373,15 @@ impl RenderOnce for Select {
             .bg(list_bg)
             .shadow(list_shadows)
             .occlude()
-            .on_mouse_down_out(move |_, _, cx| {
-                dismiss_state.update(cx, |select, cx| {
-                    if select.open {
-                        select.open = false;
-                        select.highlighted = None;
-                        cx.notify();
-                    }
-                });
+            .on_mouse_down_out(move |_, window, cx| {
+                set_open(
+                    &dismiss_state,
+                    false,
+                    &dismiss_items,
+                    dismiss_open_change.as_ref(),
+                    window,
+                    cx,
+                );
             })
             .children(self.items.into_iter().enumerate().map(|(index, item)| {
                 let is_selected = selected
@@ -323,6 +396,7 @@ impl RenderOnce for Select {
                 };
                 let item_value = item.value.clone();
                 let on_select = on_select.clone();
+                let row_open_change = on_open_change.clone();
                 let row_state = state.clone();
                 let row_id = SharedString::from(format!("{select_id}-{index}"));
                 let selected_motion_id = format!("{select_id}-{index}-selected");
@@ -363,10 +437,9 @@ impl RenderOnce for Select {
                     row = row.on_click(move |_, window, cx| {
                         row_state.update(cx, |select, cx| {
                             select.value = Some(item_value.clone());
-                            select.open = false;
-                            select.highlighted = None;
                             cx.notify();
                         });
+                        set_open(&row_state, false, &[], row_open_change.as_ref(), window, cx);
                         if let Some(on_select) = &on_select {
                             on_select(&item_value, window, cx);
                         }
@@ -383,6 +456,7 @@ impl RenderOnce for Select {
         let popup = deferred(anchored().offset(point(px(0.), px(8.))).child(list)).with_priority(1);
 
         let keyboard_state = state.clone();
+        let keyboard_open_change = on_open_change.clone();
 
         div()
             .relative()
@@ -406,20 +480,31 @@ impl RenderOnce for Select {
                 match key {
                     "down" | "up" => {
                         let next = next_enabled(&keyboard_items, current, key == "down");
+                        if !was_open {
+                            set_open(
+                                &keyboard_state,
+                                true,
+                                &keyboard_items,
+                                keyboard_open_change.as_ref(),
+                                window,
+                                cx,
+                            );
+                        }
                         keyboard_state.update(cx, |select, cx| {
-                            select.open = true;
                             select.highlighted = next;
                             cx.notify();
                         });
                         cx.stop_propagation();
                     }
                     "enter" | "space" if !was_open => {
-                        keyboard_state.update(cx, |select, cx| {
-                            select.open = true;
-                            select.highlighted =
-                                initial_highlight(&keyboard_items, select.value.as_ref());
-                            cx.notify();
-                        });
+                        set_open(
+                            &keyboard_state,
+                            true,
+                            &keyboard_items,
+                            keyboard_open_change.as_ref(),
+                            window,
+                            cx,
+                        );
                         cx.stop_propagation();
                     }
                     "enter" | "space" => {
@@ -430,10 +515,16 @@ impl RenderOnce for Select {
                         if let Some(picked) = picked {
                             keyboard_state.update(cx, |select, cx| {
                                 select.value = Some(picked.clone());
-                                select.open = false;
-                                select.highlighted = None;
                                 cx.notify();
                             });
+                            set_open(
+                                &keyboard_state,
+                                false,
+                                &keyboard_items,
+                                keyboard_open_change.as_ref(),
+                                window,
+                                cx,
+                            );
                             if let Some(on_select) = &keyboard_on_select {
                                 on_select(&picked, window, cx);
                             }
@@ -441,11 +532,14 @@ impl RenderOnce for Select {
                         cx.stop_propagation();
                     }
                     "escape" if was_open => {
-                        keyboard_state.update(cx, |select, cx| {
-                            select.open = false;
-                            select.highlighted = None;
-                            cx.notify();
-                        });
+                        set_open(
+                            &keyboard_state,
+                            false,
+                            &keyboard_items,
+                            keyboard_open_change.as_ref(),
+                            window,
+                            cx,
+                        );
                         cx.stop_propagation();
                     }
                     _ => {}

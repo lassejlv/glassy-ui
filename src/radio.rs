@@ -1,20 +1,32 @@
+use std::rc::Rc;
+
 use crate::motion::{Motion, StyledSlot};
 use crate::theme::ActiveTheme;
 use gpui::{
-    div, prelude::*, px, App, BoxShadow, ClickEvent, FontWeight, IntoElement, RenderOnce,
-    SharedString, StyleRefinement, Styled, Window,
+    div, prelude::*, px, App, BoxShadow, ClickEvent, FocusHandle, FontWeight, IntoElement,
+    KeyDownEvent, RenderOnce, Role, SharedString, StyleRefinement, Styled, Window,
 };
 
 use crate::button::ButtonVariant;
-use crate::chrome::button_chrome;
+use crate::chrome::{button_chrome, focus_ring};
 
-type RadioClickHandler = Box<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
+type RadioClickHandler = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
+type RadioChangeHandler = Rc<dyn Fn(&SharedString, &mut Window, &mut App) + 'static>;
 
 struct RadioGroupState {
     selected: Option<SharedString>,
+    last_selected_prop: Option<SharedString>,
+}
+
+struct RadioFocusState {
+    focus_handle: FocusHandle,
 }
 
 /// 16×16 circle matching Paper `Grafik UI` → Radios.
+///
+/// Radios that share [`Radio::group`] keep one selection. Without a listener
+/// the group owns that selection; with [`Radio::on_change`] / [`Radio::on_click`],
+/// [`Radio::selected`] is the source of truth each render.
 #[derive(IntoElement)]
 pub struct Radio {
     id: SharedString,
@@ -24,6 +36,7 @@ pub struct Radio {
     label: Option<SharedString>,
     style: StyleRefinement,
     on_click: Option<RadioClickHandler>,
+    on_change: Option<RadioChangeHandler>,
 }
 
 impl Radio {
@@ -36,6 +49,7 @@ impl Radio {
             label: None,
             style: StyleRefinement::default(),
             on_click: None,
+            on_change: None,
         }
     }
 
@@ -64,7 +78,16 @@ impl Radio {
         mut self,
         listener: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static,
     ) -> Self {
-        self.on_click = Some(Box::new(listener));
+        self.on_click = Some(Rc::new(listener));
+        self
+    }
+
+    /// Selected radio id after a pointer or keyboard activation.
+    pub fn on_change(
+        mut self,
+        listener: impl Fn(&SharedString, &mut Window, &mut App) + 'static,
+    ) -> Self {
+        self.on_change = Some(Rc::new(listener));
         self
     }
 }
@@ -80,20 +103,47 @@ impl RenderOnce for Radio {
         let radio_id = self.id.clone();
         let initially_selected = self.selected;
         let seed = radio_id.clone();
+        let seed_prop = radio_id.clone();
         let state_key = self.group.clone().unwrap_or_else(|| self.id.clone());
         let state = window.use_keyed_state(state_key, cx, move |_, _| RadioGroupState {
             selected: if initially_selected { Some(seed) } else { None },
+            last_selected_prop: if initially_selected {
+                Some(seed_prop)
+            } else {
+                None
+            },
         });
-        state.update(cx, |group, _| {
-            if group.selected.is_none() && initially_selected {
-                group.selected = Some(radio_id.clone());
+        let focus = window.use_keyed_state(
+            SharedString::from(format!("{}-focus", self.id)),
+            cx,
+            |_, cx| RadioFocusState {
+                focus_handle: cx.focus_handle(),
+            },
+        );
+        let controlled = self.on_change.is_some() || self.on_click.is_some();
+        if !controlled && self.selected {
+            let already = state
+                .read(cx)
+                .last_selected_prop
+                .as_ref()
+                .is_some_and(|id| id.as_ref() == self.id.as_ref());
+            if !already {
+                state.update(cx, |group, _| {
+                    group.selected = Some(self.id.clone());
+                    group.last_selected_prop = Some(self.id.clone());
+                });
             }
-        });
-        let selected = state
-            .read(cx)
-            .selected
-            .as_ref()
-            .is_some_and(|id| id.as_ref() == self.id.as_ref());
+        }
+
+        let selected = if controlled {
+            self.selected
+        } else {
+            state
+                .read(cx)
+                .selected
+                .as_ref()
+                .is_some_and(|id| id.as_ref() == self.id.as_ref())
+        };
         let theme = cx.theme();
         let variant = if self.disabled {
             ButtonVariant::Ghost
@@ -117,6 +167,13 @@ impl RenderOnce for Radio {
             );
         }
 
+        let interactive = !self.disabled;
+        let focus_handle = focus.read(cx).focus_handle.clone().tab_stop(interactive);
+        let focused = focus_handle.is_focused(window);
+        if focused {
+            shadows.push(focus_ring(theme));
+        }
+
         let mark = div()
             .flex()
             .items_center()
@@ -137,15 +194,26 @@ impl RenderOnce for Radio {
                 )
             });
 
-        let interactive = !self.disabled;
         let label_color = if self.disabled {
             theme.muted_fg()
         } else {
             theme.ink
         };
+        let aria_label = self.label.clone();
+        let debug_selector = format!(
+            "{}-{}",
+            self.id,
+            if selected { "selected" } else { "unselected" }
+        );
 
         let el = div()
-            .id(self.id)
+            .id(self.id.clone())
+            .debug_selector(move || debug_selector.clone())
+            .role(Role::RadioButton)
+            .aria_selected(selected)
+            .when_some(aria_label, |el, label| el.aria_label(label))
+            .track_focus(&focus_handle)
+            .tab_stop(interactive)
             .flex()
             .items_center()
             .gap(px(8.))
@@ -167,14 +235,37 @@ impl RenderOnce for Radio {
 
         if interactive {
             let on_click = self.on_click;
-            el.on_click(move |event, window, cx| {
-                state.update(cx, |group, cx| {
-                    group.selected = Some(radio_id.clone());
-                    cx.notify();
-                });
-                if let Some(on_click) = &on_click {
-                    on_click(event, window, cx);
+            let on_change = self.on_change;
+            let activate = Rc::new(
+                move |event: &ClickEvent, window: &mut Window, cx: &mut App| {
+                    if !controlled {
+                        state.update(cx, |group, cx| {
+                            group.selected = Some(radio_id.clone());
+                            cx.notify();
+                        });
+                    }
+                    if let Some(on_change) = &on_change {
+                        on_change(&radio_id, window, cx);
+                    }
+                    if let Some(on_click) = &on_click {
+                        on_click(event, window, cx);
+                    }
+                },
+            );
+            let keyboard = activate.clone();
+            let click_focus = focus_handle.clone();
+            el.on_key_down(move |event: &KeyDownEvent, window, cx| {
+                if event.keystroke.modifiers.modified() {
+                    return;
                 }
+                if matches!(event.keystroke.key.as_str(), "enter" | "space") {
+                    keyboard(&ClickEvent::default(), window, cx);
+                    cx.stop_propagation();
+                }
+            })
+            .on_click(move |event, window, cx| {
+                click_focus.focus(window, cx);
+                activate(event, window, cx);
             })
         } else {
             el

@@ -8,7 +8,7 @@ use gpui::{
 
 use crate::theme::{ActiveTheme, Theme};
 
-use crate::chrome::button_chrome;
+use crate::chrome::{button_chrome, focus_ring};
 use crate::icon::{Icon, IconName};
 use crate::spinner::Spinner;
 use crate::tooltip::Tooltip;
@@ -260,21 +260,11 @@ impl RenderOnce for Button {
             .tab_stop(interactive);
         let focused = focus_handle.is_focused(window);
         let aria_label = self.label.clone();
+        let button_id = self.id.clone();
         let debug_selector = self.id.to_string();
 
         if focused {
-            shadows.push(
-                BoxShadow::new(
-                    px(0.),
-                    px(0.),
-                    if theme.is_dark() {
-                        crate::theme::paint(0xFFFFFF24)
-                    } else {
-                        crate::theme::paint(0x18181B24)
-                    },
-                )
-                .spread_radius(px(3.)),
-            );
+            shadows.push(focus_ring(theme));
         }
 
         let el = div()
@@ -348,9 +338,9 @@ impl RenderOnce for Button {
         };
 
         if let Some(tooltip) = self.tooltip {
-            tooltip.attach(el)
+            tooltip.attach(button_id, el, window, cx).into_any_element()
         } else {
-            el
+            el.into_any_element()
         }
     }
 }

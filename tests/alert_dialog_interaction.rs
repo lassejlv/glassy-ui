@@ -4,7 +4,7 @@ use gpui::{
     div, point, prelude::*, px, size, Context, FocusHandle, KeyDownEvent, Modifiers, Render,
     TestAppContext, VisualTestContext, Window,
 };
-use grafik_ui::{init_theme, AlertDialog};
+use gpui_ui::{init_theme, AlertDialog};
 
 struct AlertDialogHarness {
     open: bool,

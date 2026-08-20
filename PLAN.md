@@ -1,4 +1,4 @@
-# Grafik — Plan
+# gpui-ui — Plan
 
 What to design in Paper and implement in GPUI next. Visual rules: [`DESIGN.md`](./DESIGN.md).
 
@@ -31,6 +31,7 @@ Paper page **and** gallery reconstruction.
 | Alert dialog | Alert dialogs | Same panel. Title is the action. No field. Ghost + Destructive. Locked scrim, safe autofocus. |
 | Popover | Popovers | Secondary glass, radius 6. Origin at the trigger. Page meta card. |
 | Dropdown menu | Dropdown menus | 240px anchored list. Shortcut, nested, separator, disabled, destructive. Pointer + keyboard. |
+| Context menu | Context menus | Same items as Dropdown. Opens at the pointer. |
 
 ---
 
@@ -40,7 +41,6 @@ Designed in Paper. Gallery reconstruction waits until this queue is finished.
 
 | Component | Paper page | Notes |
 | --- | --- | --- |
-| Context menu | Context menus | Same items as Dropdown. Opens at the pointer. |
 | Command | Command | ⌘K palette. Grouped rows, loading spinner, empty state. |
 | Toast | Toasts | 40 tall. Success, destructive, with Undo. Stacked bottom-end. |
 | Card | Cards | Radius 10 panel. Header, body, Ghost + Primary footer. |
@@ -58,7 +58,7 @@ Designed in Paper. Gallery reconstruction waits until this queue is finished.
 
 ## Now — Gallery
 
-Paper is done. Reconstruct gallery pages 1:1 with Paper, in Paper-ready order. Context menu is next.
+Paper is done. Reconstruct gallery pages 1:1 with Paper, in Paper-ready order. Command is next.
 
 ---
 
@@ -70,7 +70,7 @@ Empty. The planned kit is Paper-ready. Gallery is Now.
 
 ## Not unless asked
 
-These are shadcn staples that do not earn a page in Grafik yet:
+These are shadcn staples that do not earn a page in gpui-ui yet:
 
 - Carousel, chart, calendar, date picker, OTP, sidebar, drawer/sheet, resizable panels, hover card, toggle group, sonner-as-a-brand.
 
@@ -96,6 +96,6 @@ Each new component:
 
 - One gallery page, 1:1 with Paper
 - Keep scroll, theme toggle (`⌘D`), quit (`⌘Q`)
-- Page switcher stays (Buttons, Skeletons, Tooltips, Progress, Spinners, Inputs, Labels, Checkboxes, Switches, Radios, Selects, Kbd, Separator, Badges, Dialogs, Alert dialogs, Popovers, …)
+- Page switcher stays (Buttons, Skeletons, Tooltips, Progress, Spinners, Inputs, Labels, Checkboxes, Switches, Radios, Selects, Kbd, Separator, Badges, Dialogs, Alert dialogs, Popovers, Dropdown menus, Context menus, …)
 
 Window stays opaque. No frost unless asked.

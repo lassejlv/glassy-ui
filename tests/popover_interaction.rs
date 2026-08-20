@@ -4,7 +4,7 @@ use gpui::{
     div, prelude::*, px, size, Context, KeyDownEvent, Modifiers, Render, TestAppContext,
     VisualTestContext, Window,
 };
-use grafik_ui::{
+use gpui_ui::{
     init_theme, Popover, PopoverContent, PopoverDescription, PopoverPlacement, PopoverTitle,
 };
 

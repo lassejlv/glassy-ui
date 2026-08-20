@@ -1,13 +1,13 @@
 [package]
-name = "grafik-ui"
+name = "gpui-ui"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "Grafik components for native GPUI interfaces."
-default-run = "grafik-gallery"
+description = "gpui-ui components for native GPUI interfaces."
+default-run = "gpui-gallery"
 
 [[bin]]
-name = "grafik-gallery"
+name = "gpui-gallery"
 path = "src/main.rs"
 
 [dependencies]

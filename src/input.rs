@@ -1,4 +1,5 @@
 use std::ops::Range;
+use std::rc::Rc;
 
 use crate::motion::StyledSlot;
 use crate::theme::ActiveTheme;
@@ -7,15 +8,17 @@ use gpui::{
     ClipboardItem, CursorStyle, Element, ElementId, ElementInputHandler, Entity,
     EntityInputHandler, FocusHandle, Focusable, FontWeight, GlobalElementId, Hsla, IntoElement,
     KeyBinding, LayoutId, MouseButton, MouseDownEvent, MouseMoveEvent, MouseUpEvent, PaintQuad,
-    Pixels, Point, RenderOnce, ShapedLine, SharedString, Style, StyleRefinement, Styled, TextRun,
-    UTF16Selection, UnderlineStyle, Window,
+    Pixels, Point, RenderOnce, Role, ShapedLine, SharedString, Style, StyleRefinement, Styled,
+    TextRun, UTF16Selection, UnderlineStyle, Window,
 };
 
 use crate::chrome::{field_chrome, FieldState};
 use crate::icon::{Icon, IconName};
 
+type InputChangeHandler = Rc<dyn Fn(SharedString, &mut Window, &mut App) + 'static>;
+
 actions!(
-    grafik_input,
+    gpui_input,
     [
         Backspace,
         Delete,
@@ -68,6 +71,8 @@ pub(crate) struct InputState {
     is_selecting: bool,
     multiline: bool,
     disabled: bool,
+    value_prop: SharedString,
+    on_change: Option<InputChangeHandler>,
 }
 
 impl InputState {
@@ -80,7 +85,7 @@ impl InputState {
         let len = content.len();
         Self {
             focus_handle: cx.focus_handle(),
-            content,
+            content: content.clone(),
             placeholder,
             selected_range: len..len,
             selection_reversed: false,
@@ -90,6 +95,24 @@ impl InputState {
             is_selecting: false,
             multiline,
             disabled: false,
+            value_prop: content,
+            on_change: None,
+        }
+    }
+
+    fn emit_change(&self, window: &mut Window, cx: &mut gpui::Context<Self>) {
+        if let Some(on_change) = self.on_change.clone() {
+            on_change(self.content.clone(), window, cx);
+        }
+    }
+
+    fn clamp_selection(&mut self) {
+        let len = self.content.len();
+        if self.selected_range.start > len {
+            self.selected_range.start = len;
+        }
+        if self.selected_range.end > len {
+            self.selected_range.end = len;
         }
     }
 
@@ -400,7 +423,7 @@ impl EntityInputHandler for InputState {
         &mut self,
         range_utf16: Option<Range<usize>>,
         new_text: &str,
-        _: &mut Window,
+        window: &mut Window,
         cx: &mut gpui::Context<Self>,
     ) {
         if self.disabled {
@@ -423,6 +446,7 @@ impl EntityInputHandler for InputState {
         let cursor = range.start + new_text.len();
         self.selected_range = cursor..cursor;
         self.marked_range.take();
+        self.emit_change(window, cx);
         cx.notify();
     }
 
@@ -431,7 +455,7 @@ impl EntityInputHandler for InputState {
         range_utf16: Option<Range<usize>>,
         new_text: &str,
         new_selected_range_utf16: Option<Range<usize>>,
-        _: &mut Window,
+        window: &mut Window,
         cx: &mut gpui::Context<Self>,
     ) {
         if self.disabled {
@@ -456,6 +480,7 @@ impl EntityInputHandler for InputState {
             .map(|range_utf16| self.range_from_utf16(range_utf16))
             .map(|new_range| new_range.start + range.start..new_range.end + range.end)
             .unwrap_or_else(|| range.start + new_text.len()..range.start + new_text.len());
+        self.emit_change(window, cx);
         cx.notify();
     }
 
@@ -709,6 +734,7 @@ pub struct Input {
     trailing: Option<SharedString>,
     helper: Option<SharedString>,
     multiline: bool,
+    on_change: Option<InputChangeHandler>,
     style: StyleRefinement,
 }
 
@@ -725,6 +751,7 @@ impl Input {
             trailing: None,
             helper: None,
             multiline: false,
+            on_change: None,
             style: StyleRefinement::default(),
         }
     }
@@ -774,6 +801,15 @@ impl Input {
         self.multiline = multiline;
         self
     }
+
+    /// Fired after the field text changes. `value` is the current contents.
+    pub fn on_change(
+        mut self,
+        listener: impl Fn(SharedString, &mut Window, &mut App) + 'static,
+    ) -> Self {
+        self.on_change = Some(Rc::new(listener));
+        self
+    }
 }
 
 impl Styled for Input {
@@ -789,12 +825,19 @@ impl RenderOnce for Input {
         let value = self.value.clone();
         let multiline = self.multiline;
         let disabled = self.disabled;
+        let on_change = self.on_change.clone();
         let state = window.use_keyed_state(self.id.clone(), cx, move |_, cx| {
             InputState::new(cx, placeholder, value, multiline)
         });
         state.update(cx, |input, _| {
             input.disabled = disabled;
             input.multiline = multiline;
+            input.on_change = on_change;
+            if input.value_prop.as_ref() != self.value.as_ref() {
+                input.content = self.value.clone();
+                input.value_prop = self.value.clone();
+                input.clamp_selection();
+            }
         });
 
         let focus_handle = state.read(cx).focus_handle.clone();
@@ -833,10 +876,17 @@ impl RenderOnce for Input {
             shadows.push(BoxShadow::new(px(0.), px(0.), ring).spread_radius(px(3.)));
         }
 
+        let input_debug_selector = self.id.to_string();
         let field = div()
             .id(self.id.clone())
+            .debug_selector(move || input_debug_selector.clone())
             .key_context("KitInput")
+            .role(Role::TextInput)
+            .when(!self.placeholder.is_empty(), |el| {
+                el.aria_placeholder(self.placeholder.clone())
+            })
             .track_focus(&focus_handle)
+            .tab_stop(!self.disabled)
             .flex()
             .when(multiline, |el| el.items_start())
             .when(!multiline, |el| el.items_center())

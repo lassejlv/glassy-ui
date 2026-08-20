@@ -4,7 +4,7 @@ use gpui::{
     div, point, prelude::*, px, size, Context, FocusHandle, KeyDownEvent, Modifiers, Render,
     TestAppContext, VisualTestContext, Window,
 };
-use grafik_ui::{
+use gpui_ui::{
     init_theme, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 };
 

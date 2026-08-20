@@ -1,4 +1,4 @@
-//! Grafik components.
+//! gpui-ui components.
 //!
 //! Visual contract: Paper file `Grafik UI`.
 
@@ -11,6 +11,7 @@ mod badge;
 mod button;
 mod checkbox;
 mod chrome;
+mod context_menu;
 mod dialog;
 mod dropdown_menu;
 mod icon;
@@ -33,6 +34,7 @@ pub use badge::{Badge, BadgeVariant};
 pub use button::{Button, ButtonGroup, ButtonSize, ButtonVariant};
 pub use checkbox::{CheckState, Checkbox};
 pub use chrome::{ButtonChrome, FieldChrome, FieldState};
+pub use context_menu::ContextMenu;
 pub use dialog::{
     Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 };
@@ -49,7 +51,7 @@ pub use separator::{Separator, SeparatorOrientation};
 pub use skeleton::{Skeleton, SkeletonShape};
 pub use spinner::{Spinner, SpinnerSize, SpinnerTone};
 pub use switch::Switch;
-pub use tooltip::Tooltip;
+pub use tooltip::{Tooltip, TooltipPlacement};
 
 pub use motion::{
     cubic_bezier, ease_in_cubic, ease_out_cubic, init as init_motion, use_motion_value,
