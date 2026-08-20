@@ -11,6 +11,7 @@ mod badge;
 mod button;
 mod checkbox;
 mod chrome;
+mod compat;
 mod context_menu;
 mod dialog;
 mod dropdown_menu;

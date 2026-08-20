@@ -1,10 +1,10 @@
 use std::time::Duration;
 
+use glassy_ui::{init_theme, Button, ButtonVariant, IconName, Tooltip, TooltipPlacement};
 use gpui::{
     div, prelude::*, px, size, Context, Modifiers, Render, TestAppContext, VisualTestContext,
     Window,
 };
-use glassy_ui::{init_theme, Button, ButtonVariant, IconName, Tooltip, TooltipPlacement};
 
 struct TooltipHarness {
     placement: TooltipPlacement,
@@ -26,9 +26,8 @@ impl Render for TooltipHarness {
 
 fn setup(cx: &mut TestAppContext, placement: TooltipPlacement) -> VisualTestContext {
     cx.update(init_theme);
-    let window = cx.open_window(size(px(800.), px(600.)), move |_, _| TooltipHarness {
-        placement,
-    });
+    let window = cx.add_window(move |_, _| TooltipHarness { placement });
+    cx.simulate_window_resize(window.into(), size(px(800.), px(600.)));
     cx.run_until_parked();
     VisualTestContext::from_window(window.into(), cx)
 }

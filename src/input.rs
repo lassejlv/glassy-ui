@@ -4,15 +4,16 @@ use std::rc::Rc;
 use crate::motion::StyledSlot;
 use crate::theme::ActiveTheme;
 use gpui::{
-    actions, div, fill, point, prelude::*, px, relative, size, App, Bounds, BoxShadow,
-    ClipboardItem, CursorStyle, Element, ElementId, ElementInputHandler, Entity,
-    EntityInputHandler, FocusHandle, Focusable, FontWeight, GlobalElementId, Hsla, IntoElement,
-    KeyBinding, LayoutId, MouseButton, MouseDownEvent, MouseMoveEvent, MouseUpEvent, PaintQuad,
-    Pixels, Point, RenderOnce, Role, ShapedLine, SharedString, Style, StyleRefinement, Styled,
-    TextRun, UTF16Selection, UnderlineStyle, Window,
+    actions, div, fill, point, prelude::*, px, relative, size, App, Bounds, ClipboardItem,
+    CursorStyle, Element, ElementId, ElementInputHandler, Entity, EntityInputHandler, FocusHandle,
+    Focusable, FontWeight, GlobalElementId, Hsla, IntoElement, KeyBinding, LayoutId, MouseButton,
+    MouseDownEvent, MouseMoveEvent, MouseUpEvent, PaintQuad, Pixels, Point, Render, RenderOnce,
+    ShapedLine, SharedString, Style, StyleRefinement, Styled, TextRun, UTF16Selection,
+    UnderlineStyle, Window,
 };
 
-use crate::chrome::{field_chrome, FieldState};
+use crate::chrome::{box_shadow, field_chrome, FieldState};
+use crate::compat::{AccessibilityExt, Role};
 use crate::icon::{Icon, IconName};
 
 type InputChangeHandler = Rc<dyn Fn(SharedString, &mut Window, &mut App) + 'static>;
@@ -207,7 +208,7 @@ impl InputState {
         if self.disabled {
             return;
         }
-        window.focus(&self.focus_handle, cx);
+        window.focus(&self.focus_handle);
         self.is_selecting = true;
         if event.modifiers.shift {
             self.select_to(self.index_for_mouse_position(event.position), cx);
@@ -516,9 +517,11 @@ impl EntityInputHandler for InputState {
         let utf8_index = last_layout.index_for_x(point.x - line_point.x)?;
         Some(self.offset_to_utf16(utf8_index))
     }
+}
 
-    fn accepts_text_input(&self, _: &mut Window, _: &mut gpui::Context<Self>) -> bool {
-        !self.disabled
+impl Render for InputState {
+    fn render(&mut self, _: &mut Window, _: &mut gpui::Context<Self>) -> impl IntoElement {
+        gpui::Empty
     }
 }
 
@@ -698,15 +701,8 @@ impl Element for TextElement {
             window.paint_quad(selection);
         }
         let line = prepaint.line.take().unwrap();
-        line.paint(
-            bounds.origin,
-            window.line_height(),
-            gpui::TextAlign::Left,
-            None,
-            window,
-            cx,
-        )
-        .ok();
+        line.paint(bounds.origin, window.line_height(), window, cx)
+            .ok();
 
         if self.show_caret {
             if let Some(cursor) = prepaint.cursor.take() {
@@ -865,15 +861,18 @@ impl RenderOnce for Input {
         let helper = self.helper.clone();
         let helper_color = theme.destructive;
 
-        let mut shadows = vec![BoxShadow::new(px(0.), px(1.), chrome.inset).inset()];
+        let mut shadows = vec![box_shadow(0., 1., chrome.inset, 0., 0.)];
         if chrome.shadow_blur > 0.0 {
-            shadows.push(
-                BoxShadow::new(px(0.), px(chrome.shadow_y), chrome.shadow)
-                    .blur_radius(px(chrome.shadow_blur)),
-            );
+            shadows.push(box_shadow(
+                0.,
+                chrome.shadow_y,
+                chrome.shadow,
+                chrome.shadow_blur,
+                0.,
+            ));
         }
         if let Some(ring) = chrome.ring {
-            shadows.push(BoxShadow::new(px(0.), px(0.), ring).spread_radius(px(3.)));
+            shadows.push(box_shadow(0., 0., ring, 0., 3.));
         }
 
         let input_debug_selector = self.id.to_string();

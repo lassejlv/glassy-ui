@@ -1,9 +1,12 @@
 use std::rc::Rc;
 
 use gpui::{
-    deferred, div, prelude::*, px, AnyElement, App, BoxShadow, Entity, FocusHandle, FontWeight,
-    KeyDownEvent, MouseButton, RenderOnce, SharedString, StyleRefinement, Styled, Window,
+    deferred, div, prelude::*, px, AnyElement, App, Entity, FocusHandle, FontWeight, KeyDownEvent,
+    MouseButton, RenderOnce, SharedString, StyleRefinement, Styled, Window,
 };
+
+use crate::chrome::box_shadow;
+use crate::compat::{AccessibilityExt, Role};
 
 use crate::motion::{Motion, StyledSlot};
 use crate::theme::{paint, ActiveTheme, Theme, ThemeKind};
@@ -52,7 +55,7 @@ fn restore_focus(state: &Entity<DialogState>, window: &mut Window, cx: &mut App)
 
     if dialog_focus.contains_focused(window, cx) {
         if let Some(previous_focus) = previous_focus {
-            previous_focus.focus(window, cx);
+            previous_focus.focus(window);
         }
     }
 
@@ -159,7 +162,7 @@ impl RenderOnce for Dialog {
             self.initial_focus
                 .as_ref()
                 .unwrap_or(&focus_handle)
-                .focus(window, cx);
+                .focus(window);
         } else if !self.open && was_open {
             restore_focus(&state, window, cx);
         }
@@ -204,7 +207,7 @@ impl RenderOnce for Dialog {
                     "tab" => {
                         if keyboard_focus_cycle.is_empty() {
                             let focus_handle = keyboard_state.read(cx).focus_handle.clone();
-                            focus_handle.focus(window, cx);
+                            focus_handle.focus(window);
                         } else {
                             let current = keyboard_focus_cycle
                                 .iter()
@@ -221,7 +224,7 @@ impl RenderOnce for Dialog {
                                     .map(|index| (index + 1) % keyboard_focus_cycle.len())
                                     .unwrap_or(0)
                             };
-                            keyboard_focus_cycle[next].focus(window, cx);
+                            keyboard_focus_cycle[next].focus(window);
                         }
                         cx.stop_propagation();
                     }
@@ -232,7 +235,7 @@ impl RenderOnce for Dialog {
                 div()
                     .id(panel_id)
                     .debug_selector(move || panel_selector.clone())
-                    .role(gpui::Role::Dialog)
+                    .role(Role::Dialog)
                     .occlude()
                     .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
                     .children(self.children),
@@ -308,8 +311,8 @@ impl RenderOnce for DialogContent {
             .border_color(chrome.border)
             .bg(chrome.background)
             .shadow(vec![
-                BoxShadow::new(px(0.), px(1.), chrome.inset).inset(),
-                BoxShadow::new(px(0.), px(6.), chrome.shadow).blur_radius(px(16.)),
+                box_shadow(0., 1., chrome.inset, 0., 0.),
+                box_shadow(0., 6., chrome.shadow, 16., 0.),
             ])
             .refine_style(&self.style)
             .children(self.children)

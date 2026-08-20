@@ -1,12 +1,6 @@
 //! Paper hex+alpha is grouped as `RRGGBB_AA`.
 #![allow(clippy::unusual_byte_groupings)]
 
-use gpui::{
-    actions, div, point, prelude::*, px, size, App, Bounds, BoxShadow, FocusHandle, Focusable,
-    FontWeight, KeyBinding, Menu, MenuItem, QuitMode, TitlebarOptions, Window,
-    WindowBackgroundAppearance, WindowBounds, WindowOptions,
-};
-use gpui_platform::application;
 use glassy_ui::{
     init as init_ui, init_motion, init_theme, load_fonts, paint, rgb, textarea, ActiveTheme,
     AlertDialog, Assets, Badge, BadgeVariant, Button, ButtonGroup, ButtonSize, ButtonVariant,
@@ -15,6 +9,11 @@ use glassy_ui::{
     Icon, IconName, Input, Kbd, Label, Popover, PopoverContent, PopoverDescription, PopoverTitle,
     Progress, Radio, Select, SelectItem, Separator, Skeleton, Spinner, SpinnerSize, SpinnerTone,
     Switch, Theme, Tooltip, TooltipPlacement,
+};
+use gpui::{
+    actions, div, point, prelude::*, px, size, App, Application, Bounds, BoxShadow, FocusHandle,
+    Focusable, FontWeight, KeyBinding, Menu, MenuItem, TitlebarOptions, Window,
+    WindowBackgroundAppearance, WindowBounds, WindowOptions,
 };
 
 actions!(
@@ -45,64 +44,71 @@ actions!(
     ]
 );
 
-fn main() {
-    application()
-        .with_assets(Assets)
-        .with_quit_mode(QuitMode::LastWindowClosed)
-        .run(|cx: &mut App| {
-            init_motion(cx);
-            init_theme(cx);
-            init_ui(cx);
-            load_fonts(cx).expect("register Inter");
+fn box_shadow(x: f32, y: f32, color: gpui::Hsla, blur: f32, spread: f32) -> BoxShadow {
+    BoxShadow {
+        color,
+        offset: point(px(x), px(y)),
+        blur_radius: px(blur),
+        spread_radius: px(spread),
+    }
+}
 
-            cx.set_app_identity("dev.glassy.gallery", "Glassy UI");
-            cx.on_action(|_: &Quit, cx| cx.quit());
-            cx.on_action(|_: &ToggleTheme, cx| cx.toggle_theme());
-            cx.bind_keys([
-                KeyBinding::new("cmd-q", Quit, None),
-                KeyBinding::new("ctrl-q", Quit, None),
-                KeyBinding::new("cmd-d", ToggleTheme, None),
-                KeyBinding::new("ctrl-d", ToggleTheme, None),
-                KeyBinding::new("cmd-1", ShowButtons, None),
-                KeyBinding::new("ctrl-1", ShowButtons, None),
-                KeyBinding::new("cmd-0", ShowSkeletons, None),
-                KeyBinding::new("ctrl-0", ShowSkeletons, None),
-                KeyBinding::new("cmd-shift-t", ShowTooltips, None),
-                KeyBinding::new("ctrl-shift-t", ShowTooltips, None),
-                KeyBinding::new("cmd-shift-0", ShowProgress, None),
-                KeyBinding::new("ctrl-shift-0", ShowProgress, None),
-                KeyBinding::new("cmd-2", ShowSpinners, None),
-                KeyBinding::new("ctrl-2", ShowSpinners, None),
-                KeyBinding::new("cmd-3", ShowInputs, None),
-                KeyBinding::new("ctrl-3", ShowInputs, None),
-                KeyBinding::new("cmd-4", ShowLabels, None),
-                KeyBinding::new("ctrl-4", ShowLabels, None),
-                KeyBinding::new("cmd-5", ShowCheckboxes, None),
-                KeyBinding::new("ctrl-5", ShowCheckboxes, None),
-                KeyBinding::new("cmd-6", ShowSwitches, None),
-                KeyBinding::new("ctrl-6", ShowSwitches, None),
-                KeyBinding::new("cmd-7", ShowRadios, None),
-                KeyBinding::new("ctrl-7", ShowRadios, None),
-                KeyBinding::new("cmd-8", ShowSelects, None),
-                KeyBinding::new("ctrl-8", ShowSelects, None),
-                KeyBinding::new("cmd-9", ShowKbds, None),
-                KeyBinding::new("ctrl-9", ShowKbds, None),
-                KeyBinding::new("cmd-shift-b", ShowBadges, None),
-                KeyBinding::new("ctrl-shift-b", ShowBadges, None),
-                KeyBinding::new("cmd-shift-d", ShowDialogs, None),
-                KeyBinding::new("ctrl-shift-d", ShowDialogs, None),
-                KeyBinding::new("cmd-shift-a", ShowAlertDialogs, None),
-                KeyBinding::new("ctrl-shift-a", ShowAlertDialogs, None),
-                KeyBinding::new("cmd-shift-p", ShowPopovers, None),
-                KeyBinding::new("ctrl-shift-p", ShowPopovers, None),
-                KeyBinding::new("cmd-shift-m", ShowDropdownMenus, None),
-                KeyBinding::new("ctrl-shift-m", ShowDropdownMenus, None),
-                KeyBinding::new("cmd-shift-c", ShowContextMenus, None),
-                KeyBinding::new("ctrl-shift-c", ShowContextMenus, None),
-                KeyBinding::new("cmd-]", ShowNextPage, None),
-                KeyBinding::new("ctrl-]", ShowNextPage, None),
-            ]);
-            cx.set_menus([Menu::new("Glassy UI").items([
+fn main() {
+    Application::new().with_assets(Assets).run(|cx: &mut App| {
+        init_motion(cx);
+        init_theme(cx);
+        init_ui(cx);
+        load_fonts(cx).expect("register Inter");
+
+        cx.on_action(|_: &Quit, cx| cx.quit());
+        cx.on_action(|_: &ToggleTheme, cx| cx.toggle_theme());
+        cx.bind_keys([
+            KeyBinding::new("cmd-q", Quit, None),
+            KeyBinding::new("ctrl-q", Quit, None),
+            KeyBinding::new("cmd-d", ToggleTheme, None),
+            KeyBinding::new("ctrl-d", ToggleTheme, None),
+            KeyBinding::new("cmd-1", ShowButtons, None),
+            KeyBinding::new("ctrl-1", ShowButtons, None),
+            KeyBinding::new("cmd-0", ShowSkeletons, None),
+            KeyBinding::new("ctrl-0", ShowSkeletons, None),
+            KeyBinding::new("cmd-shift-t", ShowTooltips, None),
+            KeyBinding::new("ctrl-shift-t", ShowTooltips, None),
+            KeyBinding::new("cmd-shift-0", ShowProgress, None),
+            KeyBinding::new("ctrl-shift-0", ShowProgress, None),
+            KeyBinding::new("cmd-2", ShowSpinners, None),
+            KeyBinding::new("ctrl-2", ShowSpinners, None),
+            KeyBinding::new("cmd-3", ShowInputs, None),
+            KeyBinding::new("ctrl-3", ShowInputs, None),
+            KeyBinding::new("cmd-4", ShowLabels, None),
+            KeyBinding::new("ctrl-4", ShowLabels, None),
+            KeyBinding::new("cmd-5", ShowCheckboxes, None),
+            KeyBinding::new("ctrl-5", ShowCheckboxes, None),
+            KeyBinding::new("cmd-6", ShowSwitches, None),
+            KeyBinding::new("ctrl-6", ShowSwitches, None),
+            KeyBinding::new("cmd-7", ShowRadios, None),
+            KeyBinding::new("ctrl-7", ShowRadios, None),
+            KeyBinding::new("cmd-8", ShowSelects, None),
+            KeyBinding::new("ctrl-8", ShowSelects, None),
+            KeyBinding::new("cmd-9", ShowKbds, None),
+            KeyBinding::new("ctrl-9", ShowKbds, None),
+            KeyBinding::new("cmd-shift-b", ShowBadges, None),
+            KeyBinding::new("ctrl-shift-b", ShowBadges, None),
+            KeyBinding::new("cmd-shift-d", ShowDialogs, None),
+            KeyBinding::new("ctrl-shift-d", ShowDialogs, None),
+            KeyBinding::new("cmd-shift-a", ShowAlertDialogs, None),
+            KeyBinding::new("ctrl-shift-a", ShowAlertDialogs, None),
+            KeyBinding::new("cmd-shift-p", ShowPopovers, None),
+            KeyBinding::new("ctrl-shift-p", ShowPopovers, None),
+            KeyBinding::new("cmd-shift-m", ShowDropdownMenus, None),
+            KeyBinding::new("ctrl-shift-m", ShowDropdownMenus, None),
+            KeyBinding::new("cmd-shift-c", ShowContextMenus, None),
+            KeyBinding::new("ctrl-shift-c", ShowContextMenus, None),
+            KeyBinding::new("cmd-]", ShowNextPage, None),
+            KeyBinding::new("ctrl-]", ShowNextPage, None),
+        ]);
+        cx.set_menus(vec![Menu {
+            name: "Glassy UI".into(),
+            items: vec![
                 MenuItem::action("Buttons", ShowButtons),
                 MenuItem::action("Skeletons", ShowSkeletons),
                 MenuItem::action("Tooltips", ShowTooltips),
@@ -126,11 +132,19 @@ fn main() {
                 MenuItem::action("Toggle Light / Dark", ToggleTheme),
                 MenuItem::separator(),
                 MenuItem::action("Quit Glassy UI", Quit),
-            ])]);
+            ],
+        }]);
 
-            open_gallery(cx);
-            cx.activate(true);
-        });
+        cx.on_window_closed(|cx| {
+            if cx.windows().is_empty() {
+                cx.quit();
+            }
+        })
+        .detach();
+
+        open_gallery(cx);
+        cx.activate(true);
+    });
 }
 
 fn open_gallery(cx: &mut App) {
@@ -264,7 +278,7 @@ struct Gallery {
 impl Gallery {
     fn new(window: &mut Window, cx: &mut gpui::Context<Self>) -> Self {
         let focus_handle = cx.focus_handle();
-        focus_handle.focus(window, cx);
+        focus_handle.focus(window);
         Self {
             focus_handle,
             page: GalleryPage::Inputs,
@@ -1119,9 +1133,14 @@ fn inverse_sample(theme: Theme) -> impl IntoElement {
                 .border_color(border)
                 .bg(bg)
                 .shadow(vec![
-                    BoxShadow::new(px(0.), px(1.), inset).inset(),
-                    BoxShadow::new(px(0.), px(if theme.is_dark() { 6. } else { 8. }), shadow)
-                        .blur_radius(px(if theme.is_dark() { 16. } else { 20. })),
+                    box_shadow(0., 1., inset, 0., 0.),
+                    box_shadow(
+                        0.,
+                        if theme.is_dark() { 6. } else { 8. },
+                        shadow,
+                        if theme.is_dark() { 16. } else { 20. },
+                        0.,
+                    ),
                 ])
                 .child(Spinner::new().tone(SpinnerTone::Inverse)),
         )
@@ -1189,8 +1208,8 @@ fn loading_panel(theme: Theme) -> impl IntoElement {
         .border_color(border)
         .bg(bg)
         .shadow(vec![
-            BoxShadow::new(px(0.), px(1.), inset).inset(),
-            BoxShadow::new(px(0.), px(6.), shadow).blur_radius(px(16.)),
+            box_shadow(0., 1., inset, 0., 0.),
+            box_shadow(0., 6., shadow, 16., 0.),
         ])
         .child(Spinner::new().size(SpinnerSize::Large))
         .child(
@@ -2298,7 +2317,7 @@ fn context_target(theme: Theme) -> impl IntoElement {
         .border_1()
         .border_color(chrome.1)
         .bg(chrome.0)
-        .shadow(vec![BoxShadow::new(px(0.), px(1.), chrome.2).inset()])
+        .shadow(vec![box_shadow(0., 1., chrome.2, 0., 0.)])
         .child(
             div()
                 .font_family(theme.font_family)
@@ -2346,7 +2365,7 @@ fn dropdown_file_trigger(theme: Theme) -> impl IntoElement {
         .border_1()
         .border_color(border)
         .bg(background)
-        .shadow(vec![BoxShadow::new(px(0.), px(1.), inset).inset()])
+        .shadow(vec![box_shadow(0., 1., inset, 0., 0.)])
         .hover(move |style| style.bg(hover))
         .font_family(theme.font_family)
         .font_weight(FontWeight::MEDIUM)
@@ -2389,7 +2408,7 @@ fn popover_info_trigger(theme: Theme) -> impl IntoElement {
         .border_1()
         .border_color(border)
         .bg(background)
-        .shadow(vec![BoxShadow::new(px(0.), px(1.), inset).inset()])
+        .shadow(vec![box_shadow(0., 1., inset, 0., 0.)])
         .hover(move |style| style.bg(hover))
         .child(Icon::new(IconName::Info).px(px(16.)).color(theme.ink))
 }

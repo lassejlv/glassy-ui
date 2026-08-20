@@ -1,10 +1,10 @@
 use std::{cell::Cell, cell::RefCell, rc::Rc};
 
+use glassy_ui::{init as init_ui, init_theme, CheckState, Checkbox, Input, Radio, Switch};
 use gpui::{
     div, prelude::*, px, size, Context, Modifiers, Render, SharedString, TestAppContext,
     VisualTestContext, Window,
 };
-use glassy_ui::{init as init_ui, init_theme, CheckState, Checkbox, Input, Radio, Switch};
 
 struct FormHarness {
     check: CheckState,
@@ -128,7 +128,7 @@ fn setup(cx: &mut TestAppContext) -> FormTest {
     let last_switch = Rc::new(Cell::new(None));
     let last_radio = Rc::new(RefCell::new(None));
     let last_field = Rc::new(RefCell::new(None));
-    let window = cx.open_window(size(px(800.), px(700.)), {
+    let window = cx.add_window({
         let last_check = last_check.clone();
         let last_switch = last_switch.clone();
         let last_radio = last_radio.clone();
@@ -144,6 +144,7 @@ fn setup(cx: &mut TestAppContext) -> FormTest {
             last_field,
         }
     });
+    cx.simulate_window_resize(window.into(), size(px(800.), px(700.)));
     cx.run_until_parked();
     FormTest {
         cx: VisualTestContext::from_window(window.into(), cx),

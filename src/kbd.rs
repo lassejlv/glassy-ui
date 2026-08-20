@@ -1,12 +1,12 @@
 use crate::motion::StyledSlot;
 use crate::theme::ActiveTheme;
 use gpui::{
-    div, prelude::*, px, App, BoxShadow, FontWeight, IntoElement, RenderOnce, SharedString,
-    StyleRefinement, Styled, Window,
+    div, prelude::*, px, App, FontWeight, IntoElement, RenderOnce, SharedString, StyleRefinement,
+    Styled, Window,
 };
 
 use crate::button::ButtonVariant;
-use crate::chrome::button_chrome;
+use crate::chrome::{box_shadow, button_chrome};
 
 /// Ghost glass chip matching Paper `Glassy UI` → Kbd. Not a button.
 #[derive(IntoElement)]
@@ -47,7 +47,7 @@ impl RenderOnce for Kbd {
             .border_1()
             .border_color(chrome.border)
             .bg(chrome.bg)
-            .shadow(vec![BoxShadow::new(px(0.), px(1.), chrome.inset).inset()])
+            .shadow(vec![box_shadow(0., 1., chrome.inset, 0., 0.)])
             .cursor_default()
             .refine_style(&self.style)
             .child(

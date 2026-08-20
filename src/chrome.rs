@@ -2,22 +2,35 @@
 #![allow(clippy::unusual_byte_groupings)]
 
 use crate::theme::{paint, rgb, Theme, ThemeKind};
-use gpui::{px, BoxShadow, Hsla};
+use gpui::{point, px, BoxShadow, Hsla};
 
 use crate::button::ButtonVariant;
 
+/// Construct a `BoxShadow` for the published gpui 0.2.2 struct API.
+/// (The old `BoxShadow::new(x, y, color).inset()/.blur_radius()/.spread_radius()`
+/// builder is gone; `inset` shadows are not supported by this version.)
+pub(crate) fn box_shadow(x: f32, y: f32, color: Hsla, blur: f32, spread: f32) -> BoxShadow {
+    BoxShadow {
+        color,
+        offset: point(px(x), px(y)),
+        blur_radius: px(blur),
+        spread_radius: px(spread),
+    }
+}
+
 /// 3px zinc/white spread used by focused controls.
 pub(crate) fn focus_ring(theme: Theme) -> BoxShadow {
-    BoxShadow::new(
-        px(0.),
-        px(0.),
+    box_shadow(
+        0.,
+        0.,
         if theme.is_dark() {
             paint(0xFFFFFF24)
         } else {
             paint(0x18181B24)
         },
+        0.,
+        3.,
     )
-    .spread_radius(px(3.))
 }
 
 /// Rest / focus / disabled / invalid paint for Input and Textarea.

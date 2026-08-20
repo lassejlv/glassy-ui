@@ -4,12 +4,12 @@
 use crate::motion::StyledSlot;
 use crate::theme::{ActiveTheme, Theme};
 use gpui::{
-    div, prelude::*, px, App, BoxShadow, FontWeight, IntoElement, RenderOnce, SharedString,
-    StyleRefinement, Styled, Window,
+    div, prelude::*, px, App, FontWeight, IntoElement, RenderOnce, SharedString, StyleRefinement,
+    Styled, Window,
 };
 
 use crate::button::ButtonVariant;
-use crate::chrome::{button_chrome, ButtonChrome};
+use crate::chrome::{box_shadow, button_chrome, ButtonChrome};
 
 const BADGE_HEIGHT: f32 = 22.0;
 const BADGE_RADIUS: f32 = 6.0;
@@ -75,12 +75,15 @@ impl RenderOnce for Badge {
     fn render(self, _window: &mut Window, cx: &mut App) -> impl IntoElement {
         let theme = cx.theme();
         let chrome = badge_chrome(theme, self.variant);
-        let mut shadows = vec![BoxShadow::new(px(0.), px(1.), chrome.inset).inset()];
+        let mut shadows = vec![box_shadow(0., 1., chrome.inset, 0., 0.)];
         if chrome.shadow_blur > 0.0 {
-            shadows.push(
-                BoxShadow::new(px(0.), px(chrome.shadow_y), chrome.shadow)
-                    .blur_radius(px(chrome.shadow_blur)),
-            );
+            shadows.push(box_shadow(
+                0.,
+                chrome.shadow_y,
+                chrome.shadow,
+                chrome.shadow_blur,
+                0.,
+            ));
         }
 
         div()

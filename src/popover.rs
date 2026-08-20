@@ -1,11 +1,13 @@
 use std::rc::Rc;
 
 use gpui::{
-    anchored, deferred, div, point, prelude::*, px, relative, Anchor, AnyElement, App, BoxShadow,
-    Div, Entity, FocusHandle, FontWeight, IntoElement, KeyDownEvent, MouseButton, ParentElement,
-    Pixels, RenderOnce, Role, SharedString, StyleRefinement, Styled, Window,
+    anchored, deferred, div, point, prelude::*, px, relative, AnyElement, App, Corner, Div, Entity,
+    FocusHandle, FontWeight, IntoElement, KeyDownEvent, MouseButton, ParentElement, Pixels,
+    RenderOnce, SharedString, StyleRefinement, Styled, Window,
 };
 
+use crate::chrome::box_shadow;
+use crate::compat::{AccessibilityExt, Role, StyleCompatExt};
 use crate::motion::{Motion, StyledSlot};
 use crate::theme::{paint, ActiveTheme, Theme, ThemeKind};
 
@@ -35,6 +37,7 @@ fn set_open(
     if let Some(on_open_change) = on_open_change {
         on_open_change(open, window, cx);
     }
+    window.refresh();
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -47,12 +50,12 @@ pub enum PopoverPlacement {
 }
 
 impl PopoverPlacement {
-    fn anchor(self) -> Anchor {
+    fn anchor(self) -> Corner {
         match self {
-            Self::Top => Anchor::BottomLeft,
-            Self::Bottom => Anchor::TopLeft,
-            Self::Start => Anchor::RightCenter,
-            Self::End => Anchor::LeftCenter,
+            Self::Top => Corner::BottomLeft,
+            Self::Bottom => Corner::TopLeft,
+            Self::Start => Corner::TopRight,
+            Self::End => Corner::TopLeft,
         }
     }
 
@@ -210,9 +213,7 @@ impl RenderOnce for Popover {
             .rounded(px(6.))
             .cursor_pointer()
             .when(focused, |el| {
-                el.shadow(vec![
-                    BoxShadow::new(px(0.), px(0.), ring).spread_radius(px(3.))
-                ])
+                el.shadow(vec![box_shadow(0., 0., ring, 0., 3.)])
             })
             .on_key_down(move |event: &KeyDownEvent, window, cx| {
                 if event.keystroke.modifiers.modified() {
@@ -233,14 +234,14 @@ impl RenderOnce for Popover {
                     }
                     "escape" if keyboard_state.read(cx).open => {
                         set_open(&keyboard_state, false, keyboard_change.as_ref(), window, cx);
-                        keyboard_focus.focus(window, cx);
+                        keyboard_focus.focus(window);
                         cx.stop_propagation();
                     }
                     _ => {}
                 }
             })
             .on_mouse_down(MouseButton::Left, move |_, window, cx| {
-                click_focus.focus(window, cx);
+                click_focus.focus(window);
                 set_open(
                     &click_state,
                     click_next_open,
@@ -251,34 +252,56 @@ impl RenderOnce for Popover {
             })
             .when_some(self.trigger, |el, trigger| el.child(trigger));
 
-        let popup = self.placement.marker().child(
-            deferred(
-                anchored()
-                    .anchor(self.placement.anchor())
-                    .offset(self.placement.offset(self.gap))
-                    .snap_to_window_with_margin(px(8.))
-                    .child(
-                        Motion::new().id(surface_id).surface_in().child(
-                            div()
-                                .id(content_id)
-                                .debug_selector(move || content_selector.clone())
-                                .role(Role::Dialog)
-                                .occlude()
-                                .on_mouse_down_out(move |_, window, cx| {
-                                    set_open(
-                                        &dismiss_state,
-                                        false,
-                                        dismiss_change.as_ref(),
-                                        window,
-                                        cx,
-                                    );
-                                })
-                                .children(self.children),
-                        ),
-                    ),
-            )
-            .with_priority(2),
+        let placement = self.placement;
+        let gap = self.gap;
+        let surface = Motion::new().id(surface_id).surface_in().child(
+            div()
+                .id(content_id)
+                .debug_selector(move || content_selector.clone())
+                .role(Role::Dialog)
+                .occlude()
+                .on_mouse_down_out(move |_, window, cx| {
+                    set_open(&dismiss_state, false, dismiss_change.as_ref(), window, cx);
+                })
+                .children(self.children),
         );
+        let popup = match placement {
+            PopoverPlacement::Top | PopoverPlacement::Bottom => placement
+                .marker()
+                .child(
+                    deferred(
+                        anchored()
+                            .anchor(placement.anchor())
+                            .offset(placement.offset(gap))
+                            .snap_to_window_with_margin(px(8.))
+                            .child(surface),
+                    )
+                    .with_priority(2),
+                )
+                .into_any_element(),
+            PopoverPlacement::Start => div()
+                .absolute()
+                .top(px(0.))
+                .bottom(px(0.))
+                .right(relative(1.))
+                .w(px(0.))
+                .flex()
+                .items_center()
+                .justify_end()
+                .child(deferred(div().mr(gap).child(surface)).with_priority(2))
+                .into_any_element(),
+            PopoverPlacement::End => div()
+                .absolute()
+                .top(px(0.))
+                .bottom(px(0.))
+                .left(relative(1.))
+                .w(px(0.))
+                .flex()
+                .items_center()
+                .justify_start()
+                .child(deferred(div().ml(gap).child(surface)).with_priority(2))
+                .into_any_element(),
+        };
 
         div()
             .relative()
@@ -367,8 +390,8 @@ impl RenderOnce for PopoverContent {
             .border_color(chrome.border)
             .bg(chrome.background)
             .shadow(vec![
-                BoxShadow::new(px(0.), px(1.), chrome.inset).inset(),
-                BoxShadow::new(px(0.), px(6.), chrome.shadow).blur_radius(px(16.)),
+                box_shadow(0., 1., chrome.inset, 0., 0.),
+                box_shadow(0., 6., chrome.shadow, 16., 0.),
             ])
             .refine_style(&self.style)
             .children(self.children)

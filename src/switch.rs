@@ -4,12 +4,14 @@ use std::time::Duration;
 use crate::motion::{Ease, Motion, MotionStyle, StyledSlot, Transition};
 use crate::theme::ActiveTheme;
 use gpui::{
-    div, prelude::*, px, App, BoxShadow, ClickEvent, FocusHandle, FontWeight, IntoElement,
-    KeyDownEvent, RenderOnce, Role, SharedString, StyleRefinement, Styled, Toggled, Window,
+    div, prelude::*, px, App, ClickEvent, FocusHandle, FontWeight, IntoElement, KeyDownEvent,
+    RenderOnce, SharedString, StyleRefinement, Styled, Window,
 };
 
+use crate::compat::{AccessibilityExt, Role, Toggled};
+
 use crate::button::ButtonVariant;
-use crate::chrome::{button_chrome, focus_ring};
+use crate::chrome::{box_shadow, button_chrome, focus_ring};
 
 type SwitchClickHandler = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
 type SwitchChangeHandler = Rc<dyn Fn(bool, &mut Window, &mut App) + 'static>;
@@ -133,12 +135,15 @@ impl RenderOnce for Switch {
             button_chrome(theme, ButtonVariant::Primary).bg
         };
 
-        let mut shadows = vec![BoxShadow::new(px(0.), px(1.), chrome.inset).inset()];
+        let mut shadows = vec![box_shadow(0., 1., chrome.inset, 0., 0.)];
         if chrome.shadow_blur > 0.0 {
-            shadows.push(
-                BoxShadow::new(px(0.), px(chrome.shadow_y), chrome.shadow)
-                    .blur_radius(px(chrome.shadow_blur)),
-            );
+            shadows.push(box_shadow(
+                0.,
+                chrome.shadow_y,
+                chrome.shadow,
+                chrome.shadow_blur,
+                0.,
+            ));
         }
 
         let interactive = !self.disabled;
@@ -183,9 +188,8 @@ impl RenderOnce for Switch {
                             .rounded(px(8.))
                             .bg(thumb)
                             .shadow(vec![
-                                BoxShadow::new(px(0.), px(1.), theme.on_solid.opacity(0.22))
-                                    .inset(),
-                                BoxShadow::new(px(0.), px(2.), chrome.shadow).blur_radius(px(6.)),
+                                box_shadow(0., 1., theme.on_solid.opacity(0.22), 0., 0.),
+                                box_shadow(0., 2., chrome.shadow, 6., 0.),
                             ]),
                     ),
             );
@@ -257,7 +261,7 @@ impl RenderOnce for Switch {
                 }
             })
             .on_click(move |event, window, cx| {
-                click_focus.focus(window, cx);
+                click_focus.focus(window);
                 activate(event, window, cx);
             })
         } else {

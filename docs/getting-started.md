@@ -1,6 +1,6 @@
 # Getting started
 
-Requires Rust 2021 and a host that can build GPUI (macOS, or Linux with Wayland/X11). The crate pins a Zed revision. Use that same `rev` in your app.
+Requires Rust 2021 and a host that can build GPUI (macOS, or Linux with Wayland/X11). The crate uses the published `gpui` 0.2.2 release.
 
 ## Run the gallery
 
@@ -20,8 +20,7 @@ Gallery: 1440×900, opaque window, `⌘D` theme, `⌘]` next page, `⌘Q` quit.
 ```toml
 [dependencies]
 glassy-ui = { git = "https://github.com/lassejlv/glassy-ui" }
-gpui = { git = "https://github.com/zed-industries/zed", rev = "101ca00a1352ed71ef398f21b47836565d1998e3" }
-gpui_platform = { git = "https://github.com/zed-industries/zed", rev = "101ca00a1352ed71ef398f21b47836565d1998e3", features = [
+gpui = { version = "0.2.2", features = [
     "font-kit",
     "wayland",
     "x11",
@@ -33,12 +32,11 @@ gpui_platform = { git = "https://github.com/zed-industries/zed", rev = "101ca00a
 Install `Assets`, then init in this order. `src/main.rs` is the executable reference.
 
 ```rust
-use gpui::App;
-use gpui_platform::application;
+use gpui::{App, Application};
 use glassy_ui::{init, init_motion, init_theme, load_fonts, Assets};
 
 fn main() {
-    application()
+    Application::new()
         .with_assets(Assets)
         .run(|cx: &mut App| {
             init_motion(cx);

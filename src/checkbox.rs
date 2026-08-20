@@ -3,12 +3,14 @@ use std::rc::Rc;
 use crate::motion::{Motion, StyledSlot};
 use crate::theme::ActiveTheme;
 use gpui::{
-    div, prelude::*, px, App, BoxShadow, ClickEvent, FocusHandle, FontWeight, IntoElement,
-    KeyDownEvent, RenderOnce, Role, SharedString, StyleRefinement, Styled, Toggled, Window,
+    div, prelude::*, px, App, ClickEvent, FocusHandle, FontWeight, IntoElement, KeyDownEvent,
+    RenderOnce, SharedString, StyleRefinement, Styled, Window,
 };
 
+use crate::compat::{AccessibilityExt, Role, Toggled};
+
 use crate::button::ButtonVariant;
-use crate::chrome::{button_chrome, focus_ring};
+use crate::chrome::{box_shadow, button_chrome, focus_ring};
 use crate::icon::{Icon, IconName};
 
 type CheckboxClickHandler = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
@@ -174,12 +176,15 @@ impl RenderOnce for Checkbox {
             theme.on_solid
         };
 
-        let mut shadows = vec![BoxShadow::new(px(0.), px(1.), chrome.inset).inset()];
+        let mut shadows = vec![box_shadow(0., 1., chrome.inset, 0., 0.)];
         if chrome.shadow_blur > 0.0 {
-            shadows.push(
-                BoxShadow::new(px(0.), px(chrome.shadow_y), chrome.shadow)
-                    .blur_radius(px(chrome.shadow_blur)),
-            );
+            shadows.push(box_shadow(
+                0.,
+                chrome.shadow_y,
+                chrome.shadow,
+                chrome.shadow_blur,
+                0.,
+            ));
         }
 
         let interactive = !self.disabled;
@@ -291,7 +296,7 @@ impl RenderOnce for Checkbox {
                 }
             })
             .on_click(move |event, window, cx| {
-                click_focus.focus(window, cx);
+                click_focus.focus(window);
                 activate(event, window, cx);
             })
         } else {

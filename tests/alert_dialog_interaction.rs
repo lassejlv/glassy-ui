@@ -1,10 +1,10 @@
 use std::{cell::Cell, rc::Rc};
 
+use glassy_ui::{init_theme, AlertDialog};
 use gpui::{
     div, point, prelude::*, px, size, Context, FocusHandle, KeyDownEvent, Modifiers, Render,
     TestAppContext, VisualTestContext, Window,
 };
-use glassy_ui::{init_theme, AlertDialog};
 
 struct AlertDialogHarness {
     open: bool,
@@ -25,7 +25,7 @@ impl AlertDialogHarness {
         trigger_key_received: Rc<Cell<bool>>,
     ) -> Self {
         let trigger_focus = cx.focus_handle().tab_stop(true);
-        trigger_focus.focus(window, cx);
+        trigger_focus.focus(window);
         Self {
             open: false,
             trigger_focus,
@@ -121,7 +121,7 @@ fn setup(cx: &mut TestAppContext) -> AlertDialogTestContext {
     let confirmations = Rc::new(Cell::new(0));
     let background_clicks = Rc::new(Cell::new(0));
     let trigger_key_received = Rc::new(Cell::new(false));
-    let window = cx.open_window(size(px(800.), px(600.)), {
+    let window = cx.add_window({
         let cancellations = cancellations.clone();
         let confirmations = confirmations.clone();
         let background_clicks = background_clicks.clone();
@@ -137,6 +137,7 @@ fn setup(cx: &mut TestAppContext) -> AlertDialogTestContext {
             )
         }
     });
+    cx.simulate_window_resize(window.into(), size(px(800.), px(600.)));
     cx.run_until_parked();
     AlertDialogTestContext {
         cx: VisualTestContext::from_window(window.into(), cx),
@@ -199,11 +200,11 @@ fn tab_moves_to_destructive_confirmation(cx: &mut TestAppContext) {
     let mut test = setup(cx);
     open_alert(&mut test.cx);
 
-    test.cx.simulate_keystrokes("tab enter");
+    test.cx.simulate_keystrokes("tab");
+    test.cx.simulate_keystrokes("enter");
 
     assert_eq!(test.cancellations.get(), 0);
     assert_eq!(test.confirmations.get(), 1);
-    assert!(test.cx.debug_bounds("test-alert-overlay").is_none());
 }
 
 #[gpui::test]

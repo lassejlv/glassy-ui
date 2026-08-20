@@ -1,10 +1,13 @@
 use std::rc::Rc;
 
 use gpui::{
-    anchored, deferred, div, point, prelude::*, px, relative, AnyElement, App, BoxShadow, Entity,
-    FocusHandle, FontWeight, IntoElement, KeyDownEvent, MouseButton, ParentElement, Pixels, Point,
-    RenderOnce, Role, SharedString, StyleRefinement, Styled, Window,
+    anchored, deferred, div, point, prelude::*, px, relative, AnyElement, App, Entity, FocusHandle,
+    FontWeight, IntoElement, KeyDownEvent, MouseButton, ParentElement, Pixels, Point, RenderOnce,
+    SharedString, StyleRefinement, Styled, Window,
 };
+
+use crate::chrome::box_shadow;
+use crate::compat::{AccessibilityExt, Role, StyleCompatExt};
 
 use crate::icon::{Icon, IconName};
 use crate::kbd::Kbd;
@@ -168,6 +171,7 @@ pub(crate) fn set_open(
     if let Some(on_open_change) = on_open_change {
         on_open_change(open, window, cx);
     }
+    window.refresh();
 }
 
 pub(crate) fn activate_item(
@@ -184,7 +188,7 @@ pub(crate) fn activate_item(
     }
 
     set_open(state, false, entries, on_open_change, window, cx);
-    focus_handle.focus(window, cx);
+    focus_handle.focus(window);
     if let Some(on_select) = &item.on_select {
         on_select(window, cx);
     }
@@ -280,6 +284,7 @@ pub(crate) fn handle_menu_keydown(
                         });
                         cx.notify();
                     });
+                    window.refresh();
                 } else {
                     activate_item(
                         item,
@@ -296,7 +301,7 @@ pub(crate) fn handle_menu_keydown(
         }
         "escape" if was_open => {
             set_open(state, false, entries, on_open_change, window, cx);
-            focus_handle.focus(window, cx);
+            focus_handle.focus(window);
             cx.stop_propagation();
         }
         _ => {}
@@ -371,8 +376,8 @@ pub(crate) fn render_panel(
         .border_color(chrome.border)
         .bg(chrome.background)
         .shadow(vec![
-            BoxShadow::new(px(0.), px(1.), chrome.inset).inset(),
-            BoxShadow::new(px(0.), px(6.), chrome.shadow).blur_radius(px(16.)),
+            box_shadow(0., 1., chrome.inset, 0., 0.),
+            box_shadow(0., 6., chrome.shadow, 16., 0.),
         ])
         .occlude()
         .when(outside_dismiss, |panel| {
@@ -477,6 +482,7 @@ pub(crate) fn render_panel(
                             });
                             cx.notify();
                         });
+                        window.refresh();
                     } else {
                         activate_item(
                             &click_item,
@@ -509,13 +515,10 @@ pub(crate) fn render_panel(
                 );
                 row = row.child(
                     div().absolute().left(relative(1.)).top(px(-4.)).child(
-                        deferred(
-                            anchored()
-                                .offset(point(px(6.), px(0.)))
-                                .snap_to_window_with_margin(px(8.))
-                                .child(submenu_panel),
-                        )
-                        .with_priority(3),
+                        anchored()
+                            .offset(point(px(6.), px(0.)))
+                            .snap_to_window_with_margin(px(8.))
+                            .child(submenu_panel),
                     ),
                 );
             }
@@ -653,7 +656,7 @@ impl RenderOnce for DropdownMenu {
             .items_center()
             .cursor_pointer()
             .on_mouse_down(MouseButton::Left, move |_, window, cx| {
-                trigger_focus.focus(window, cx);
+                trigger_focus.focus(window);
                 let next_open = !trigger_state.read(cx).open;
                 set_open(
                     &trigger_state,

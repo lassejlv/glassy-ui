@@ -8,7 +8,7 @@ Paper (`Glassy UI`) is the visual contract. Code matches computed values, not sc
 
 ## Docs
 
-- [Getting started](docs/getting-started.md) — pin, init, first button
+- [Getting started](docs/getting-started.md) — dependency, init, first button
 - [Components](docs/components.md) — public API and examples
 - [Forms](docs/forms.md) — controlled state, Input, Select
 - [Overlays](docs/overlays.md) — dialog, menus, tooltip
@@ -23,7 +23,7 @@ cargo run          # gallery (⌘D theme, ⌘] next page, ⌘Q quit)
 cargo test
 ```
 
-GPUI is pinned to Zed `101ca00`. Use that revision in consuming apps. Full setup is in [getting started](docs/getting-started.md).
+Glassy UI targets the published `gpui` 0.2.2 crate. Full setup is in [getting started](docs/getting-started.md).
 
 ## Components
 

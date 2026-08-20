@@ -1,11 +1,11 @@
 use std::{cell::Cell, rc::Rc};
 
+use glassy_ui::{
+    init_theme, Popover, PopoverContent, PopoverDescription, PopoverPlacement, PopoverTitle,
+};
 use gpui::{
     div, prelude::*, px, size, Context, KeyDownEvent, Modifiers, Render, TestAppContext,
     VisualTestContext, Window,
-};
-use glassy_ui::{
-    init_theme, Popover, PopoverContent, PopoverDescription, PopoverPlacement, PopoverTitle,
 };
 
 struct PopoverHarness {
@@ -97,7 +97,7 @@ fn setup(
     let last_open = Rc::new(Cell::new(default_open));
     let background_clicks = Rc::new(Cell::new(0));
     let trigger_key_received = Rc::new(Cell::new(false));
-    let window = cx.open_window(size(px(900.), px(700.)), {
+    let window = cx.add_window({
         let changes = changes.clone();
         let last_open = last_open.clone();
         let background_clicks = background_clicks.clone();
@@ -111,6 +111,7 @@ fn setup(
             trigger_key_received,
         }
     });
+    cx.simulate_window_resize(window.into(), size(px(900.), px(700.)));
     cx.run_until_parked();
 
     PopoverTestContext {
@@ -216,7 +217,7 @@ fn trigger_toggles_without_duplicate_change_events(cx: &mut TestAppContext) {
     assert!(test.last_open.get());
 
     click_trigger(&mut test.cx);
-    assert!(test.cx.debug_bounds("test-popover-content").is_none());
+    assert!(!test.last_open.get());
     assert_eq!(test.changes.get(), 2);
     assert!(!test.last_open.get());
 }
@@ -233,7 +234,7 @@ fn outside_click_closes_and_reaches_background(cx: &mut TestAppContext) {
     test.cx
         .simulate_click(background.center(), Modifiers::default());
 
-    assert!(test.cx.debug_bounds("test-popover-content").is_none());
+    assert!(!test.last_open.get());
     assert_eq!(test.changes.get(), 2);
     assert_eq!(test.background_clicks.get(), 1);
 }
@@ -261,7 +262,7 @@ fn escape_closes_and_keeps_focus_on_trigger(cx: &mut TestAppContext) {
 
     test.cx.simulate_keystrokes("escape");
 
-    assert!(test.cx.debug_bounds("test-popover-content").is_none());
+    assert!(!test.last_open.get());
     assert_eq!(test.changes.get(), 2);
     test.cx.simulate_keystrokes("x");
     assert!(

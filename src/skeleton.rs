@@ -7,12 +7,12 @@ use std::time::Duration;
 use crate::motion::StyledSlot;
 use crate::theme::{ActiveTheme, Theme};
 use gpui::{
-    div, px, Animation, AnimationExt as _, App, BoxShadow, IntoElement, RenderOnce, SharedString,
+    div, px, Animation, AnimationExt as _, App, IntoElement, RenderOnce, SharedString,
     StyleRefinement, Styled, Window,
 };
 
 use crate::button::ButtonVariant;
-use crate::chrome::button_chrome;
+use crate::chrome::{box_shadow, button_chrome};
 
 /// Paper Skeleton shapes and their default geometry.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -93,9 +93,8 @@ impl RenderOnce for Skeleton {
         let (width, height, radius) = self.shape.metrics();
 
         let shadows = vec![
-            BoxShadow::new(px(0.), px(1.), chrome.inset).inset(),
-            BoxShadow::new(px(0.), px(chrome.shadow_y), chrome.shadow)
-                .blur_radius(px(chrome.shadow_blur)),
+            box_shadow(0., 1., chrome.inset, 0., 0.),
+            box_shadow(0., chrome.shadow_y, chrome.shadow, chrome.shadow_blur, 0.),
         ];
 
         div()

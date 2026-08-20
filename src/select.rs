@@ -3,13 +3,14 @@ use std::rc::Rc;
 use crate::motion::{Motion, StyledSlot};
 use crate::theme::{rgb, ActiveTheme, Theme, ThemeKind};
 use gpui::{
-    anchored, deferred, div, point, prelude::*, px, App, BoxShadow, ClickEvent, FocusHandle,
-    FontWeight, IntoElement, KeyDownEvent, RenderOnce, Role, SharedString, StyleRefinement, Styled,
-    Window,
+    anchored, deferred, div, point, prelude::*, px, App, ClickEvent, FocusHandle, FontWeight,
+    IntoElement, KeyDownEvent, RenderOnce, SharedString, StyleRefinement, Styled, Window,
 };
 
+use crate::compat::{AccessibilityExt, Role};
+
 use crate::button::ButtonVariant;
-use crate::chrome::{button_chrome, field_chrome, FieldState};
+use crate::chrome::{box_shadow, button_chrome, field_chrome, FieldState};
 use crate::icon::{Icon, IconName};
 
 type SelectClickHandler = Rc<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>;
@@ -259,15 +260,18 @@ impl RenderOnce for Select {
         let list_bg = select_menu_bg(theme);
         let ghost = button_chrome(theme, ButtonVariant::Ghost);
 
-        let mut shadows = vec![BoxShadow::new(px(0.), px(1.), chrome.inset).inset()];
+        let mut shadows = vec![box_shadow(0., 1., chrome.inset, 0., 0.)];
         if chrome.shadow_blur > 0.0 {
-            shadows.push(
-                BoxShadow::new(px(0.), px(chrome.shadow_y), chrome.shadow)
-                    .blur_radius(px(chrome.shadow_blur)),
-            );
+            shadows.push(box_shadow(
+                0.,
+                chrome.shadow_y,
+                chrome.shadow,
+                chrome.shadow_blur,
+                0.,
+            ));
         }
         if let Some(ring) = chrome.ring {
-            shadows.push(BoxShadow::new(px(0.), px(0.), ring).spread_radius(px(3.)));
+            shadows.push(box_shadow(0., 0., ring, 0., 3.));
         }
 
         let has_value = value.is_some();
@@ -325,7 +329,7 @@ impl RenderOnce for Select {
 
         if interactive {
             trigger = trigger.on_click(move |event, window, cx| {
-                trigger_focus.focus(window, cx);
+                trigger_focus.focus(window);
                 set_open(
                     &trigger_state,
                     next_open,
@@ -340,12 +344,15 @@ impl RenderOnce for Select {
             });
         }
 
-        let mut list_shadows = vec![BoxShadow::new(px(0.), px(1.), list_chrome.inset).inset()];
+        let mut list_shadows = vec![box_shadow(0., 1., list_chrome.inset, 0., 0.)];
         if list_chrome.shadow_blur > 0.0 {
-            list_shadows.push(
-                BoxShadow::new(px(0.), px(list_chrome.shadow_y), list_chrome.shadow)
-                    .blur_radius(px(list_chrome.shadow_blur)),
-            );
+            list_shadows.push(box_shadow(
+                0.,
+                list_chrome.shadow_y,
+                list_chrome.shadow,
+                list_chrome.shadow_blur,
+                0.,
+            ));
         }
 
         let selected = value.clone();

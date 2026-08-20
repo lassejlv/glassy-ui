@@ -1,10 +1,10 @@
 use std::{cell::Cell, rc::Rc};
 
+use glassy_ui::{init_theme, Select, SelectItem};
 use gpui::{
     div, point, prelude::*, px, size, Context, Modifiers, Render, TestAppContext,
     VisualTestContext, Window,
 };
-use glassy_ui::{init_theme, Select, SelectItem};
 
 struct SelectHarness {
     first_picked: Rc<Cell<bool>>,
@@ -47,10 +47,11 @@ impl Render for SelectHarness {
 fn setup(cx: &mut TestAppContext) -> (VisualTestContext, Rc<Cell<bool>>) {
     cx.update(init_theme);
     let first_picked = Rc::new(Cell::new(false));
-    let window = cx.open_window(size(px(800.), px(600.)), {
+    let window = cx.add_window({
         let first_picked = first_picked.clone();
         move |_, _| SelectHarness { first_picked }
     });
+    cx.simulate_window_resize(window.into(), size(px(800.), px(600.)));
     cx.run_until_parked();
     (
         VisualTestContext::from_window(window.into(), cx),
@@ -144,7 +145,8 @@ fn arrows_and_enter_select_an_item(cx: &mut TestAppContext) {
     let (mut cx, first_picked) = setup(cx);
     let trigger = trigger_position(&mut cx, "FIRST_SELECT");
     cx.simulate_click(trigger, Modifiers::default());
-    cx.simulate_keystrokes("down enter");
+    cx.simulate_keystrokes("down");
+    cx.simulate_keystrokes("enter");
 
     assert!(
         first_picked.get(),

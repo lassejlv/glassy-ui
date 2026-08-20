@@ -2,13 +2,15 @@ use std::rc::Rc;
 
 use crate::motion::StyledSlot;
 use gpui::{
-    div, prelude::*, px, App, BoxShadow, ClickEvent, FocusHandle, FontWeight, IntoElement,
-    KeyDownEvent, ParentElement, RenderOnce, Role, SharedString, StyleRefinement, Styled, Window,
+    div, prelude::*, px, App, ClickEvent, FocusHandle, FontWeight, IntoElement, KeyDownEvent,
+    ParentElement, RenderOnce, SharedString, StyleRefinement, Styled, Window,
 };
+
+use crate::compat::{AccessibilityExt, Role};
 
 use crate::theme::{ActiveTheme, Theme};
 
-use crate::chrome::{button_chrome, focus_ring};
+use crate::chrome::{box_shadow, button_chrome, focus_ring};
 use crate::icon::{Icon, IconName};
 use crate::spinner::Spinner;
 use crate::tooltip::Tooltip;
@@ -243,12 +245,15 @@ impl RenderOnce for Button {
             self.size.pad_x()
         };
 
-        let mut shadows = vec![BoxShadow::new(px(0.), px(1.), chrome.inset).inset()];
+        let mut shadows = vec![box_shadow(0., 1., chrome.inset, 0., 0.)];
         if chrome.shadow_blur > 0.0 {
-            shadows.push(
-                BoxShadow::new(px(0.), px(chrome.shadow_y), chrome.shadow)
-                    .blur_radius(px(chrome.shadow_blur)),
-            );
+            shadows.push(box_shadow(
+                0.,
+                chrome.shadow_y,
+                chrome.shadow,
+                chrome.shadow_blur,
+                0.,
+            ));
         }
 
         let icon_size = if self.loading { 14.0 } else { 16.0 };
@@ -323,12 +328,14 @@ impl RenderOnce for Button {
 
                     if matches!(event.keystroke.key.as_str(), "enter" | "space") {
                         keyboard_click(&ClickEvent::default(), window, cx);
+                        window.refresh();
                         cx.stop_propagation();
                     }
                 })
                 .on_click(move |event, window, cx| {
-                    click_focus.focus(window, cx);
+                    click_focus.focus(window);
                     on_click(event, window, cx);
+                    window.refresh();
                 })
             } else {
                 el
@@ -401,9 +408,8 @@ impl RenderOnce for ButtonGroup {
             .border_color(chrome.border)
             .bg(chrome.bg)
             .shadow(vec![
-                BoxShadow::new(px(0.), px(1.), chrome.inset).inset(),
-                BoxShadow::new(px(0.), px(chrome.shadow_y), chrome.shadow)
-                    .blur_radius(px(chrome.shadow_blur)),
+                box_shadow(0., 1., chrome.inset, 0., 0.),
+                box_shadow(0., chrome.shadow_y, chrome.shadow, chrome.shadow_blur, 0.),
             ])
             .refine_style(&self.style)
             .children(self.children)

@@ -6,12 +6,12 @@ use std::f32::consts::{PI, TAU};
 use crate::motion::StyledSlot;
 use crate::theme::{ActiveTheme, Theme};
 use gpui::{
-    canvas, div, point, prelude::FluentBuilder, px, relative, App, Bounds, BoxShadow, Hsla,
-    IntoElement, ParentElement, PathBuilder, Pixels, RenderOnce, StyleRefinement, Styled, Window,
+    canvas, div, point, prelude::FluentBuilder, px, relative, App, Bounds, Hsla, IntoElement,
+    ParentElement, PathBuilder, Pixels, RenderOnce, StyleRefinement, Styled, Window,
 };
 
 use crate::button::ButtonVariant;
-use crate::chrome::button_chrome;
+use crate::chrome::{box_shadow, button_chrome};
 use crate::spinner::{paint_dot, paint_ring, point_on_circle, spinner_paints, SpinnerTone};
 
 /// Determinate linear progress matching Paper `Glassy UI` → Progress.
@@ -63,9 +63,8 @@ impl RenderOnce for Progress {
             .border_color(track.border)
             .bg(track.bg)
             .shadow(vec![
-                BoxShadow::new(px(0.), px(1.), track.inset).inset(),
-                BoxShadow::new(px(0.), px(track.shadow_y), track.shadow)
-                    .blur_radius(px(track.shadow_blur)),
+                box_shadow(0., 1., track.inset, 0., 0.),
+                box_shadow(0., track.shadow_y, track.shadow, track.shadow_blur, 0.),
             ])
             .refine_style(&self.style)
             .when(self.value > 0.0, |el| {
@@ -76,7 +75,7 @@ impl RenderOnce for Progress {
                         .flex_shrink_0()
                         .rounded(px(4.))
                         .bg(fill.bg)
-                        .shadow(vec![BoxShadow::new(px(0.), px(1.), fill.inset).inset()]),
+                        .shadow(vec![box_shadow(0., 1., fill.inset, 0., 0.)]),
                 )
             })
     }

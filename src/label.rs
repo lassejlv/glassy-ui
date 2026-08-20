@@ -1,9 +1,11 @@
 use crate::motion::StyledSlot;
 use crate::theme::ActiveTheme;
 use gpui::{
-    div, prelude::*, px, App, FocusHandle, FontWeight, IntoElement, RenderOnce, Role, SharedString,
+    div, prelude::*, px, App, FocusHandle, FontWeight, IntoElement, RenderOnce, SharedString,
     StyleRefinement, Styled, Window,
 };
+
+use crate::compat::{AccessibilityExt, Role};
 
 /// 13/500 name that sits above a field. Never inside it.
 #[derive(IntoElement)]
@@ -75,8 +77,8 @@ impl RenderOnce for Label {
             .refine_style(&self.style)
             .when(focus_handle.is_some(), |el| el.cursor_pointer())
             .when_some(focus_handle, |el, focus_handle| {
-                el.on_click(move |_, window, cx| {
-                    focus_handle.focus(window, cx);
+                el.on_click(move |_, window, _cx| {
+                    focus_handle.focus(window);
                 })
             })
             .child(self.text)

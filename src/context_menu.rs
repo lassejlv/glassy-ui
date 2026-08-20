@@ -6,6 +6,8 @@ use gpui::{
     StyleRefinement, Styled, Window,
 };
 
+use crate::compat::StyleCompatExt;
+
 use crate::dropdown_menu::{
     handle_menu_keydown, initial_highlight, render_panel, set_open, DropdownMenuEntry,
     DropdownMenuState, MenuPanelContext, OpenChangeHandler,
@@ -136,7 +138,7 @@ impl RenderOnce for ContextMenu {
             if !open {
                 let previous = restore_state.read(cx).previous_focus.clone();
                 if let Some(previous) = previous {
-                    previous.focus(window, cx);
+                    previous.focus(window);
                 }
             }
             if let Some(user_change) = &user_change {
@@ -180,7 +182,7 @@ impl RenderOnce for ContextMenu {
                     window,
                     cx,
                 );
-                click_focus.focus(window, cx);
+                click_focus.focus(window);
                 cx.stop_propagation();
             })
             .children(self.children);
@@ -203,7 +205,7 @@ impl RenderOnce for ContextMenu {
 
         let menu = deferred(
             anchored()
-                .anchor(gpui::Anchor::TopLeft)
+                .anchor(gpui::Corner::TopLeft)
                 .position(origin)
                 .position_mode(if origin_window {
                     AnchoredPositionMode::Window

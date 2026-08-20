@@ -6,10 +6,12 @@ use std::time::Duration;
 use crate::motion::{Motion, StyledSlot};
 use crate::theme::{paint, rgb, ActiveTheme, Theme, ThemeKind};
 use gpui::{
-    anchored, deferred, div, point, prelude::*, px, relative, Anchor, App, BoxShadow, Div,
-    FontWeight, IntoElement, Pixels, RenderOnce, Role, SharedString, Stateful, StyleRefinement,
-    Styled, Window,
+    anchored, deferred, div, point, prelude::*, px, relative, App, Corner, Div, FontWeight,
+    IntoElement, Pixels, RenderOnce, SharedString, Stateful, StyleRefinement, Styled, Window,
 };
+
+use crate::chrome::box_shadow;
+use crate::compat::{AccessibilityExt, Role, StyleCompatExt};
 
 const DEFAULT_SHOW_DELAY: Duration = Duration::from_millis(300);
 const TOOLTIP_GAP: f32 = 6.0;
@@ -38,12 +40,12 @@ pub enum TooltipPlacement {
 }
 
 impl TooltipPlacement {
-    fn anchor(self) -> Anchor {
+    fn anchor(self) -> Corner {
         match self {
-            Self::Above => Anchor::BottomLeft,
-            Self::Below => Anchor::TopLeft,
-            Self::Start => Anchor::RightCenter,
-            Self::End => Anchor::LeftCenter,
+            Self::Above => Corner::BottomLeft,
+            Self::Below => Corner::TopLeft,
+            Self::Start => Corner::TopRight,
+            Self::End => Corner::TopLeft,
         }
     }
 
@@ -161,26 +163,53 @@ impl Tooltip {
             }
         });
 
-        let popup = placement.marker().child(
-            deferred(
-                anchored()
-                    .anchor(placement.anchor())
-                    .offset(placement.offset(px(TOOLTIP_GAP)))
-                    .snap_to_window_with_margin(px(8.))
-                    .child(
-                        Motion::new()
-                            .id(format!("{trigger_id}-tooltip-surface"))
-                            .surface_in()
-                            .child(
-                                div()
-                                    .id(SharedString::from(chip_selector.clone()))
-                                    .debug_selector(move || chip_selector.clone())
-                                    .child(self),
-                            ),
-                    ),
-            )
-            .with_priority(4),
-        );
+        let gap = px(TOOLTIP_GAP);
+        let surface = Motion::new()
+            .id(format!("{trigger_id}-tooltip-surface"))
+            .surface_in()
+            .child(
+                div()
+                    .id(SharedString::from(chip_selector.clone()))
+                    .debug_selector(move || chip_selector.clone())
+                    .child(self),
+            );
+        let popup = match placement {
+            TooltipPlacement::Above | TooltipPlacement::Below => placement
+                .marker()
+                .child(
+                    deferred(
+                        anchored()
+                            .anchor(placement.anchor())
+                            .offset(placement.offset(gap))
+                            .snap_to_window_with_margin(px(8.))
+                            .child(surface),
+                    )
+                    .with_priority(4),
+                )
+                .into_any_element(),
+            TooltipPlacement::Start => div()
+                .absolute()
+                .top(px(0.))
+                .bottom(px(0.))
+                .right(relative(1.))
+                .w(px(0.))
+                .flex()
+                .items_center()
+                .justify_end()
+                .child(deferred(div().mr(gap).child(surface)).with_priority(4))
+                .into_any_element(),
+            TooltipPlacement::End => div()
+                .absolute()
+                .top(px(0.))
+                .bottom(px(0.))
+                .left(relative(1.))
+                .w(px(0.))
+                .flex()
+                .items_center()
+                .justify_start()
+                .child(deferred(div().ml(gap).child(surface)).with_priority(4))
+                .into_any_element(),
+        };
 
         div()
             .relative()
@@ -216,9 +245,8 @@ impl RenderOnce for Tooltip {
             .border_color(chrome.border)
             .bg(chrome.bg)
             .shadow(vec![
-                BoxShadow::new(px(0.), px(1.), chrome.inset).inset(),
-                BoxShadow::new(px(0.), px(chrome.shadow_y), chrome.shadow)
-                    .blur_radius(px(chrome.shadow_blur)),
+                box_shadow(0., 1., chrome.inset, 0., 0.),
+                box_shadow(0., chrome.shadow_y, chrome.shadow, chrome.shadow_blur, 0.),
             ])
             .role(Role::Tooltip)
             .font_family(theme.font_family)
