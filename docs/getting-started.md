@@ -19,7 +19,7 @@ Gallery: 1440×900, opaque window, `⌘D` theme, `⌘]` next page, `⌘Q` quit.
 
 ```toml
 [dependencies]
-glassy-ui = { git = "https://github.com/lassejlv/glassy-ui" }
+glassy-ui = "0.1.1"
 gpui = { version = "0.2.2", features = [
     "font-kit",
     "wayland",

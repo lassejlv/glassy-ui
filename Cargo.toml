@@ -1,9 +1,10 @@
 [package]
 name = "glassy-ui"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 description = "Glassy UI components for native GPUI interfaces."
+repository = "https://github.com/lassejlv/glassy-ui"
 default-run = "glassy-gallery"
 
 [[bin]]
